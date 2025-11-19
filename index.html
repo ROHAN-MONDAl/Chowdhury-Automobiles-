@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chowdhury Automobile | Manager</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* iOS Palette */
+            --ios-blue: #007AFF;
+            --ios-green: #34C759;
+            --ios-indigo: #5856D6;
+            --ios-orange: #FF9500;
+            --ios-red: #FF3B30;
+            --ios-gray: #8E8E93;
+            
+            /* Dimmed Background for Pop */
+            --bg-body: #E8E8ED; 
+            --bg-card: #FFFFFF;
+            
+            --radius-card: 20px;
+            --radius-input: 12px;
+            
+            /* Deep Shadows */
+            --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.15);
+            --shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.22);
+            --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+        }
+
+        /* Hide Scrollbar Globally for App-like feel */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        body {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+            background-color: var(--bg-body);
+            font-family: 'Inter', sans-serif;
+            color: #1d1d1f;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        /* --- COMPONENTS --- */
+        .app-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-card);
+            border: none;
+            box-shadow: var(--shadow-card);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            height: 100%;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+        }
+        .app-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-hover); }
+        .app-card:active { transform: scale(0.98); }
+        
+        .card-icon-box {
+            width: 56px; height: 56px;
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; color: white;
+            margin-bottom: 18px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        /* Gradients */
+        .bg-blue-grad { background: linear-gradient(135deg, #007AFF, #00C6FF); }
+        .bg-indigo-grad { background: linear-gradient(135deg, #5856D6, #8E8CFF); }
+        .bg-pink-grad { background: linear-gradient(135deg, #FF2D55, #FF5E7D); }
+        .bg-orange-grad { background: linear-gradient(135deg, #FF9500, #FFD60A); }
+        .bg-green-grad { background: linear-gradient(135deg, #34C759, #30D158); }
+        .bg-teal-grad { background: linear-gradient(135deg, #30B0C7, #5AC8FA); }
+        .bg-purple-grad { background: linear-gradient(135deg, #AF52DE, #DA8FFF); }
+
+        /* Enhanced Forms */
+        .form-control, .form-select {
+            border-radius: var(--radius-input);
+            padding: 12px 16px;
+            border: 1px solid #D1D1D6;
+            background-color: #FFFFFF;
+            font-size: 15px;
+            transition: 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02) inset;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.2);
+            border-color: var(--ios-blue);
+        }
+        label {
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+            color: #636366; margin-bottom: 6px; letter-spacing: 0.5px;
+        }
+
+        /* Enhanced Buttons */
+        .btn {
+            border-radius: 50px;
+            padding: 10px 24px;
+            font-weight: 600;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: none;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+        .btn:active { transform: translateY(0); }
+        
+        .btn-primary { background: var(--ios-blue); color: white; }
+        .btn-light { background: #FFFFFF; color: #1d1d1f; }
+        .btn-success { background: var(--ios-green); color: white; }
+
+        /* Modals */
+        .modal-content {
+            border-radius: 28px; border: none;
+            box-shadow: var(--shadow-modal);
+            overflow: hidden;
+            background-color: #F2F2F7; /* Slightly distinct from body */
+        }
+        .modal-header {
+            background: rgba(255,255,255,0.8); backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.05); padding: 20px 30px;
+        }
+        .modal-footer {
+            background: #FFFFFF; border-top: 1px solid rgba(0,0,0,0.05); padding: 20px 30px;
+        }
+        .modal-body { padding: 0; }
+
+        /* ENHANCED WIZARD INDICATORS */
+        .wizard-nav {
+            display: flex; justify-content: space-between; padding: 25px 40px;
+            background: white; position: relative; z-index: 1;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        }
+        /* Progress Line */
+        .wizard-nav::before {
+            content: ''; position: absolute; top: 45px; left: 60px; right: 60px;
+            height: 4px; background: #E5E5EA; z-index: -1; border-radius: 4px;
+        }
+        
+        .step-item {
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            cursor: pointer; min-width: 70px; background: white; /* Covers line */
+            transition: transform 0.2s;
+        }
+        .step-item:hover { transform: translateY(-2px); }
+
+        .step-circle {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: white; border: 3px solid #E5E5EA;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; color: #AEAEB2; font-weight: 800;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .step-label {
+            font-size: 11px; font-weight: 700; color: #AEAEB2; text-transform: uppercase; transition: 0.3s; letter-spacing: 0.5px;
+        }
+        
+        /* Active Step */
+        .step-item.active .step-circle {
+            background: var(--ios-blue); border-color: var(--ios-blue); color: white;
+            transform: scale(1.2); box-shadow: 0 8px 20px rgba(0,122,255,0.4);
+        }
+        .step-item.active .step-label { color: var(--ios-blue); }
+        
+        /* Completed Step */
+        .step-item.completed .step-circle {
+            background: var(--ios-green); border-color: var(--ios-green); color: white;
+        }
+        .step-item.completed .step-label { color: var(--ios-green); }
+
+        /* INVENTORY SEARCH & FILTER DESIGN */
+        .inventory-toolbar {
+            background: white; padding: 20px; border-radius: 20px; margin: 20px;
+            box-shadow: var(--shadow-card); display: flex; gap: 15px; flex-wrap: wrap;
+        }
+        .search-box {
+            flex-grow: 1; position: relative;
+        }
+        .search-box input {
+            padding-left: 45px; border-radius: 50px; border: 1px solid #E5E5EA; height: 50px;
+            box-shadow: none; background: #F9F9F9;
+        }
+        .search-box i {
+            position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+            color: #8E8E93; font-size: 20px;
+        }
+        .filter-select {
+            width: auto; min-width: 150px; border-radius: 50px; height: 50px;
+            border: 1px solid #E5E5EA; background-color: #F9F9F9;
+            padding-left: 20px; font-weight: 600; color: #1d1d1f;
+            cursor: pointer;
+        }
+        
+        /* Photo Upload Box */
+        .photo-upload-box {
+            width: 100%; aspect-ratio: 1; border-radius: 18px;
+            background-color: #FFFFFF; border: 2px dashed #C7C7CC;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; overflow: hidden; position: relative; transition: 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+        .photo-upload-box:hover { border-color: var(--ios-blue); background-color: #F0F8FF; transform: scale(1.02); }
+        .photo-upload-box img {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; display: none; z-index: 10;
+        }
+        .photo-upload-box.has-image img { display: block; }
+
+        /* Sold Blur Effect */
+        .sold-wrapper { position: relative; transition: 0.3s; }
+        .sold-overlay {
+            position: absolute; inset: 0; backdrop-filter: grayscale(100%) blur(4px);
+            z-index: 5; opacity: 0; pointer-events: none; transition: 0.4s;
+            background: rgba(255,255,255,0.6); border-radius: var(--radius-card);
+        }
+        .sold-stamp {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg) scale(0.5);
+            border: 6px solid var(--ios-red); color: var(--ios-red);
+            font-size: 2.5rem; font-weight: 900; padding: 15px 30px;
+            text-transform: uppercase; opacity: 0; z-index: 10; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap; background: rgba(255,255,255,0.9); box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            border-radius: 12px;
+        }
+        .is-sold .sold-overlay { opacity: 1; pointer-events: auto; }
+        .is-sold .sold-stamp { opacity: 1; transform: translate(-50%, -50%) rotate(-15deg) scale(1); }
+
+        /* Status Badges */
+        .badge-pill { padding: 8px 14px; border-radius: 30px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .vehicle-thumb { width: 54px; height: 54px; border-radius: 14px; object-fit: cover; background-color: #E5E5EA; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+
+        /* Lead Card */
+        .lead-card {
+            background: white; border-radius: 20px; padding: 20px;
+            border: none; position: relative; transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .lead-card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.1); transform: translateY(-3px); }
+        .btn-icon {
+            width: 36px; height: 36px; border-radius: 50%; border: none;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; cursor: pointer; transition: 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .btn-icon.edit { background: #FFFFFF; color: var(--ios-blue); }
+        .btn-icon.edit:hover { background: var(--ios-blue); color: white; }
+        .btn-icon.delete { background: #FFFFFF; color: var(--ios-red); }
+        .btn-icon.delete:hover { background: var(--ios-red); color: white; }
+
+        @media (max-width: 768px) {
+            .wizard-nav { padding: 15px 10px; overflow-x: scroll; }
+            .wizard-nav::before { top: 30px; }
+            .step-item { min-width: 65px; }
+            .step-circle { width: 32px; height: 32px; font-size: 12px; }
+            .sold-stamp { font-size: 1.8rem; }
+            .inventory-toolbar { flex-direction: column; gap: 10px; }
+            .search-box input, .filter-select { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOADER -->
+    <div id="loader" style="position:fixed; inset:0; background:rgba(242,242,247,0.98); z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column;">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+        <div class="mt-3 fw-bold text-secondary" style="letter-spacing: 1px;">LOADING...</div>
+    </div>
+
+    <!-- LOGIN SECTION -->
+    <section id="login-section" class="vh-100 d-flex justify-content-center align-items-center">
+        <div class="card border-0 shadow-lg p-5" style="width: 100%; max-width: 420px; border-radius: 32px; background: rgba(255,255,255,0.8); backdrop-filter: blur(20px);">
+            <div class="text-center mb-5">
+                <div class="bg-blue-grad rounded-4 d-inline-flex justify-content-center align-items-center mb-3 shadow-lg" style="width: 80px; height: 80px;">
+                    <i class="ph-bold ph-car-profile text-white fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-1">Chowdhury Auto</h3>
+                <p class="text-muted small fw-semibold text-uppercase ls-1">Manager Portal</p>
+            </div>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label class="ps-3">Username</label>
+                    <input type="text" class="form-control py-3" placeholder="Enter ID" required>
+                </div>
+                <div class="mb-5">
+                    <label class="ps-3">Password</label>
+                    <input type="password" class="form-control py-3" placeholder="Enter Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-lg">
+                    Sign In <i class="ph-bold ph-arrow-right ms-2"></i>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- DASHBOARD SECTION -->
+    <section id="dashboard-section" class="pb-5 d-none">
+        <nav class="navbar navbar-expand-lg bg-white sticky-top px-3 py-3 shadow-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#">
+                    <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow" style="width:36px; height:36px;"><i class="ph-bold ph-car-profile"></i></div>
+                    <span style="letter-spacing: -0.5px;">CHOWDHURY AUTO</span>
+                </a>
+                <button id="logoutBtn" class="btn btn-light border fw-bold rounded-pill px-4 ms-auto shadow-sm">Log Out</button>
+            </div>
+        </nav>
+
+        <div class="container mt-5">
+            <div class="d-flex justify-content-between align-items-end mb-5">
+                <div>
+                    <h2 class="fw-bold mb-1">Overview</h2>
+                    <p class="text-secondary mb-0 fw-medium">Management Dashboard</p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <!-- New Deal -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="app-card p-4 d-flex flex-column" onclick="openModal('dealModal')">
+                        <div class="card-icon-box bg-blue-grad"><i class="ph-bold ph-plus"></i></div>
+                        <h5 class="fw-bold mb-1">New Deal</h5>
+                        <span class="text-secondary small fw-bold text-uppercase">Start Wizard</span>
+                    </div>
+                </div>
+                <!-- Inventory -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="app-card p-4 d-flex flex-column" onclick="openModal('inventoryModal')">
+                        <div class="card-icon-box bg-indigo-grad"><i class="ph-bold ph-car"></i></div>
+                        <h5 class="fw-bold mb-1">Inventory</h5>
+                        <span class="text-secondary small fw-bold text-uppercase">Search & Details</span>
+                    </div>
+                </div>
+                <!-- Leads -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="app-card p-4 d-flex flex-column" onclick="openModal('leadsListModal')">
+                        <div class="card-icon-box bg-pink-grad"><i class="ph-bold ph-users-three"></i></div>
+                        <h5 class="fw-bold mb-1">Leads</h5>
+                        <span class="text-secondary small fw-bold text-uppercase">Manage List</span>
+                    </div>
+                </div>
+                <!-- Quick Add -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="app-card p-4 d-flex flex-column" onclick="openModal('leadModal')">
+                        <div class="card-icon-box bg-purple-grad"><i class="ph-bold ph-user-plus"></i></div>
+                        <h5 class="fw-bold mb-1">Quick Add</h5>
+                        <span class="text-secondary small fw-bold text-uppercase">Capture Lead</span>
+                    </div>
+                </div>
+                <!-- Stats -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="app-card p-4 d-flex flex-column">
+                        <div class="card-icon-box bg-orange-grad"><i class="ph-bold ph-clock-countdown"></i></div>
+                        <h5 class="fw-bold mb-1">Pending</h5>
+                        <span class="fs-3 fw-bold text-dark">5 Tasks</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="app-card p-4 d-flex flex-column">
+                        <div class="card-icon-box bg-green-grad"><i class="ph-bold ph-check-circle"></i></div>
+                        <h5 class="fw-bold mb-1">Sold</h5>
+                        <span class="fs-3 fw-bold text-dark">128 Deals</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- INVENTORY MODAL (Enhanced Design) -->
+    <div class="modal fade" id="inventoryModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h4 class="modal-title fw-bold ms-2">Vehicle Inventory</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                
+                <!-- Enhanced Search & Filter -->
+                <div class="inventory-toolbar">
+                    <div class="search-box">
+                        <i class="ph-bold ph-magnifying-glass"></i>
+                        <input type="text" id="invSearch" placeholder="Search vehicle no, model name...">
+                    </div>
+                    <select class="form-select filter-select" id="invFilter">
+                        <option value="all">All Status</option>
+                        <option value="available">Available</option>
+                        <option value="sold">Sold</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+
+                <div class="modal-body px-4 pb-4 pt-0">
+                    <div class="table-responsive rounded-4 bg-white shadow-sm p-2">
+                        <table class="table table-hover mb-0 align-middle" style="border-collapse: separate; border-spacing: 0 8px;">
+                            <thead class="bg-white text-secondary">
+                                <tr>
+                                    <th class="ps-4 border-0">VEHICLE</th>
+                                    <th class="border-0">PRICE</th>
+                                    <th class="border-0">STATUS</th>
+                                    <th class="text-end pe-4 border-0">ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="inv-row" data-status="available">
+                                    <td class="ps-4 border-0 rounded-start-4">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <img src="https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=100" class="vehicle-thumb">
+                                            <div>
+                                                <div class="fw-bold text-dark">WB 68 AD 1234</div>
+                                                <div class="small text-muted fw-semibold">Pulsar 150 • 2022</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold text-dark border-0">₹35,000</td>
+                                    <td class="border-0"><span class="badge-pill bg-success-subtle text-success">Available</span></td>
+                                    <td class="text-end pe-4 border-0 rounded-end-4">
+                                        <button class="btn btn-sm btn-light border fw-bold text-primary me-2 px-3 shadow-none" onclick="viewVehicleDetails()">Details</button>
+                                        <button class="btn btn-sm btn-primary rounded-pill fw-bold px-4 shadow-sm" onclick="openModal('dealModal')">Add Info</button>
+                                    </td>
+                                </tr>
+                                <tr class="inv-row" data-status="pending">
+                                    <td class="ps-4 border-0 rounded-start-4">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=100" class="vehicle-thumb">
+                                            <div>
+                                                <div class="fw-bold text-dark">WB 38 X 9988</div>
+                                                <div class="small text-muted fw-semibold">Apache RTR • 2021</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold text-dark border-0">₹42,000</td>
+                                    <td class="border-0"><span class="badge-pill bg-warning-subtle text-warning">Pending</span></td>
+                                    <td class="text-end pe-4 border-0 rounded-end-4">
+                                        <button class="btn btn-sm btn-light border fw-bold text-primary me-2 px-3 shadow-none" onclick="viewVehicleDetails()">Details</button>
+                                        <button class="btn btn-sm btn-primary rounded-pill fw-bold px-4 shadow-sm" onclick="openModal('dealModal')">Add Info</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VEHICLE DETAILS SIDE-BY-SIDE -->
+    <div class="modal fade" id="vehicleDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content bg-light">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold ms-2">Vehicle Details: WB 68 AD 1234</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <!-- Seller -->
+                        <div class="col-12 col-lg-6">
+                            <div class="app-card p-0 h-100 cursor-default">
+                                <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex align-items-center gap-3">
+                                    <div class="bg-indigo-grad rounded-circle text-white d-flex align-items-center justify-content-center shadow" style="width:40px;height:40px;"><i class="ph-bold ph-user fs-5"></i></div>
+                                    <h6 class="fw-bold mb-0 fs-5">Seller Information</h6>
+                                </div>
+                                <div class="card-body px-4 pb-4">
+                                    <h4 class="fw-bold mt-3 mb-1">Rajesh Kumar</h4>
+                                    <div class="d-flex flex-column gap-3 mt-4">
+                                        <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3 border"><i class="ph-fill ph-phone text-secondary fs-5"></i> <span class="fw-bold">+91 98765 43210</span></div>
+                                        <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3 border"><i class="ph-fill ph-map-pin text-secondary fs-5"></i> <span class="fw-medium">12, Station Road, Bankura</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Buyer -->
+                        <div class="col-12 col-lg-6">
+                            <div class="app-card p-0 h-100 cursor-default">
+                                <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex align-items-center gap-3">
+                                    <div class="bg-green-grad rounded-circle text-white d-flex align-items-center justify-content-center shadow" style="width:40px;height:40px;"><i class="ph-bold ph-shopping-cart fs-5"></i></div>
+                                    <h6 class="fw-bold mb-0 fs-5">Buyer Information</h6>
+                                </div>
+                                <div class="card-body px-4 pb-4">
+                                    <h4 class="fw-bold mt-3 mb-1">Amit Das</h4>
+                                    <div class="d-flex flex-column gap-3 mt-4">
+                                        <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3 border"><i class="ph-fill ph-phone text-secondary fs-5"></i> <span class="fw-bold">+91 88221 99887</span></div>
+                                        <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3 border"><i class="ph-fill ph-map-pin text-secondary fs-5"></i> <span class="fw-medium">Sector 5, Durgapur</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEADS LIST MODAL -->
+    <div class="modal fade" id="leadsListModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h4 class="modal-title fw-bold ms-2">Manage Leads</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6 lead-item">
+                            <div class="lead-card">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="fw-bold mb-1">Suman Roy</h5>
+                                        <div class="text-secondary fw-semibold">+91 90000 12345</div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn-icon edit" onclick="openModal('leadModal')"><i class="ph-bold ph-pencil-simple"></i></button>
+                                        <button class="btn-icon delete delete-lead"><i class="ph-bold ph-trash"></i></button>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 mt-3">
+                                    <span class="badge-pill bg-primary-subtle text-primary border border-primary-subtle">Pulsar 150</span>
+                                    <span class="badge-pill bg-light text-dark border">1st Owner</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- More items -->
+                        <div class="col-12 col-md-6 lead-item">
+                            <div class="lead-card">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="fw-bold mb-1">Rahul Dev</h5>
+                                        <div class="text-secondary fw-semibold">+91 88888 11111</div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn-icon edit" onclick="openModal('leadModal')"><i class="ph-bold ph-pencil-simple"></i></button>
+                                        <button class="btn-icon delete delete-lead"><i class="ph-bold ph-trash"></i></button>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 mt-3">
+                                    <span class="badge-pill bg-primary-subtle text-primary border border-primary-subtle">Apache 160</span>
+                                    <span class="badge-pill bg-light text-dark border">Any Owner</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4-STEP WIZARD MODAL (Enhanced Indicators) -->
+    <div class="modal fade" id="dealModal" data-bs-backdrop="static" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header justify-content-center border-0 pb-0 pt-4">
+                    <h5 class="modal-title fw-bold text-uppercase ls-1 text-primary">CHOWDHURY AUTOMOBILE</h5>
+                    <button type="button" class="btn-close position-absolute end-0 me-4 top-0 mt-4" data-bs-dismiss="modal"></button>
+                </div>
+                
+                <!-- Enhanced Wizard Nav (4 Steps) -->
+                <div class="wizard-nav">
+                    <div class="step-item active" data-step="1">
+                        <div class="step-circle">1</div><div class="step-label">Vehicle</div>
+                    </div>
+                    <div class="step-item" data-step="2">
+                        <div class="step-circle">2</div><div class="step-label">Seller</div>
+                    </div>
+                    <div class="step-item" data-step="3">
+                        <div class="step-circle">3</div><div class="step-label">Buyer</div>
+                    </div>
+                    <div class="step-item" data-step="4">
+                        <div class="step-circle">4</div><div class="step-label">Transfer</div>
+                    </div>
+                </div>
+
+                <div class="modal-body p-4 pt-2">
+                    <form id="dealForm">
+                        
+                        <!-- STEP 1: VEHICLE -->
+                        <div id="step-1" class="wizard-step">
+                            <div class="card p-4 border-0 shadow-sm position-relative sold-wrapper bg-white rounded-4">
+                                <div class="sold-stamp">SOLD OUT</div>
+                                <div class="sold-overlay"></div>
+                                <div>
+                                    <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Vehicle Details</h6>
+                                    <label class="mb-2">Vehicle Photos</label>
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-6 col-md-3"><div class="photo-upload-box"><i class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input type="file" accept="image/*" hidden></div></div>
+                                        <div class="col-6 col-md-3"><div class="photo-upload-box"><i class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input type="file" accept="image/*" hidden></div></div>
+                                        <div class="col-6 col-md-3"><div class="photo-upload-box"><i class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input type="file" accept="image/*" hidden></div></div>
+                                        <div class="col-6 col-md-3"><div class="photo-upload-box"><i class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input type="file" accept="image/*" hidden></div></div>
+                                    </div>
+
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6"><label>Vehicle Number</label><input type="text" class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000"></div>
+                                        <div class="col-md-6"><label>Register Date</label><input type="date" class="form-control"></div>
+                                        <div class="col-md-4"><label>Owner Serial</label><select class="form-select"><option>1st</option><option>2nd</option><option>3rd</option></select></div>
+                                        <div class="col-md-4"><label>Chassis Number</label><input type="text" class="form-control"></div>
+                                        <div class="col-md-4"><label>Engine Number</label><input type="text" class="form-control"></div>
+                                    </div>
+
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <label>Payment Mode</label>
+                                            <div class="btn-group w-100" role="group">
+                                                <input type="radio" class="btn-check" name="v_pay" id="vp_cash" checked><label class="btn btn-outline-secondary" for="vp_cash">Cash</label>
+                                                <input type="radio" class="btn-check" name="v_pay" id="vp_fin"><label class="btn btn-outline-secondary" for="vp_fin">Finance</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Price</label>
+                                            <div class="input-group"><span class="input-group-text bg-white border-end-0">₹</span><input type="number" class="form-control border-start-0 ps-0"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-3 rounded-4 bg-light border">
+                                        <label>Police Challan</label>
+                                        <div class="d-flex gap-3 mb-2">
+                                            <div class="form-check"><input class="form-check-input" type="radio" name="p_chal" id="pc_no" checked><label class="form-check-label fw-bold" for="pc_no">No</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="radio" name="p_chal" id="pc_yes"><label class="form-check-label fw-bold" for="pc_yes">Yes</label></div>
+                                        </div>
+                                        <div id="challan-inputs" class="d-none mt-2">
+                                            <input type="text" class="form-control mb-2" placeholder="Challan Number">
+                                            <div class="btn-group w-100 btn-group-sm">
+                                                <input type="radio" class="btn-check" name="c_stat" id="cs_pen" checked><label class="btn btn-outline-danger" for="cs_pen">Pending</label>
+                                                <input type="radio" class="btn-check" name="c_stat" id="cs_pd"><label class="btn btn-outline-success" for="cs_pd">Paid</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4 pt-3 border-top d-flex align-items-center justify-content-between">
+                                    <label class="form-check-label fw-bold text-danger mb-0" for="soldToggle">Mark as Sold Out</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="soldToggle" style="width: 3em; height: 1.5em;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 2: SELLER -->
+                        <div id="step-2" class="wizard-step d-none">
+                            <div class="card border-0 p-4 shadow-sm rounded-4">
+                                <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Seller Details</h6>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-4"><label>Date</label><input type="date" class="form-control"></div>
+                                    <div class="col-md-4"><label>Vehicle No</label><input type="text" class="form-control"></div>
+                                    <div class="col-md-4"><label>Bike Name</label><input type="text" class="form-control"></div>
+                                    <div class="col-md-6"><label>Chassis No</label><input type="text" class="form-control"></div>
+                                    <div class="col-md-6"><label>Engine No</label><input type="text" class="form-control"></div>
+                                    <div class="col-12"><label>Seller Name</label><input type="text" class="form-control"></div>
+                                    <div class="col-12"><label>Address</label><textarea class="form-control" rows="2"></textarea></div>
+                                </div>
+                                
+                                <label class="mb-2">Mobile Numbers</label>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-4"><input type="tel" class="form-control" placeholder="Mob 1"></div>
+                                    <div class="col-4"><input type="tel" class="form-control" placeholder="Mob 2"></div>
+                                    <div class="col-4"><input type="tel" class="form-control" placeholder="Mob 3"></div>
+                                </div>
+
+                                <div class="bg-light p-3 rounded-4 border mb-3">
+                                    <label class="mb-2">Papers Received</label>
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <div class="form-check"><input type="checkbox" class="form-check-input" id="pr_rc"><label class="fw-bold" for="pr_rc">RC</label></div>
+                                        <div class="form-check"><input type="checkbox" class="form-check-input" id="pr_tax"><label class="fw-bold" for="pr_tax">Tax Token</label></div>
+                                        <div class="form-check"><input type="checkbox" class="form-check-input" id="pr_ins"><label class="fw-bold" for="pr_ins">Insurance</label></div>
+                                        <div class="form-check"><input type="checkbox" class="form-check-input" id="pr_puc"><label class="fw-bold" for="pr_puc">PUCC</label></div>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label>Payment Type</label>
+                                        <div class="btn-group w-100 btn-group-sm">
+                                            <input type="radio" class="btn-check" name="s_pay" id="sp_cash" checked><label class="btn btn-outline-secondary" for="sp_cash">Cash</label>
+                                            <input type="radio" class="btn-check" name="s_pay" id="sp_fin"><label class="btn btn-outline-secondary" for="sp_fin">Finance</label>
+                                        </div>
+                                        <div id="seller-fin-options" class="d-none mt-2 p-3 bg-white rounded-4 border shadow-sm">
+                                            <div class="d-flex gap-3 mb-2">
+                                                <div class="form-check"><input class="form-check-input" type="radio" name="noc_stat" id="noc_rec"><label class="fw-bold" for="noc_rec">NOC Received</label></div>
+                                                <div class="form-check"><input class="form-check-input" type="radio" name="noc_stat" id="noc_not"><label class="fw-bold" for="noc_not">Not Received</label></div>
+                                            </div>
+                                            <div id="noc-photos" class="d-none row g-2">
+                                                <div class="col-6"><div class="photo-upload-box"><span class="small text-muted fw-bold">NOC 1</span><img src=""><input type="file" hidden></div></div>
+                                                <div class="col-6"><div class="photo-upload-box"><span class="small text-muted fw-bold">NOC 2</span><img src=""><input type="file" hidden></div></div>
+                                            </div>
+                                            <div id="noc-alert" class="d-none text-danger fw-bold small text-center mt-1">⚠ NOC PENDING FROM FINANCE</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Seller Challan</label>
+                                        <div class="d-flex gap-3 mb-2">
+                                            <div class="form-check"><input class="form-check-input" type="radio" name="s_chal" id="sc_no" checked><label class="fw-bold" for="sc_no">No</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="radio" name="s_chal" id="sc_yes"><label class="fw-bold" for="sc_yes">Yes</label></div>
+                                        </div>
+                                        <input type="text" id="s_chal_inp" class="form-control d-none" placeholder="Challan No.">
+                                        <div id="s_chal_ok" class="text-success fw-bold small"><i class="ph-fill ph-check-circle"></i> Clean</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-light p-3 rounded-4 border">
+                                    <label class="text-primary">Payment Calculation</label>
+                                    <div class="row g-2">
+                                        <div class="col-4"><input type="number" class="form-control" placeholder="Total" id="s_total"></div>
+                                        <div class="col-4"><input type="number" class="form-control" placeholder="Paid" id="s_paid"></div>
+                                        <div class="col-4"><input type="number" class="form-control bg-white fw-bold text-danger" placeholder="Due" id="s_due" readonly></div>
+                                        <div class="col-12"><input type="text" class="form-control d-none mt-1" id="s_due_reason" placeholder="Reason for due amount..."></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 3: PURCHASER -->
+                        <div id="step-3" class="wizard-step d-none">
+                            <div class="card border-0 p-4 shadow-sm rounded-4">
+                                <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Purchaser Details</h6>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6"><label>Date</label><input type="date" class="form-control"></div>
+                                    <div class="col-md-6"><label>Purchaser Name</label><input type="text" class="form-control"></div>
+                                    <div class="col-12"><label>Address</label><textarea class="form-control" rows="2"></textarea></div>
+                                    <div class="col-md-6"><label>Bike Name</label><input type="text" class="form-control"></div>
+                                    <div class="col-md-6"><label>Vehicle No</label><input type="text" class="form-control"></div>
+                                </div>
+                                <div class="bg-light p-3 rounded-4 border mb-3">
+                                    <label class="mb-2">Price Breakdown</label>
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-4"><input type="number" id="p_total" class="form-control" placeholder="Total"></div>
+                                        <div class="col-4"><input type="number" id="p_paid" class="form-control" placeholder="Paid"></div>
+                                        <div class="col-4"><input type="number" id="p_due" class="form-control bg-white" placeholder="Due" readonly></div>
+                                    </div>
+                                    <div class="d-flex gap-3 mb-2">
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="p_mode" id="pm_cash" checked><label class="fw-bold" for="pm_cash">Cash</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="p_mode" id="pm_fin"><label class="fw-bold" for="pm_fin">Finance</label></div>
+                                    </div>
+                                    <div id="hpa_sec" class="d-none border-top pt-2 mt-2">
+                                        <div class="row g-2">
+                                            <div class="col-12"><label>HPA With</label><input type="text" class="form-control" placeholder="Finance Company"></div>
+                                            <div class="col-12"><label>Disburse Amount</label>
+                                                <div class="input-group">
+                                                    <input type="number" class="form-control" placeholder="Amt">
+                                                    <select class="form-select" style="max-width:80px;"><option>Paid</option><option>Due</option></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="mb-2">Purchaser Documents</label>
+                                    <div class="row g-2">
+                                        <div class="col-6 col-md-3"><div class="photo-upload-box"><span class="small text-muted fw-bold">Aadhar Front</span><img src=""><input type="file" accept="image/*" hidden></div></div>
+                                        <div class="col-6 col-md-3"><div class="photo-upload-box"><span class="small text-muted fw-bold">Aadhar Back</span><img src=""><input type="file" accept="image/*" hidden></div></div>
+                                        <div class="col-6 col-md-3"><div class="photo-upload-box"><span class="small text-muted fw-bold">Voter Front</span><img src=""><input type="file" accept="image/*" hidden></div></div>
+                                        <div class="col-6 col-md-3"><div class="photo-upload-box"><span class="small text-muted fw-bold">Voter Back</span><img src=""><input type="file" accept="image/*" hidden></div></div>
+                                    </div>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="all_paid">
+                                    <label class="form-check-label fw-bold text-success" for="all_paid">Payment All Paid</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 4: TRANSFER -->
+                        <div id="step-4" class="wizard-step d-none">
+                            <div class="card border-0 p-4 shadow-sm rounded-4">
+                                <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Ownership Transfer</h6>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6"><label>Transfer To</label><input type="text" class="form-control"></div>
+                                    <div class="col-md-6">
+                                        <label>RTO Name</label>
+                                        <select class="form-select">
+                                            <option>Bankura</option><option>Bishnupur</option><option>Durgapur</option><option>Asansol</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="bg-light p-3 rounded-4 border mb-3">
+                                    <label class="text-dark mb-2">Vendor Payment</label>
+                                    <div class="row g-2 align-items-end mb-2">
+                                        <div class="col-12 col-md-4"><label>Name Transfer</label><input type="number" class="form-control" placeholder="Amount"></div>
+                                        <div class="col-6 col-md-4"><input type="date" class="form-control"></div>
+                                        <div class="col-6 col-md-4"><select class="form-select"><option>Paid</option><option>Due</option></select></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="modal-footer d-flex align-items-center">
+                    <button type="button" class="btn btn-light border px-4 shadow-sm me-2" id="prevBtn" style="display:none;">Back</button>
+                    <button type="button" class="btn btn-light border fw-bold shadow-sm text-primary" id="saveStepBtn"><i class="ph-bold ph-floppy-disk me-1"></i> Save</button>
+                    <button type="button" class="btn btn-primary px-4 ms-auto shadow-lg" id="nextBtn">Next Step</button>
+                    <button type="button" class="btn btn-success px-4 ms-auto text-white shadow-lg" id="finishBtn" style="display:none;">Finish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEAD MODAL -->
+    <div class="modal fade" id="leadModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold ms-2">Capture Lead</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="card p-3 border-0 bg-white shadow-none">
+                        <div class="mb-3"><label>Name</label><input type="text" class="form-control"></div>
+                        <div class="mb-3"><label>Phone</label><input type="tel" class="form-control"></div>
+                        <div class="mb-3"><label>Bike Model</label><input type="text" class="form-control" placeholder="e.g. Splendor"></div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button class="btn btn-primary w-100 rounded-pill fw-bold shadow-sm" data-bs-dismiss="modal">Save Lead</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JQUERY LOGIC -->
+    <script>
+        $(document).ready(function() {
+            // --- LOADER ---
+            setTimeout(function() {
+                $('#loader').fadeOut(500);
+            }, 500);
+
+            // --- LOGIN FLOW ---
+            $('#loginForm').on('submit', function(e) {
+                e.preventDefault();
+                $('#loader').removeClass('d-none').show();
+                setTimeout(function() {
+                    $('#login-section').fadeOut(300, function() {
+                        $(this).removeClass('d-flex').addClass('d-none');
+                        $('#dashboard-section').removeClass('d-none').hide().fadeIn(300);
+                    });
+                    $('#loader').fadeOut(300);
+                }, 800);
+            });
+
+            $('#logoutBtn').on('click', function() {
+                $('#loader').show();
+                setTimeout(function() {
+                    $('#dashboard-section').fadeOut(300, function() {
+                        $(this).addClass('d-none');
+                        $('#login-section').removeClass('d-none').addClass('d-flex').hide().fadeIn(300);
+                    });
+                    $('#loader').fadeOut(300);
+                }, 500);
+            });
+
+            // --- MODAL HANDLERS ---
+            window.openModal = function(id) {
+                var myModal = new bootstrap.Modal(document.getElementById(id));
+                if(id === 'dealModal') resetWizard();
+                myModal.show();
+            };
+            
+            window.viewVehicleDetails = function() {
+                var myModal = new bootstrap.Modal(document.getElementById('vehicleDetailsModal'));
+                myModal.show();
+            };
+
+            // --- WIZARD LOGIC ---
+            let currentStep = 1;
+            const totalSteps = 4; // Removed Step 5
+
+            window.jumpStep = function(step) {
+                currentStep = step;
+                updateWizardUI();
+            };
+
+            window.resetWizard = function() {
+                currentStep = 1;
+                updateWizardUI();
+            };
+
+            function updateWizardUI() {
+                // Hide/Show Steps
+                $('.wizard-step').addClass('d-none');
+                $('#step-' + currentStep).removeClass('d-none');
+
+                // Update Indicators
+                $('.step-item').removeClass('active completed');
+                $('.step-item').each(function() {
+                    let step = $(this).data('step');
+                    if (step == currentStep) $(this).addClass('active');
+                    else if (step < currentStep) $(this).addClass('completed');
+                });
+
+                // Buttons
+                if (currentStep === 1) $('#prevBtn').hide();
+                else $('#prevBtn').show();
+
+                if (currentStep === totalSteps) {
+                    $('#nextBtn').hide();
+                    $('#finishBtn').show();
+                } else {
+                    $('#nextBtn').show();
+                    $('#finishBtn').hide();
+                }
+            }
+
+            $('#nextBtn').click(function() {
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    updateWizardUI();
+                }
+            });
+
+            $('#prevBtn').click(function() {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateWizardUI();
+                }
+            });
+
+            $('#saveStepBtn').click(function() {
+                let btn = $(this);
+                let originalContent = btn.html();
+                btn.html('<i class="ph-bold ph-check me-1"></i> Saved');
+                btn.addClass('btn-success text-white').removeClass('btn-light text-primary');
+                
+                setTimeout(function() {
+                    btn.html(originalContent);
+                    btn.removeClass('btn-success text-white').addClass('btn-light text-primary');
+                }, 1500);
+            });
+
+            $('#finishBtn').click(function() {
+                alert("Data Saved Successfully!");
+                bootstrap.Modal.getInstance(document.getElementById('dealModal')).hide();
+            });
+            
+            $('.step-item').click(function() {
+                let step = $(this).data('step');
+                if(step <= totalSteps) jumpStep(step); // Prevent jumping to non-existent step 5
+            });
+
+            // --- LOGIC: STEP 1 (Vehicle) ---
+            $('#soldToggle').change(function() {
+                if ($(this).is(':checked')) $('#step1-card').addClass('is-sold');
+                else $('#step1-card').removeClass('is-sold');
+            });
+
+            $('input[name="p_chal"]').change(function() {
+                if ($('#pc_yes').is(':checked')) $('#challan-inputs').removeClass('d-none');
+                else $('#challan-inputs').addClass('d-none');
+            });
+
+            // --- LOGIC: STEP 2 (Seller) ---
+            $('input[name="s_pay"]').change(function() {
+                if ($('#sp_fin').is(':checked')) $('#seller-fin-options').removeClass('d-none');
+                else $('#seller-fin-options').addClass('d-none');
+            });
+
+            $('input[name="noc_stat"]').change(function() {
+                if ($('#noc_rec').is(':checked')) {
+                    $('#noc-photos').removeClass('d-none');
+                    $('#noc-alert').addClass('d-none');
+                } else {
+                    $('#noc-photos').addClass('d-none');
+                    $('#noc-alert').removeClass('d-none');
+                }
+            });
+
+            $('input[name="s_chal"]').change(function() {
+                if ($('#sc_yes').is(':checked')) {
+                    $('#s_chal_inp').removeClass('d-none');
+                    $('#s_chal_ok').addClass('d-none');
+                } else {
+                    $('#s_chal_inp').addClass('d-none');
+                    $('#s_chal_ok').removeClass('d-none');
+                }
+            });
+
+            $('#s_total, #s_paid').on('input', function() {
+                let total = parseFloat($('#s_total').val()) || 0;
+                let paid = parseFloat($('#s_paid').val()) || 0;
+                let due = total - paid;
+                $('#s_due').val(due);
+                if (due > 0) $('#s_due_reason').removeClass('d-none');
+                else $('#s_due_reason').addClass('d-none');
+            });
+
+            // --- LOGIC: STEP 3 (Purchaser) ---
+            $('#p_total, #p_paid').on('input', function() {
+                let total = parseFloat($('#p_total').val()) || 0;
+                let paid = parseFloat($('#p_paid').val()) || 0;
+                let due = total - paid;
+                $('#p_due').val(due);
+            });
+
+            $('input[name="p_mode"]').change(function() {
+                if ($('#pm_fin').is(':checked')) $('#hpa_sec').removeClass('d-none');
+                else $('#hpa_sec').addClass('d-none');
+            });
+
+            // --- IMAGE UPLOAD PREVIEW ---
+            $(document).on('click', '.photo-upload-box', function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                    $(this).find('input[type="file"]').trigger('click');
+                }
+            });
+
+            $(document).on('change', '.photo-upload-box input[type="file"]', function() {
+                if (this.files && this.files[0]) {
+                    let reader = new FileReader();
+                    let $box = $(this).closest('.photo-upload-box');
+                    
+                    reader.onload = function(e) {
+                        $box.find('img').attr('src', e.target.result);
+                        $box.addClass('has-image');
+                    };
+                    
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+
+            // --- INVENTORY SEARCH FILTER ---
+            // Search across all text in the row to cover vehicle details
+            $('#invSearch, #invFilter').on('input change', function() {
+                let searchVal = $('#invSearch').val().toLowerCase();
+                let statusFilter = $('#invFilter').val();
+                
+                $('.inv-row').each(function() {
+                    let rowText = $(this).text().toLowerCase(); // Includes Vehicle No, Model, Year, Price
+                    let rowStatus = $(this).data('status');
+                    
+                    let matchSearch = rowText.indexOf(searchVal) > -1;
+                    let matchFilter = (statusFilter === 'all') || (rowStatus === statusFilter);
+                    
+                    if (matchSearch && matchFilter) $(this).show();
+                    else $(this).hide();
+                });
+            });
+            
+            // Delete Lead Action
+            $(document).on('click', '.delete-lead', function() {
+                if(confirm('Are you sure you want to delete this lead?')) {
+                    $(this).closest('.lead-item').remove();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
