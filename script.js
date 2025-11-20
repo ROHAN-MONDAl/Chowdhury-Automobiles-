@@ -182,24 +182,6 @@
                 }
             });
 
-            // --- INVENTORY SEARCH FILTER ---
-            // Search across all text in the row to cover vehicle details
-            $('#invSearch, #invFilter').on('input change', function () {
-                let searchVal = $('#invSearch').val().toLowerCase();
-                let statusFilter = $('#invFilter').val();
-
-                $('.inv-row').each(function () {
-                    let rowText = $(this).text().toLowerCase(); // Includes Vehicle No, Model, Year, Price
-                    let rowStatus = $(this).data('status');
-
-                    let matchSearch = rowText.indexOf(searchVal) > -1;
-                    let matchFilter = (statusFilter === 'all') || (rowStatus === statusFilter);
-
-                    if (matchSearch && matchFilter) $(this).show();
-                    else $(this).hide();
-                });
-            });
-
             // Delete Lead Action
             $(document).on('click', '.delete-lead', function () {
                 if (confirm('Are you sure you want to delete this lead?')) {

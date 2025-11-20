@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chowdhury Automobile | Manager Dashboard</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        
+        /* Wizard Step Styles */
+        .step-item { opacity: 0.5; cursor: pointer; transition: opacity 0.3s; }
+        .step-item.active { opacity: 1; }
+        .step-circle { width: 32px; height: 32px; background: #e9ecef; color: #6c757d; font-weight: 700; }
+        .step-item.active .step-circle { background: #0d6efd; color: white; }
+
+        /* Upload Box & Images */
+        .upload-box { height: 100px; border: 2px dashed #dee2e6; cursor: pointer; transition: border-color 0.2s; }
+        .upload-box:hover { border-color: #0d6efd; background-color: #f8f9fa; }
+        
+        /* Sold Stamp */
+        .sold-overlay { background: rgba(255, 255, 255, 0.7); z-index: 5; }
+        .sold-stamp { transform: translate(-50%, -50%) rotate(-15deg); font-size: 1.5rem; letter-spacing: 0.2rem; z-index: 10; pointer-events: none; }
+        
+        /* Card Hover */
+        .vehicle-card:hover { transform: translateY(-3px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; transition: transform 0.2s; }
+        
+        /* Detail View Sections */
+        .detail-header { font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 2px solid #e9ecef; }
+        .info-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #f1f3f5; font-size: 0.9rem; }
+        .info-label { color: #6c757d; font-weight: 500; }
+        .info-val { color: #212529; font-weight: 600; text-align: right; }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar bg-white sticky-top shadow-sm py-3 mb-4">
+        <div class="container-fluid d-flex align-items-center justify-content-between px-3 px-md-4">
+            <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#">
+                <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width:40px; height:40px;">
+                    <i class="ph-bold ph-car-profile fs-5"></i>
+                </div>
+                <span class="fs-6 d-none d-sm-block ls-1">CHOWDHURY AUTO</span>
+                <span class="fs-6 d-block d-sm-none">CA</span>
+            </a>
+            <button class="btn btn-light border fw-bold rounded-pill px-3 py-1 shadow-sm text-secondary" onclick="location.reload()">
+                <i class="ph-bold ph-arrow-clockwise"></i> <span class="d-none d-md-inline">Refresh</span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container pb-5">
+        
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h2 class="fw-bold mb-1 fs-3">Inventory</h2>
+                <p class="text-secondary mb-0 fw-medium small">Manage vehicles, filters & details</p>
+            </div>
+            <button class="btn btn-primary rounded-pill shadow-sm fw-bold px-4" onclick="openWizardModal('add')">
+                <i class="ph-bold ph-plus me-1"></i> Add New
+            </button>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="card border-0 rounded-4 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center pointer" 
+                 data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                <h5 class="fw-bold fs-6 text-uppercase text-secondary mb-0"><i class="ph-bold ph-faders me-2"></i>Search Filters</h5>
+                <i class="ph-bold ph-caret-down text-muted"></i>
+            </div>
+            <div class="collapse show" id="filterCollapse">
+                <div class="card-body px-4 pb-4 pt-3">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <label class="form-label small text-muted fw-bold">General Search</label>
+                            <input type="text" id="globalSearch" class="form-control border bg-light" placeholder="Name, Bike, Engine...">
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <label class="form-label small text-muted fw-bold">Vehicle No.</label>
+                            <input type="text" id="filterReg" class="form-control border bg-light" placeholder="WB 00 AA 0000">
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <label class="form-label small text-muted fw-bold">RTO</label>
+                            <select class="form-select border bg-light small" id="filterRTO">
+                                <option value="all">All RTOs</option>
+                                <option value="bankura">Bankura</option>
+                                <option value="durgapur">Durgapur</option>
+                                <option value="asansol">Asansol</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <label class="form-label small text-muted fw-bold">Payment Mode</label>
+                            <select class="form-select border bg-light small" id="filterPay">
+                                <option value="all">All</option>
+                                <option value="cash">Cash</option>
+                                <option value="finance">Finance</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <label class="form-label small text-muted fw-bold">Status</label>
+                            <select class="form-select border bg-light small" id="statusFilter">
+                                <option value="all">All</option>
+                                <option value="available">Available</option>
+                                <option value="sold">Sold</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DATA GRID -->
+        <div class="position-relative" style="min-height: 400px;">
+            <div id="gridLoader" class="position-absolute top-0 start-0 w-100 h-100 bg-light bg-opacity-75 d-none rounded-4 d-flex justify-content-center pt-5" style="z-index: 1000;">
+                <div class="text-center mt-5 pt-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <div class="mt-2 fw-bold text-secondary small">Loading Data...</div>
+                </div>
+            </div>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4" id="inventoryGrid"></div>
+            <div id="noResults" class="text-center py-5 d-none">
+                <h5 class="text-muted fw-bold">No vehicles found matching filters.</h5>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT/ADD WIZARD MODAL -->
+    <div class="modal fade" id="dealModal" data-bs-backdrop="static" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <div class="modal-header border-0 pt-4 pb-2">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center" style="width:42px; height:42px;">
+                            <i class="ph-bold ph-car-profile fs-5"></i>
+                        </div>
+                        <h5 class="modal-title fw-bold text-uppercase text-primary mb-0" id="modalTitleText">CHOWDHURY AUTO</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Wizard Nav -->
+                <div class="d-flex justify-content-between mt-3 px-4 text-center">
+                    <div class="step-item flex-fill active" onclick="showStep(1)" id="nav-step-1"><div class="step-circle rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1">1</div><small class="fw-bold">Vehicle</small></div>
+                    <div class="step-item flex-fill" onclick="showStep(2)" id="nav-step-2"><div class="step-circle rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1">2</div><small class="fw-bold">Seller</small></div>
+                    <div class="step-item flex-fill" onclick="showStep(3)" id="nav-step-3"><div class="step-circle rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1">3</div><small class="fw-bold">Buyer</small></div>
+                    <div class="step-item flex-fill" onclick="showStep(4)" id="nav-step-4"><div class="step-circle rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1">4</div><small class="fw-bold">Transfer</small></div>
+                </div>
+
+                <div class="modal-body p-4">
+                    <form id="dealForm">
+                        <input type="hidden" id="editVehicleId">
+
+                        <!-- STEP 1: VEHICLE -->
+                        <div id="step-1" class="wizard-step">
+                            <div class="card border-0 shadow-sm p-4 rounded-4 position-relative overflow-hidden">
+                                <div id="soldOverlay" class="position-absolute top-0 start-0 w-100 h-100 sold-overlay d-none"></div>
+                                <div id="stampSold" class="position-absolute top-50 start-50 border border-4 border-danger text-danger fw-bold px-3 py-1 sold-stamp d-none">SOLD OUT</div>
+                                
+                                <h6 class="text-primary fw-bold text-uppercase mb-3">1️⃣ Vehicle Details</h6>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6 col-md-3"><div class="upload-box rounded d-flex align-items-center justify-content-center bg-light text-secondary"><i class="ph-bold ph-camera fs-3"></i></div></div>
+                                    <div class="col-6 col-md-3"><div class="upload-box rounded d-flex align-items-center justify-content-center bg-light text-secondary"><i class="ph-bold ph-camera fs-3"></i></div></div>
+                                    <div class="col-6 col-md-3"><div class="upload-box rounded d-flex align-items-center justify-content-center bg-light text-secondary"><i class="ph-bold ph-camera fs-3"></i></div></div>
+                                    <div class="col-6 col-md-3"><div class="upload-box rounded d-flex align-items-center justify-content-center bg-light text-secondary"><i class="ph-bold ph-camera fs-3"></i></div></div>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6"><label class="form-label small fw-bold">Vehicle No</label><input type="text" id="e_v_reg" class="form-control fw-bold text-uppercase"></div>
+                                    <div class="col-md-6"><label class="form-label small fw-bold">Reg Date</label><input type="date" id="e_v_date" class="form-control"></div>
+                                    <div class="col-md-4"><label class="form-label small fw-bold">Owner</label><select id="e_v_owner" class="form-select"><option>1st</option><option>2nd</option><option>3rd</option></select></div>
+                                    <div class="col-md-4"><label class="form-label small fw-bold">Chassis</label><input type="text" id="e_v_chassis" class="form-control"></div>
+                                    <div class="col-md-4"><label class="form-label small fw-bold">Engine</label><input type="text" id="e_v_engine" class="form-control"></div>
+                                    <div class="col-md-6"><label class="form-label small fw-bold">Payment Mode</label><select id="e_v_pay" class="form-select"><option>Cash</option><option>Finance</option></select></div>
+                                    <div class="col-md-6"><label class="form-label small fw-bold">Price</label><input type="number" id="e_v_price" class="form-control"></div>
+                                </div>
+                                <div class="bg-light p-3 rounded border mt-3">
+                                    <label class="fw-bold small mb-2">Police Challan</label>
+                                    <div class="d-flex gap-3 mb-2">
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="p_chal" id="pc_no" checked><label class="form-check-label" for="pc_no">No</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="p_chal" id="pc_yes"><label class="form-check-label" for="pc_yes">Yes</label></div>
+                                    </div>
+                                    <div id="challan-inputs" class="d-none row g-2">
+                                        <div class="col-8"><input type="text" id="e_v_chal_no" class="form-control form-control-sm" placeholder="Challan No"></div>
+                                        <div class="col-4"><select class="form-select form-select-sm" id="e_v_chal_st"><option>Pending</option><option>Paid</option></select></div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center">
+                                    <label class="fw-bold text-danger">Mark as Sold Out</label>
+                                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="soldToggle" style="transform: scale(1.3);"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 2: SELLER -->
+                        <div id="step-2" class="wizard-step d-none">
+                            <div class="card border-0 shadow-sm p-4 rounded-4">
+                                <h6 class="text-warning fw-bold text-uppercase mb-3">2️⃣ Seller Details</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4"><label class="small fw-bold">Date</label><input type="date" id="e_s_date" class="form-control"></div>
+                                    <div class="col-md-4"><label class="small fw-bold">Vehicle No</label><input type="text" id="e_s_veh" class="form-control"></div>
+                                    <div class="col-md-4"><label class="small fw-bold">Bike Name</label><input type="text" id="e_s_bike" class="form-control"></div>
+                                    <div class="col-6"><label class="small fw-bold">Chassis No</label><input type="text" id="e_s_chassis" class="form-control"></div>
+                                    <div class="col-6"><label class="small fw-bold">Engine No</label><input type="text" id="e_s_engine" class="form-control"></div>
+                                    <div class="col-12"><label class="small fw-bold">Seller Name</label><input type="text" id="e_s_name" class="form-control"></div>
+                                    <div class="col-12"><label class="small fw-bold">Address</label><textarea id="e_s_addr" class="form-control" rows="2"></textarea></div>
+                                    <div class="col-4"><input type="tel" id="e_s_mob1" class="form-control" placeholder="Mob 1"></div>
+                                    <div class="col-4"><input type="tel" id="e_s_mob2" class="form-control" placeholder="Mob 2"></div>
+                                    <div class="col-4"><input type="tel" id="e_s_mob3" class="form-control" placeholder="Mob 3"></div>
+                                </div>
+                                <div class="bg-light p-3 rounded mt-3 border">
+                                    <label class="small fw-bold mb-2">Papers Received</label>
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <div class="form-check"><input type="checkbox" class="form-check-input" id="pr_rc"><label class="form-check-label">RC</label></div>
+                                        <div class="form-check"><input type="checkbox" class="form-check-input" id="pr_tax"><label class="form-check-label">Tax</label></div>
+                                        <div class="form-check"><input type="checkbox" class="form-check-input" id="pr_ins"><label class="form-check-label">Ins</label></div>
+                                        <div class="form-check"><input type="checkbox" class="form-check-input" id="pr_puc"><label class="form-check-label">PUC</label></div>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-6"><label class="small fw-bold">Payment Type</label><select id="e_s_pay" class="form-select"><option>Cash</option><option>Finance</option></select></div>
+                                    <div class="col-md-6"><label class="small fw-bold">NOC Status</label><select id="e_s_noc" class="form-select"><option>Received</option><option>Not Received</option></select></div>
+                                    <div class="col-12">
+                                        <label class="small fw-bold">Seller Challan</label>
+                                        <div class="d-flex gap-3 align-items-center">
+                                            <div class="form-check"><input type="radio" name="s_chal" id="sc_no" class="form-check-input" checked><label class="form-check-label">No</label></div>
+                                            <div class="form-check"><input type="radio" name="s_chal" id="sc_yes" class="form-check-input"><label class="form-check-label">Yes</label></div>
+                                            <input type="text" id="s_chal_inp" class="form-control form-control-sm ms-2 d-none" placeholder="Challan No" style="width: 150px;">
+                                        </div>
+                                    </div>
+                                    <div class="col-6"><label class="small fw-bold">Exchange Room</label><input type="text" id="e_s_exchange" class="form-control"></div>
+                                    <div class="col-6"><label class="small fw-bold">Staff Name</label><input type="text" id="e_s_staff" class="form-control"></div>
+                                </div>
+                                <div class="bg-light p-3 rounded border mt-3">
+                                    <label class="small fw-bold text-primary">Payment Calculation</label>
+                                    <div class="row g-2">
+                                        <div class="col-4"><input type="number" class="form-control" placeholder="Total" id="s_total"></div>
+                                        <div class="col-4"><input type="number" class="form-control" placeholder="Paid" id="s_paid"></div>
+                                        <div class="col-4"><input type="number" class="form-control bg-white fw-bold text-danger" placeholder="Due" id="s_due" readonly></div>
+                                        <div class="col-12"><input type="text" class="form-control mt-1" id="s_due_reason" placeholder="Reason for due amount..."></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 3: BUYER -->
+                        <div id="step-3" class="wizard-step d-none">
+                            <div class="card border-0 shadow-sm p-4 rounded-4">
+                                <h6 class="text-success fw-bold text-uppercase mb-3">3️⃣ Purchaser Details</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6"><label class="small fw-bold">Date</label><input type="date" id="e_p_date" class="form-control"></div>
+                                    <div class="col-md-6"><label class="small fw-bold">Name</label><input type="text" id="e_p_name" class="form-control"></div>
+                                    <div class="col-12"><label class="small fw-bold">Address</label><textarea id="e_p_addr" class="form-control" rows="2"></textarea></div>
+                                    <div class="col-md-6"><label class="small fw-bold">Bike</label><input type="text" id="e_p_bike" class="form-control"></div>
+                                    <div class="col-md-6"><label class="small fw-bold">Reg No</label><input type="text" id="e_p_veh" class="form-control"></div>
+                                    <div class="col-4"><input type="tel" id="e_p_mob1" class="form-control" placeholder="Mob 1"></div>
+                                    <div class="col-4"><input type="tel" id="e_p_mob2" class="form-control" placeholder="Mob 2"></div>
+                                    <div class="col-4"><input type="tel" id="e_p_mob3" class="form-control" placeholder="Mob 3"></div>
+                                </div>
+                                <div class="bg-light p-3 rounded border mt-3">
+                                    <label class="small fw-bold text-primary">Payment & Finance</label>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-4"><input type="number" id="p_total" class="form-control" placeholder="Total"></div>
+                                        <div class="col-4"><input type="number" id="p_paid" class="form-control" placeholder="Paid"></div>
+                                        <div class="col-4"><input type="number" id="p_due" class="form-control bg-white" placeholder="Due" readonly></div>
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-6"><select class="form-select form-select-sm" id="e_p_mode"><option>Cash</option><option>Finance</option></select></div>
+                                        <div class="col-6"><input type="text" id="e_p_hpa_co" class="form-control form-control-sm" placeholder="Finance Co."></div>
+                                        <div class="col-6"><input type="number" id="e_p_disburse" class="form-control form-control-sm" placeholder="Disburse Amt"></div>
+                                        <div class="col-6"><input type="text" id="e_p_fin_st" class="form-control form-control-sm" placeholder="Status"></div>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mt-2">
+                                    <div class="col-12"><label class="small fw-bold">Purchaser Documents</label></div>
+                                    <div class="col-6 col-md-3"><div class="upload-box rounded d-flex align-items-center justify-content-center bg-light text-secondary small flex-column"><i class="ph-bold ph-camera fs-4"></i>Aadhar F</div></div>
+                                    <div class="col-6 col-md-3"><div class="upload-box rounded d-flex align-items-center justify-content-center bg-light text-secondary small flex-column"><i class="ph-bold ph-camera fs-4"></i>Aadhar B</div></div>
+                                    <div class="col-6 col-md-3"><div class="upload-box rounded d-flex align-items-center justify-content-center bg-light text-secondary small flex-column"><i class="ph-bold ph-camera fs-4"></i>Voter F</div></div>
+                                    <div class="col-6 col-md-3"><div class="upload-box rounded d-flex align-items-center justify-content-center bg-light text-secondary small flex-column"><i class="ph-bold ph-camera fs-4"></i>Voter B</div></div>
+                                </div>
+                                <div class="form-check mt-3">
+                                    <input class="form-check-input" type="checkbox" id="all_paid">
+                                    <label class="form-check-label fw-bold text-success" for="all_paid">Payment All Paid</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 4: TRANSFER -->
+                        <div id="step-4" class="wizard-step d-none">
+                            <div class="card border-0 shadow-sm p-4 rounded-4">
+                                <h6 class="text-danger fw-bold text-uppercase mb-3">4️⃣ Transfer Details</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6"><label class="small fw-bold">Transfer To</label><input type="text" id="e_t_name" class="form-control"></div>
+                                    <div class="col-md-6"><label class="small fw-bold">Vehicle No</label><input type="text" id="e_t_veh" class="form-control"></div>
+                                    <div class="col-md-6"><label class="small fw-bold">RTO</label><select id="e_t_rto" class="form-select"><option>Bankura</option><option>Durgapur</option><option>Asansol</option></select></div>
+                                    <div class="col-md-6"><label class="small fw-bold">Vendor</label><input type="text" id="e_t_vendor" class="form-control"></div>
+                                </div>
+                                <div class="bg-light p-3 rounded border mt-3">
+                                    <div class="row g-2 align-items-end mb-2">
+                                        <div class="col-4"><label class="small fw-bold">Transfer Amt</label><input type="number" id="e_t_amt" class="form-control"></div>
+                                        <div class="col-4"><label class="small fw-bold">Date</label><input type="date" id="e_t_date" class="form-control"></div>
+                                        <div class="col-4"><label class="small fw-bold">Status</label><select class="form-select" id="e_t_stat"><option>Paid</option><option>Due</option></select></div>
+                                    </div>
+                                    <div class="row g-2 align-items-end mb-2">
+                                        <div class="col-4"><label class="small fw-bold">HPA Amt</label><input type="number" id="e_hpa_amt" class="form-control"></div>
+                                        <div class="col-4"><label class="small fw-bold">Date</label><input type="date" id="e_hpa_date" class="form-control"></div>
+                                        <div class="col-4"><label class="small fw-bold">Status</label><select class="form-select" id="e_hpa_stat"><option>Paid</option><option>Due</option></select></div>
+                                    </div>
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-4"><label class="small fw-bold">HP Amt</label><input type="number" id="e_hp_amt" class="form-control"></div>
+                                        <div class="col-4"><label class="small fw-bold">Date</label><input type="date" id="e_hp_date" class="form-control"></div>
+                                        <div class="col-4"><label class="small fw-bold">Status</label><select class="form-select" id="e_hp_stat"><option>Paid</option><option>Due</option></select></div>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mt-3">
+                                    <div class="col-6"><label class="small fw-bold">Purchaser Sign Date</label><input type="date" id="e_sign_p_date" class="form-control"></div>
+                                    <div class="col-6"><label class="small fw-bold">Seller Sign Date</label><input type="date" id="e_sign_s_date" class="form-control"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer bg-light border-0 rounded-bottom-4">
+                    <button type="button" class="btn btn-white border fw-bold shadow-sm" id="prevBtn" style="display:none;">Back</button>
+                    <button type="button" class="btn btn-primary fw-bold shadow-sm ms-auto px-4" id="nextBtn">Next</button>
+                    <button type="button" class="btn btn-success fw-bold shadow-sm ms-auto px-4" id="finishBtn" style="display:none;">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW DETAILS MODAL -->
+    <div class="modal fade" id="detailsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="viewRegNo">--</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="viewContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS LOGIC -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // --- MOCK DATA ---
+        let inventory = [
+            { 
+                id: 1, 
+                // Vehicle
+                v_photos: ["url1", "", "", ""], v_reg: "WB 68 AD 1234", v_reg_date: "2022-05-10", v_owner: "1st", v_chassis: "MD2A11CZ", v_engine: "DHK12", v_pay_mode: "Cash", v_price: 35000, v_chal: "No", v_chal_no: "", v_chal_st: "", v_sold: false,
+                // Seller
+                s_date: "2023-10-12", s_veh: "WB 68 AD 1234", s_bike: "Pulsar 150", s_chas: "MD2A11CZ", s_eng: "DHK12", s_name: "Rajesh Kumar", s_addr: "Bankura", s_mob1: "9876543210", s_mob2: "", s_mob3: "", s_papers: {rc: true, tax: true, ins: false, puc: true}, s_pay_mode: "Cash", s_noc: "Received", s_chal: "No", s_chal_no: "", s_ex_show: "Honda", s_staff: "Rahul", s_pay: {total: 30000, paid: 25000, due: 5000, reason: "Hold"},
+                // Purchaser
+                p_date: "2023-11-01", p_name: "Amit Das", p_addr: "Durgapur", p_bike: "Pulsar 150", p_veh: "WB 68 AD 1234", p_pay: {total: 40000, paid: 10000, due: 30000}, p_mode: "Finance", p_finance: {co: "Bajaj Finance", disburse: 30000, status: "Approved"}, p_mobs: {m1: "882211...", m2: "", m3: ""}, p_docs: {af: true, ab: true, vf: false, vb: false}, p_all_paid: false,
+                // Transfer
+                t_to: "Amit Das", t_veh: "WB 68 AD 1234", t_rto: "Bankura", t_vendor: "Ravi Agents", t_fee: {amt: 1500, date: "2023-12-01", st: "Paid"}, t_hpa: {amt: 500, date: "2023-12-05", st: "Due"}, t_hp: {amt: 0, date: "", st: ""}, t_sign: {p_date: "2023-11-05", s_date: "2023-10-12"},
+                // Grid Display
+                name: "Pulsar 150", year: "2022", img_veh: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=300", status: "available"
+            }
+        ];
+
+        let wizardModal, detailsModal, currentStep = 1;
+
+        $(document).ready(function() {
+            wizardModal = new bootstrap.Modal(document.getElementById('dealModal'));
+            detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
+            renderGrid();
+
+            // Listeners
+            $('#globalSearch, #filterReg').on('input', renderGrid);
+            $('#filterRTO, #filterPay, #statusFilter').on('change', renderGrid);
+            $('#nextBtn').click(() => navigateWizard(1));
+            $('#prevBtn').click(() => navigateWizard(-1));
+            $('#finishBtn').click(saveData);
+            
+            // Visuals
+            $('input[name="p_chal"]').change(function() { $('#challan-inputs').toggleClass('d-none', this.id === 'pc_no'); });
+            $('input[name="s_chal"]').change(function() { $('#s_chal_inp').toggleClass('d-none', this.id === 'sc_no'); });
+            $('#soldToggle').change(function() { $('#soldOverlay, #stampSold').toggleClass('d-none', !this.checked); });
+            $('#s_total, #s_paid').on('input', function(){ $('#s_due').val(($('#s_total').val()||0) - ($('#s_paid').val()||0)); });
+            $('#p_total, #p_paid').on('input', function(){ $('#p_due').val(($('#p_total').val()||0) - ($('#p_paid').val()||0)); });
+        });
+
+        function renderGrid() {
+            $('#gridLoader').removeClass('d-none');
+            setTimeout(() => {
+                const search = $('#globalSearch').val().toLowerCase();
+                const reg = $('#filterReg').val().toLowerCase();
+                const rto = $('#filterRTO').val();
+                const pay = $('#filterPay').val();
+                const status = $('#statusFilter').val();
+
+                const filtered = inventory.filter(v => {
+                    return (v.name.toLowerCase().includes(search) || v.v_reg.toLowerCase().includes(search)) &&
+                           (reg === '' || v.v_reg.toLowerCase().includes(reg)) &&
+                           (rto === 'all' || v.t_rto.toLowerCase() === rto.toLowerCase()) &&
+                           (pay === 'all' || v.v_pay_mode.toLowerCase() === pay.toLowerCase()) &&
+                           (status === 'all' || v.status === status);
+                });
+
+                $('#inventoryGrid').empty();
+                if (filtered.length === 0) $('#noResults').removeClass('d-none');
+                else {
+                    $('#noResults').addClass('d-none');
+                    filtered.forEach(v => {
+                        let badge = v.status === 'sold' ? 'bg-danger' : 'bg-success';
+                        $('#inventoryGrid').append(`
+                            <div class="col">
+                                <div class="card h-100 border-0 shadow-sm rounded-4 vehicle-card overflow-hidden">
+                                    <span class="badge ${badge} position-absolute top-0 end-0 m-3 shadow-sm px-3 py-2 text-uppercase">${v.status}</span>
+                                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                                        <img src="${v.img_veh}" class="img-fluid h-100 w-100 object-fit-cover">
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <h6 class="fw-bold text-dark mb-0">${v.name}</h6>
+                                        <small class="text-muted">${v.v_reg}</small>
+                                        <div class="d-flex justify-content-between mt-2"><span class="fw-bold text-primary">₹${v.v_price}</span><span class="text-uppercase small text-muted">${v.t_rto}</span></div>
+                                    </div>
+                                    <div class="card-footer bg-white border-0 p-3 pt-0 d-flex gap-2">
+                                        <button class="btn btn-outline-primary flex-grow-1 rounded-pill btn-sm fw-bold" onclick="viewDetails(${v.id})">View Details</button>
+                                        <button class="btn btn-light text-primary rounded-circle shadow-sm" onclick="openEdit(${v.id})"><i class="ph-bold ph-pencil-simple"></i></button>
+                                    </div>
+                                </div>
+                            </div>`);
+                    });
+                }
+                $('#gridLoader').addClass('d-none');
+            }, 300);
+        }
+
+        function viewDetails(id) {
+            const v = inventory.find(i => i.id === id);
+            if(!v) return;
+            $('#viewRegNo').text(v.v_reg);
+            let html = `
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card h-100 border-0 shadow-sm p-3">
+                        <div class="detail-header text-primary">1️⃣ Vehicle Details</div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-3"><img src="${v.img_veh}" class="img-thumbnail rounded"></div>
+                            <div class="col-3"><div class="bg-light border rounded h-100 d-flex align-items-center justify-content-center text-muted"><i class="ph-bold ph-image"></i></div></div>
+                            <div class="col-3"><div class="bg-light border rounded h-100 d-flex align-items-center justify-content-center text-muted"><i class="ph-bold ph-image"></i></div></div>
+                            <div class="col-3"><div class="bg-light border rounded h-100 d-flex align-items-center justify-content-center text-muted"><i class="ph-bold ph-image"></i></div></div>
+                        </div>
+                        <div class="info-row"><span class="info-label">Register Date</span><span class="info-val">${v.v_reg_date}</span></div>
+                        <div class="info-row"><span class="info-label">Owner Serial</span><span class="info-val">${v.v_owner}</span></div>
+                        <div class="info-row"><span class="info-label">Chassis No</span><span class="info-val">${v.v_chassis}</span></div>
+                        <div class="info-row"><span class="info-label">Engine No</span><span class="info-val">${v.v_engine}</span></div>
+                        <div class="info-row"><span class="info-label">Pay Mode</span><span class="info-val">${v.v_pay_mode}</span></div>
+                        <div class="info-row"><span class="info-label">Price</span><span class="info-val">₹${v.v_price}</span></div>
+                        <div class="info-row"><span class="info-label">Challan</span><span class="info-val">${v.v_chal} ${v.v_chal=='Yes'?'('+v.v_chal_no+')':''}</span></div>
+                         <div class="info-row"><span class="info-label">Sold</span><span class="info-val text-danger">${v.v_sold?'YES':'NO'}</span></div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100 border-0 shadow-sm p-3">
+                        <div class="detail-header text-warning">2️⃣ Seller Details</div>
+                         <div class="info-row"><span class="info-label">Name</span><span class="info-val">${v.s_name}</span></div>
+                         <div class="info-row"><span class="info-label">Address</span><span class="info-val text-truncate" style="max-width:150px;">${v.s_addr}</span></div>
+                         <div class="info-row"><span class="info-label">Mobile</span><span class="info-val">${v.s_mob1}</span></div>
+                         <div class="info-row"><span class="info-label">Papers</span><span class="info-val">${v.s_papers.rc?'RC ':''}${v.s_papers.tax?'Tax ':''}</span></div>
+                         <div class="info-row"><span class="info-label">Payment</span><span class="info-val">₹${v.s_pay.total} (Due: ₹${v.s_pay.due})</span></div>
+                         <div class="info-row"><span class="info-label">NOC</span><span class="info-val">${v.s_noc}</span></div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100 border-0 shadow-sm p-3">
+                        <div class="detail-header text-success">3️⃣ Purchaser Details</div>
+                        <div class="info-row"><span class="info-label">Name</span><span class="info-val">${v.p_name}</span></div>
+                        <div class="info-row"><span class="info-label">Total</span><span class="info-val">₹${v.p_pay.total}</span></div>
+                        <div class="info-row"><span class="info-label">Due</span><span class="info-val text-danger">₹${v.p_pay.due}</span></div>
+                        <div class="info-row"><span class="info-label">Finance</span><span class="info-val">${v.p_finance.co || 'N/A'}</span></div>
+                         <div class="d-flex gap-2 mt-2">
+                            <div class="bg-light border rounded p-2 text-center" style="width:60px;"><i class="ph-bold ph-identification-card fs-4"></i><br><span style="font-size:9px">Aadhar</span></div>
+                             <div class="bg-light border rounded p-2 text-center" style="width:60px;"><i class="ph-bold ph-identification-card fs-4"></i><br><span style="font-size:9px">Voter</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100 border-0 shadow-sm p-3">
+                        <div class="detail-header text-danger">4️⃣ Transfer Details</div>
+                        <div class="info-row"><span class="info-label">To</span><span class="info-val">${v.t_to}</span></div>
+                        <div class="info-row"><span class="info-label">RTO</span><span class="info-val">${v.t_rto}</span></div>
+                        <div class="info-row"><span class="info-label">Transfer Fee</span><span class="info-val">₹${v.t_fee.amt} (${v.t_fee.st})</span></div>
+                        <div class="info-row"><span class="info-label">HPA Fee</span><span class="info-val">₹${v.t_hpa.amt} (${v.t_hpa.st})</span></div>
+                        <div class="info-row"><span class="info-label">Sign Dates</span><span class="info-val">P: ${v.t_sign.p_date} / S: ${v.t_sign.s_date}</span></div>
+                    </div>
+                </div>
+            </div>`;
+            $('#viewContent').html(html);
+            detailsModal.show();
+        }
+
+        function openEdit(id) { openWizardModal('edit', id); }
+        function openWizardModal(mode, id) {
+            $('#dealForm')[0].reset();
+            currentStep = 1; showStep(1);
+            $('#modalTitleText').text(mode === 'edit' ? 'EDIT VEHICLE' : 'ADD NEW');
+            $('#stampSold, #overlaySold, #challan-inputs, #seller-fin-options, #noc-photos, #s_due_reason, #hpa_sec').addClass('d-none');
+            $('#s_chal_inp').addClass('d-none');
+            
+            if(mode === 'edit') {
+                const v = inventory.find(i => i.id === id);
+                if(v) {
+                    // 1. Vehicle
+                    $('#e_v_reg').val(v.v_reg); $('#e_v_date').val(v.v_reg_date); $('#e_v_owner').val(v.v_owner);
+                    $('#e_v_chassis').val(v.v_chassis); $('#e_v_engine').val(v.v_engine); $('#e_v_price').val(v.v_price);
+                    $(`input[name="v_pay"][id="vp_${v.v_pay_mode.toLowerCase()}"]`).prop('checked', true);
+                    if(v.v_chal === "Yes") { $('#pc_yes').prop('checked', true).trigger('change'); $('#e_v_chal_no').val(v.v_chal_no); }
+                    if(v.v_sold) $('#soldToggle').prop('checked', true).trigger('change');
+
+                    // 2. Seller
+                    $('#e_s_date').val(v.s_date); $('#e_s_veh').val(v.s_veh); $('#e_s_bike').val(v.s_bike); $('#e_s_name').val(v.s_name);
+                    $('#e_s_addr').val(v.s_addr); $('#e_s_mob1').val(v.s_mob1);
+                    $('#pr_rc').prop('checked', v.s_papers.rc);
+                    $(`input[name="s_pay"][id="sp_${v.s_pay_mode.toLowerCase()}"]`).prop('checked', true).trigger('change');
+                    $('#s_total').val(v.s_pay.total); $('#s_paid').val(v.s_pay.paid); $('#s_due').val(v.s_pay.due);
+
+                    // 3. Purchaser
+                    $('#e_p_date').val(v.p_date); $('#e_p_name').val(v.p_name); $('#e_p_addr').val(v.p_addr);
+                    $('#p_total').val(v.p_pay.total); $('#p_paid').val(v.p_pay.paid);
+                    $('#e_p_mode').val(v.p_mode).trigger('change'); $('#e_p_hpa_co').val(v.p_finance.co);
+
+                    // 4. Transfer
+                    $('#e_t_name').val(v.t_to); $('#e_t_rto').val(v.t_rto); $('#e_t_amt').val(v.t_fee.amt);
+                }
+            }
+            wizardModal.show();
+        }
+
+        function showStep(n) {
+            $('.wizard-step').addClass('d-none'); $(`#step-${n}`).removeClass('d-none');
+            $('.step-item').removeClass('active'); $(`#nav-step-${n}`).addClass('active');
+            $('#prevBtn').toggle(n > 1); $('#nextBtn').toggle(n < 4); $('#finishBtn').toggle(n === 4);
+        }
+        function navigateWizard(dir) { currentStep += dir; showStep(currentStep); }
+        function saveData() { wizardModal.hide(); $('#gridLoader').removeClass('d-none'); setTimeout(() => { renderGrid(); }, 500); }
+    </script>
+</body>
+</html>

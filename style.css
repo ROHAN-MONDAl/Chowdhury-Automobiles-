@@ -258,51 +258,95 @@ background-color: rgb(228, 226, 226);
 }
 
 /* INVENTORY SEARCH & FILTER DESIGN */
+/* Custom CSS for Modal Inventory */
+
+/* 1. Toolbar Layout for Responsiveness */
 .inventory-toolbar {
-    background: white;
-    padding: 20px;
-    border-radius: 20px;
-    margin: 20px;
-    box-shadow: var(--shadow-card);
     display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
+    gap: 1rem; /* Space between search and filter */
+    align-items: center;
+    padding: 0 1rem;
 }
 
 .search-box {
-    flex-grow: 1;
-    position: relative;
+    flex-grow: 1; /* Search takes up remaining space */
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem; /* Rounded search field */
+    background-color: #f8f9fa; /* Light background for search */
+    border: 1px solid #dee2e6;
 }
 
 .search-box input {
-    padding-left: 45px;
-    border-radius: 50px;
-    border: 1px solid #E5E5EA;
-    height: 50px;
-    box-shadow: none;
-    background: #F9F9F9;
-}
-
-.search-box i {
-    position: absolute;
-    left: 18px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #8E8E93;
-    font-size: 20px;
+    /* Override form-control-lg's default border/shadow */
+    background-color: transparent !important;
 }
 
 .filter-select {
-    width: auto;
-    min-width: 150px;
-    border-radius: 50px;
-    height: 50px;
-    border: 1px solid #E5E5EA;
-    background-color: #F9F9F9;
-    padding-left: 20px;
-    font-weight: 600;
-    color: #1d1d1f;
-    cursor: pointer;
+    max-width: 150px; /* Limit filter width on desktop */
+    border-radius: 0.75rem !important;
+}
+
+/* Responsive Stacking for Search/Filter on smaller screens (e.g., < 576px) */
+@media (max-width: 575.98px) {
+    .inventory-toolbar {
+        flex-direction: column; /* Stack items vertically */
+        gap: 0.75rem;
+    }
+    .search-box,
+    .filter-select {
+        width: 100%; /* Make them full width */
+        max-width: none;
+    }
+}
+
+/* 2. Vehicle Thumbnail */
+.vehicle-thumb {
+    width: 60px;
+    height: 40px;
+    object-fit: cover;
+}
+
+/* 3. Custom Table Styling for Row Gaps */
+.custom-inventory-table {
+    /* Forces separate border model for spacing to work */
+    border-collapse: separate; 
+    border-spacing: 0 10px; /* Adds 10px vertical space between rows */
+}
+
+.custom-inventory-table thead th {
+    /* Remove padding-bottom to bring header closer to first row */
+    padding-bottom: 0.5rem !important; 
+    font-weight: 600 !important;
+}
+
+.custom-inventory-table tbody tr {
+    /* Base style for table rows */
+    background-color: #f8f9fa !important; /* Light background */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow for lift */
+    transition: all 0.2s;
+}
+
+.custom-inventory-table tbody tr:hover {
+    background-color: #e9ecef !important; /* Slightly darker on hover */
+}
+
+/* Remove default cell borders for the custom card-like row look */
+.custom-inventory-table td {
+    border: none !important;
+}
+
+/* Ensure inner table cells are slightly padded */
+.custom-inventory-table td:not(.ps-4):not(.pe-4) {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+/* Status Badge refinement */
+.badge {
+    min-width: 90px; /* Ensure badge has a consistent minimum width */
+    text-align: center;
 }
 
 /* Photo Upload Box */

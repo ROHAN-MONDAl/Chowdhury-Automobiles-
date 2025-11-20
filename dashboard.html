@@ -84,7 +84,7 @@
                 </div>
                 <!-- Inventory -->
                 <div class="col-6 col-md-4 col-lg-3 col-xl-3">
-                    <div class="app-card p-4 d-flex flex-column" onclick="openModal('inventoryModal')">
+                    <div class="app-card p-4 d-flex flex-column" onclick="window.location.href='inventory.html'">
                         <div class="card-icon-box bg-indigo-grad"><i class="ph-bold ph-car"></i></div>
                         <h5 class="fw-bold mb-1 fs-5">Inventory</h5>
                         <span class="text-secondary small fw-bold text-uppercase">Search & Details</span>
@@ -129,199 +129,6 @@
         </div>
     </section>
 
-    <!-- INVENTORY MODAL (Enhanced Design) -->
-    <!-- Responsive: modal-fullscreen-sm-down makes modal take up entire screen on mobile -->
-    <div class="modal fade" id="inventoryModal" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
-            <div class="modal-content">
-                <div class="modal-header border-0 pb-0">
-                    <h4 class="modal-title fw-bold ms-2 fs-5 fs-md-4">Vehicle Inventory</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <!-- Enhanced Search & Filter -->
-                <!-- Responsive: Custom CSS handles stacking on mobile -->
-                <div class="inventory-toolbar">
-                    <div class="search-box">
-                        <i class="ph-bold ph-magnifying-glass"></i>
-                        <input type="text" id="invSearch" placeholder="Search vehicle no, model name..."
-                            class="form-control-lg">
-                    </div>
-                    <select class="form-select filter-select form-control-lg" id="invFilter">
-                        <option value="all">All Status</option>
-                        <option value="available">Available</option>
-                        <option value="sold">Sold</option>
-                        <option value="pending">Pending</option>
-                    </select>
-                </div>
-
-                <div class="modal-body px-4 pb-4 pt-0">
-                    <!-- Responsive Table: table-responsive ensures horizontal scroll on small screens -->
-                    <div class="table-responsive rounded-4 bg-white shadow-sm p-2">
-                        <table class="table table-hover mb-0 align-middle"
-                            style="border-collapse: separate; border-spacing: 0 8px;">
-                            <thead class="bg-white text-secondary small">
-                                <tr>
-                                    <th class="ps-4 border-0">VEHICLE</th>
-                                    <th class="border-0">PRICE</th>
-                                    <th class="border-0">STATUS</th>
-                                    <th class="text-end pe-4 border-0">ACTIONS</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="inv-row bg-light" data-status="available">
-                                    <td class="ps-4 border-0 rounded-start-4">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <img src="https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=100"
-                                                class="vehicle-thumb">
-                                            <div>
-                                                <div class="fw-bold text-dark small">WB 68 AD 1234</div>
-                                                <div class="small text-muted fw-semibold" style="font-size: 0.7rem;">
-                                                    Pulsar 150 • 2022</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="fw-bold text-dark border-0 small">₹35,000</td>
-                                    <td class="border-0"><span
-                                            class="badge-pill bg-success-subtle text-success">Available</span></td>
-                                    <td class="text-end pe-4 border-0 rounded-end-4">
-                                        <!-- Buttons use d-flex flex-column on small screens to stack them if space is tight -->
-                                        <div
-                                            class="d-flex justify-content-end align-items-center flex-wrap flex-md-row gap-1">
-                                            <button
-                                                class="btn btn-sm btn-light border fw-bold text-primary px-3 shadow-none small"
-                                                onclick="viewVehicleDetails()">Details</button>
-                                            <button
-                                                class="btn btn-sm btn-primary rounded-pill fw-bold px-4 shadow-sm small"
-                                                onclick="openModal('dealModal')">Add Info</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr class="inv-row bg-light is-sold" data-status="sold">
-                                    <td class="ps-4 border-0 rounded-start-4">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=100"
-                                                class="vehicle-thumb">
-                                            <div>
-                                                <div class="fw-bold text-dark small">WB 38 X 9988</div>
-                                                <div class="small text-muted fw-semibold" style="font-size: 0.7rem;">
-                                                    Apache RTR • 2021</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="fw-bold text-dark border-0 small">₹42,000</td>
-                                    <td class="border-0"><span
-                                            class="badge-pill bg-danger-subtle text-danger">Sold</span></td>
-                                    <td class="text-end pe-4 border-0 rounded-end-4">
-                                        <div
-                                            class="d-flex justify-content-end align-items-center flex-wrap flex-md-row gap-1">
-                                            <button
-                                                class="btn btn-sm btn-light border fw-bold text-primary px-3 shadow-none small"
-                                                onclick="viewVehicleDetails()">Details</button>
-                                            <button
-                                                class="btn btn-sm btn-primary rounded-pill fw-bold px-4 shadow-sm small"
-                                                onclick="openModal('dealModal')">Add Info</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- Example of a pending vehicle -->
-                                <tr class="inv-row bg-light" data-status="pending">
-                                    <td class="ps-4 border-0 rounded-start-4">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <img src="https://images.unsplash.com/photo-1627063428989-1ccf524c7f1a?w=100"
-                                                class="vehicle-thumb">
-                                            <div>
-                                                <div class="fw-bold text-dark small">BR 01 AM 7777</div>
-                                                <div class="small text-muted fw-semibold" style="font-size: 0.7rem;">
-                                                    Royal Enfield • 2020</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="fw-bold text-dark border-0 small">₹75,000</td>
-                                    <td class="border-0"><span
-                                            class="badge-pill bg-warning-subtle text-warning">Pending</span></td>
-                                    <td class="text-end pe-4 border-0 rounded-end-4">
-                                        <div
-                                            class="d-flex justify-content-end align-items-center flex-wrap flex-md-row gap-1">
-                                            <button
-                                                class="btn btn-sm btn-light border fw-bold text-primary px-3 shadow-none small"
-                                                onclick="viewVehicleDetails()">Details</button>
-                                            <button
-                                                class="btn btn-sm btn-primary rounded-pill fw-bold px-4 shadow-sm small"
-                                                onclick="openModal('dealModal')">Add Info</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- VEHICLE DETAILS SIDE-BY-SIDE -->
-    <!-- Responsive: modal-fullscreen-sm-down for mobile view -->
-    <div class="modal fade" id="vehicleDetailsModal" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-fullscreen-sm-down">
-            <div class="modal-content bg-light">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold ms-2 fs-5 fs-md-5">Vehicle Details: WB 68 AD 1234</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <!-- Responsive Row: stacks columns vertically on mobile (col-12) -->
-                    <div class="row g-4">
-                        <!-- Seller -->
-                        <div class="col-12 col-lg-6">
-                            <div class="app-card p-0 h-100 cursor-default">
-                                <div
-                                    class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex align-items-center gap-3">
-                                    <div class="bg-indigo-grad rounded-circle text-white d-flex align-items-center justify-content-center shadow"
-                                        style="width:40px;height:40px;"><i class="ph-bold ph-user fs-5"></i></div>
-                                    <h6 class="fw-bold mb-0 fs-5">Seller Information</h6>
-                                </div>
-                                <div class="card-body px-4 pb-4">
-                                    <h4 class="fw-bold mt-3 mb-1">Rajesh Kumar</h4>
-                                    <div class="d-flex flex-column gap-3 mt-4">
-                                        <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3 border"><i
-                                                class="ph-fill ph-phone text-secondary fs-5"></i> <span
-                                                class="fw-bold">+91 98765 43210</span></div>
-                                        <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3 border"><i
-                                                class="ph-fill ph-map-pin text-secondary fs-5"></i> <span
-                                                class="fw-medium">12, Station Road, Bankura</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Buyer -->
-                        <div class="col-12 col-lg-6">
-                            <div class="app-card p-0 h-100 cursor-default">
-                                <div
-                                    class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex align-items-center gap-3">
-                                    <div class="bg-green-grad rounded-circle text-white d-flex align-items-center justify-content-center shadow"
-                                        style="width:40px;height:40px;"><i class="ph-bold ph-shopping-cart fs-5"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-0 fs-5">Buyer Information</h6>
-                                </div>
-                                <div class="card-body px-4 pb-4">
-                                    <h4 class="fw-bold mt-3 mb-1">Amit Das</h4>
-                                    <div class="d-flex flex-column gap-3 mt-4">
-                                        <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3 border"><i
-                                                class="ph-fill ph-phone text-secondary fs-5"></i> <span
-                                                class="fw-bold">+91 88221 99887</span></div>
-                                        <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3 border"><i
-                                                class="ph-fill ph-map-pin text-secondary fs-5"></i> <span
-                                                class="fw-medium">Sector 5, Durgapur</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- LEADS LIST MODAL -->
     <!-- Responsive: modal-fullscreen-sm-down for mobile view -->
@@ -391,17 +198,25 @@
     <div class="modal fade" id="dealModal" data-bs-backdrop="static" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
             <div class="modal-content">
-                <div class="modal-header border-0 pb-0 pt-4 d-flex flex-column flex-md-row align-items-center justify-content-between position-relative">
-                    <div class="w-100 text-center text-md-start">
-                        <h5 class="modal-title fw-bold text-uppercase ls-1 text-primary">
-                            <span class="d-inline-block bg-dark text-white rounded-circle" style="width:38px;height:38px;vertical-align:middle;">
-                                <i class="ph-bold ph-car-profile"></i>
-                            </span>
-                            <span class="align-middle"><b>CHOWDHURY AUTO</b></span>
+                <div class="modal-header border-0 pt-4 pb-2 d-flex align-items-center justify-content-between">
+
+                    <!-- Left Section: Icon + Title -->
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center"
+                            style="width:42px; height:42px;">
+                            <i class="ph-bold ph-car-profile fs-5"></i>
+                        </div>
+
+                        <h5 class="modal-title fw-bold text-uppercase ls-1 text-primary mb-0">
+                            CHOWDHURY AUTO
                         </h5>
                     </div>
-                    <button type="button" class="btn-close position-absolute end-0 me-4 top-0 mt-4 mt-md-0" data-bs-dismiss="modal"></button>
+
+                    <!-- Right: Bootstrap Close Button (Perfectly Centered) -->
+                    <button type="button" class="btn-close ms-3" data-bs-dismiss="modal"></button>
+
                 </div>
+
 
                 <!-- Same indicators, only improved responsive layout -->
                 <div class="wizard-nav d-flex justify-content-between flex-wrap gap-3 mt-3 px-2 text-center">
