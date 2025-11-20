@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- Ensure responsive scaling and disable zoom on mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chowdhury Automobile | Manager</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS (Contains responsive breakpoints for specific components like .wizard-nav) -->
+    <link rel="stylesheet" href="style.css">
+
+
+</head>
+
+<body>
+
+    <!-- LOADER -->
+    <div id="loader"
+        style="position:fixed; inset:0; background:rgba(242,242,247,0.98); z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column;">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+        <div class="mt-3 fw-bold text-secondary" style="letter-spacing: 1px;">LOADING...</div>
+    </div>
+
+    <!-- DASHBOARD SECTION -->
+    <section id="dashboard-section" class="pb-5">
+        <!-- HEADER / NAVIGATION BAR -->
+        <!-- Responsive: Sticky-top, shadows, and flex ensures horizontal layout adapts on small screens -->
+        <nav class="navbar bg-white sticky-top shadow-sm rounded-4 py-3">
+            <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between">
+
+                <!-- Brand -->
+                <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#">
+                    <span
+                        class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow"
+                        style="width:40px; height:40px;">
+                        <i class="ph-bold ph-car-profile"></i>
+                    </span>
+                    <span class="fs-6">CHOWDHURY AUTO</span>
+                </a>
+
+                <!-- Log Out Button -->
+                <button id="logoutBtn" class="btn btn-light border fw-bold rounded-pill px-3 py-1 shadow-sm">
+                    Log Out
+                </button>
+
+            </div>
+        </nav>
+
+
+        <!-- DASHBOARD CONTENT CONTAINER -->
+        <div class="container mt-5 p-2">
+            <div class="d-flex justify-content-between align-items-end mb-4 mb-md-5">
+                <div>
+                    <h2 class="fw-bold mb-1 fs-3 fs-md-2">Overview</h2>
+                    <p class="text-secondary mb-0 fw-medium small">Management Dashboard</p>
+                </div>
+            </div>
+
+            <!-- INDICATOR CARDS (RESPONSIVE GRID) -->
+            <div class="row g-3 g-md-4">
+
+                <!-- Card Grid Definition (col-6 for mobile, col-md-4 for tablet, col-lg-3 for desktop) -->
+
+                <!-- New Deal -->
+                <div class="col-6 col-md-4 col-lg-3 col-xl-3">
+                    <div class="app-card p-4 d-flex flex-column" onclick="openModal('dealModal')">
+                        <div class="card-icon-box bg-blue-grad"><i class="ph-bold ph-plus"></i></div>
+                        <h5 class="fw-bold mb-1 fs-5">New Deal</h5>
+                        <span class="text-secondary small fw-bold text-uppercase">Start Wizard</span>
+                    </div>
+                </div>
+                <!-- Inventory -->
+                <div class="col-6 col-md-4 col-lg-3 col-xl-3">
+                    <div class="app-card p-4 d-flex flex-column" onclick="openModal('inventoryModal')">
+                        <div class="card-icon-box bg-indigo-grad"><i class="ph-bold ph-car"></i></div>
+                        <h5 class="fw-bold mb-1 fs-5">Inventory</h5>
+                        <span class="text-secondary small fw-bold text-uppercase">Search & Details</span>
+                    </div>
+                </div>
+                <!-- Leads -->
+                <div class="col-6 col-md-4 col-lg-3 col-xl-3">
+                    <div class="app-card p-4 d-flex flex-column" onclick="openModal('leadsListModal')">
+                        <div class="card-icon-box bg-pink-grad"><i class="ph-bold ph-users-three"></i></div>
+                        <h5 class="fw-bold mb-1 fs-5">Leads</h5>
+                        <span class="text-secondary small fw-bold text-uppercase">Manage List</span>
+                    </div>
+                </div>
+                <!-- Quick Add -->
+                <div class="col-6 col-md-4 col-lg-3 col-xl-3">
+                    <div class="app-card p-4 d-flex flex-column" onclick="openModal('leadModal')">
+                        <div class="card-icon-box bg-purple-grad"><i class="ph-bold ph-user-plus"></i></div>
+                        <h5 class="fw-bold mb-1 fs-5">Quick Add</h5>
+                        <span class="text-secondary small fw-bold text-uppercase">Capture Lead</span>
+                    </div>
+                </div>
+                <!-- Stats: Pending (Use responsive text sizing) -->
+                <div class="col-6 col-md-4 col-lg-3 col-xl-3">
+                    <div class="app-card p-4 d-flex flex-column">
+                        <div class="card-icon-box bg-orange-grad"><i class="ph-bold ph-clock-countdown"></i></div>
+                        <h5 class="fw-bold mb-1 fs-5">Pending</h5>
+                        <span class="fs-4 fs-md-3 fw-bold text-dark">5 Tasks</span>
+                    </div>
+                </div>
+                <!-- Stats: Sold (Use responsive text sizing) -->
+                <div class="col-6 col-md-4 col-lg-3 col-xl-3">
+                    <div class="app-card p-4 d-flex flex-column">
+                        <div class="card-icon-box bg-green-grad"><i class="ph-bold ph-check-circle"></i></div>
+                        <h5 class="fw-bold mb-1 fs-5">Sold</h5>
+                        <span class="fs-4 fs-md-3 fw-bold text-dark">128 Deals</span>
+                    </div>
+                </div>
+                <!-- Empty spaces to ensure alignment -->
+                <div class="d-none d-lg-block col-lg-3 col-xl-3"></div>
+                <div class="d-none d-lg-block col-lg-3 col-xl-3"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- INVENTORY MODAL (Enhanced Design) -->
+    <!-- Responsive: modal-fullscreen-sm-down makes modal take up entire screen on mobile -->
+    <div class="modal fade" id="inventoryModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h4 class="modal-title fw-bold ms-2 fs-5 fs-md-4">Vehicle Inventory</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Enhanced Search & Filter -->
+                <!-- Responsive: Custom CSS handles stacking on mobile -->
+                <div class="inventory-toolbar">
+                    <div class="search-box">
+                        <i class="ph-bold ph-magnifying-glass"></i>
+                        <input type="text" id="invSearch" placeholder="Search vehicle no, model name..."
+                            class="form-control-lg">
+                    </div>
+                    <select class="form-select filter-select form-control-lg" id="invFilter">
+                        <option value="all">All Status</option>
+                        <option value="available">Available</option>
+                        <option value="sold">Sold</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+
+                <div class="modal-body px-4 pb-4 pt-0">
+                    <!-- Responsive Table: table-responsive ensures horizontal scroll on small screens -->
+                    <div class="table-responsive rounded-4 bg-white shadow-sm p-2">
+                        <table class="table table-hover mb-0 align-middle"
+                            style="border-collapse: separate; border-spacing: 0 8px;">
+                            <thead class="bg-white text-secondary small">
+                                <tr>
+                                    <th class="ps-4 border-0">VEHICLE</th>
+                                    <th class="border-0">PRICE</th>
+                                    <th class="border-0">STATUS</th>
+                                    <th class="text-end pe-4 border-0">ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="inv-row bg-light" data-status="available">
+                                    <td class="ps-4 border-0 rounded-start-4">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <img src="https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=100"
+                                                class="vehicle-thumb">
+                                            <div>
+                                                <div class="fw-bold text-dark small">WB 68 AD 1234</div>
+                                                <div class="small text-muted fw-semibold" style="font-size: 0.7rem;">
+                                                    Pulsar 150 • 2022</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold text-dark border-0 small">₹35,000</td>
+                                    <td class="border-0"><span
+                                            class="badge-pill bg-success-subtle text-success">Available</span></td>
+                                    <td class="text-end pe-4 border-0 rounded-end-4">
+                                        <!-- Buttons use d-flex flex-column on small screens to stack them if space is tight -->
+                                        <div
+                                            class="d-flex justify-content-end align-items-center flex-wrap flex-md-row gap-1">
+                                            <button
+                                                class="btn btn-sm btn-light border fw-bold text-primary px-3 shadow-none small"
+                                                onclick="viewVehicleDetails()">Details</button>
+                                            <button
+                                                class="btn btn-sm btn-primary rounded-pill fw-bold px-4 shadow-sm small"
+                                                onclick="openModal('dealModal')">Add Info</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="inv-row bg-light is-sold" data-status="sold">
+                                    <td class="ps-4 border-0 rounded-start-4">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=100"
+                                                class="vehicle-thumb">
+                                            <div>
+                                                <div class="fw-bold text-dark small">WB 38 X 9988</div>
+                                                <div class="small text-muted fw-semibold" style="font-size: 0.7rem;">
+                                                    Apache RTR • 2021</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold text-dark border-0 small">₹42,000</td>
+                                    <td class="border-0"><span
+                                            class="badge-pill bg-danger-subtle text-danger">Sold</span></td>
+                                    <td class="text-end pe-4 border-0 rounded-end-4">
+                                        <div
+                                            class="d-flex justify-content-end align-items-center flex-wrap flex-md-row gap-1">
+                                            <button
+                                                class="btn btn-sm btn-light border fw-bold text-primary px-3 shadow-none small"
+                                                onclick="viewVehicleDetails()">Details</button>
+                                            <button
+                                                class="btn btn-sm btn-primary rounded-pill fw-bold px-4 shadow-sm small"
+                                                onclick="openModal('dealModal')">Add Info</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Example of a pending vehicle -->
+                                <tr class="inv-row bg-light" data-status="pending">
+                                    <td class="ps-4 border-0 rounded-start-4">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <img src="https://images.unsplash.com/photo-1627063428989-1ccf524c7f1a?w=100"
+                                                class="vehicle-thumb">
+                                            <div>
+                                                <div class="fw-bold text-dark small">BR 01 AM 7777</div>
+                                                <div class="small text-muted fw-semibold" style="font-size: 0.7rem;">
+                                                    Royal Enfield • 2020</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold text-dark border-0 small">₹75,000</td>
+                                    <td class="border-0"><span
+                                            class="badge-pill bg-warning-subtle text-warning">Pending</span></td>
+                                    <td class="text-end pe-4 border-0 rounded-end-4">
+                                        <div
+                                            class="d-flex justify-content-end align-items-center flex-wrap flex-md-row gap-1">
+                                            <button
+                                                class="btn btn-sm btn-light border fw-bold text-primary px-3 shadow-none small"
+                                                onclick="viewVehicleDetails()">Details</button>
+                                            <button
+                                                class="btn btn-sm btn-primary rounded-pill fw-bold px-4 shadow-sm small"
+                                                onclick="openModal('dealModal')">Add Info</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VEHICLE DETAILS SIDE-BY-SIDE -->
+    <!-- Responsive: modal-fullscreen-sm-down for mobile view -->
+    <div class="modal fade" id="vehicleDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-fullscreen-sm-down">
+            <div class="modal-content bg-light">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold ms-2 fs-5 fs-md-5">Vehicle Details: WB 68 AD 1234</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Responsive Row: stacks columns vertically on mobile (col-12) -->
+                    <div class="row g-4">
+                        <!-- Seller -->
+                        <div class="col-12 col-lg-6">
+                            <div class="app-card p-0 h-100 cursor-default">
+                                <div
+                                    class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex align-items-center gap-3">
+                                    <div class="bg-indigo-grad rounded-circle text-white d-flex align-items-center justify-content-center shadow"
+                                        style="width:40px;height:40px;"><i class="ph-bold ph-user fs-5"></i></div>
+                                    <h6 class="fw-bold mb-0 fs-5">Seller Information</h6>
+                                </div>
+                                <div class="card-body px-4 pb-4">
+                                    <h4 class="fw-bold mt-3 mb-1">Rajesh Kumar</h4>
+                                    <div class="d-flex flex-column gap-3 mt-4">
+                                        <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3 border"><i
+                                                class="ph-fill ph-phone text-secondary fs-5"></i> <span
+                                                class="fw-bold">+91 98765 43210</span></div>
+                                        <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3 border"><i
+                                                class="ph-fill ph-map-pin text-secondary fs-5"></i> <span
+                                                class="fw-medium">12, Station Road, Bankura</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Buyer -->
+                        <div class="col-12 col-lg-6">
+                            <div class="app-card p-0 h-100 cursor-default">
+                                <div
+                                    class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex align-items-center gap-3">
+                                    <div class="bg-green-grad rounded-circle text-white d-flex align-items-center justify-content-center shadow"
+                                        style="width:40px;height:40px;"><i class="ph-bold ph-shopping-cart fs-5"></i>
+                                    </div>
+                                    <h6 class="fw-bold mb-0 fs-5">Buyer Information</h6>
+                                </div>
+                                <div class="card-body px-4 pb-4">
+                                    <h4 class="fw-bold mt-3 mb-1">Amit Das</h4>
+                                    <div class="d-flex flex-column gap-3 mt-4">
+                                        <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3 border"><i
+                                                class="ph-fill ph-phone text-secondary fs-5"></i> <span
+                                                class="fw-bold">+91 88221 99887</span></div>
+                                        <div class="p-3 bg-light rounded-4 d-flex align-items-center gap-3 border"><i
+                                                class="ph-fill ph-map-pin text-secondary fs-5"></i> <span
+                                                class="fw-medium">Sector 5, Durgapur</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEADS LIST MODAL -->
+    <!-- Responsive: modal-fullscreen-sm-down for mobile view -->
+    <div class="modal fade" id="leadsListModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h4 class="modal-title fw-bold ms-2 fs-5 fs-md-4">Manage Leads</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Responsive Grid: Two columns on medium/desktop, one column on mobile -->
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6 lead-item">
+                            <div class="lead-card">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="fw-bold mb-1 fs-5">Suman Roy</h5>
+                                        <div class="text-secondary fw-semibold small">+91 90000 12345</div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn-icon edit" onclick="openModal('leadModal')"><i
+                                                class="ph-bold ph-pencil-simple"></i></button>
+                                        <button class="btn-icon delete delete-lead"><i
+                                                class="ph-bold ph-trash"></i></button>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 mt-3 flex-wrap">
+                                    <span
+                                        class="badge-pill bg-primary-subtle text-primary border border-primary-subtle">Pulsar
+                                        150</span>
+                                    <span class="badge-pill bg-light text-dark border">1st Owner</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- More items -->
+                        <div class="col-12 col-md-6 lead-item">
+                            <div class="lead-card">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="fw-bold mb-1 fs-5">Rahul Dev</h5>
+                                        <div class="text-secondary fw-semibold small">+91 88888 11111</div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn-icon edit" onclick="openModal('leadModal')"><i
+                                                class="ph-bold ph-pencil-simple"></i></button>
+                                        <button class="btn-icon delete delete-lead"><i
+                                                class="ph-bold ph-trash"></i></button>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 mt-3 flex-wrap">
+                                    <span
+                                        class="badge-pill bg-primary-subtle text-primary border border-primary-subtle">Apache
+                                        160</span>
+                                    <span class="badge-pill bg-light text-dark border">Any Owner</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4-STEP WIZARD MODAL (Enhanced Indicators) -->
+    <!-- Responsive: modal-fullscreen-sm-down for mobile view -->
+    <div class="modal fade" id="dealModal" data-bs-backdrop="static" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0 pt-4 d-flex flex-column flex-md-row align-items-center justify-content-between position-relative">
+                    <div class="w-100 text-center text-md-start">
+                        <h5 class="modal-title fw-bold text-uppercase ls-1 text-primary">
+                            <span class="d-inline-block bg-dark text-white rounded-circle" style="width:38px;height:38px;vertical-align:middle;">
+                                <i class="ph-bold ph-car-profile"></i>
+                            </span>
+                            <span class="align-middle"><b>CHOWDHURY AUTO</b></span>
+                        </h5>
+                    </div>
+                    <button type="button" class="btn-close position-absolute end-0 me-4 top-0 mt-4 mt-md-0" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Same indicators, only improved responsive layout -->
+                <div class="wizard-nav d-flex justify-content-between flex-wrap gap-3 mt-3 px-2 text-center">
+
+                    <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="1">
+                        <div class="step-circle d-flex align-items-center justify-content-center rounded-circle">
+                            1
+                        </div>
+                        <div class="step-label small mt-1">Vehicle</div>
+                    </div>
+
+                    <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="2">
+                        <div class="step-circle d-flex align-items-center justify-content-center rounded-circle">
+                            2
+                        </div>
+                        <div class="step-label small mt-1">Seller</div>
+                    </div>
+
+                    <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="3">
+                        <div class="step-circle d-flex align-items-center justify-content-center rounded-circle">
+                            3
+                        </div>
+                        <div class="step-label small mt-1">Buyer</div>
+                    </div>
+
+                    <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="4">
+                        <div class="step-circle d-flex align-items-center justify-content-center rounded-circle">
+                            4
+                        </div>
+                        <div class="step-label small mt-1">Transfer</div>
+                    </div>
+
+                </div>
+
+                <div class="modal-body p-4 pt-2">
+                    <form id="dealForm">
+
+                        <!-- STEP 1: VEHICLE -->
+                        <div id="step-1" class="wizard-step">
+                            <div class="card steps-id p-4 border-0 shadow-sm position-relative sold-wrapper rounded-4">
+                                <div class="sold-stamp">SOLD OUT</div>
+                                <div class="sold-overlay"></div>
+                                <div>
+                                    <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Vehicle Details</h6>
+                                    <label class="mb-2">Vehicle Photos</label>
+                                    <!-- Responsive Grid for Photos: 2 columns on mobile, 4 on desktop -->
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-6 col-md-3">
+                                            <div class="photo-upload-box"><i
+                                                    class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input
+                                                    type="file" accept="image/*" hidden></div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="photo-upload-box"><i
+                                                    class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input
+                                                    type="file" accept="image/*" hidden></div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="photo-upload-box"><i
+                                                    class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input
+                                                    type="file" accept="image/*" hidden></div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="photo-upload-box"><i
+                                                    class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input
+                                                    type="file" accept="image/*" hidden></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Responsive Form Fields: 6 columns on mobile, 4 on desktop -->
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-12 col-md-6"><label>Vehicle Number</label><input type="text"
+                                                class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000">
+                                        </div>
+                                        <div class="col-12 col-md-6"><label>Register Date</label><input type="date"
+                                                class="form-control"></div>
+                                        <div class="col-12 col-md-4"><label>Owner Serial</label><select
+                                                class="form-select">
+                                                <option>1st</option>
+                                                <option>2nd</option>
+                                                <option>3rd</option>
+                                            </select></div>
+                                        <div class="col-12 col-md-4"><label>Chassis Number</label><input type="text"
+                                                class="form-control"></div>
+                                        <div class="col-12 col-md-4"><label>Engine Number</label><input type="text"
+                                                class="form-control"></div>
+                                    </div>
+
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-12 col-md-6">
+                                            <label>Payment Mode</label>
+                                            <div class="btn-group w-100" role="group">
+                                                <input type="radio" class="btn-check" name="v_pay" id="vp_cash"
+                                                    checked><label class="btn btn-outline-secondary"
+                                                    for="vp_cash">Cash</label>
+                                                <input type="radio" class="btn-check" name="v_pay" id="vp_fin"><label
+                                                    class="btn btn-outline-secondary" for="vp_fin">Finance</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label>Price</label>
+                                            <div class="input-group"><span
+                                                    class="input-group-text bg-white border-end-0">₹</span><input
+                                                    type="number" class="form-control border-start-0 ps-0"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-3 rounded-4 bg-light border">
+                                        <label>Police Challan</label>
+                                        <div class="d-flex gap-3 mb-2">
+                                            <div class="form-check"><input class="form-check-input" type="radio"
+                                                    name="p_chal" id="pc_no" checked><label
+                                                    class="form-check-label fw-bold" for="pc_no">No</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="radio"
+                                                    name="p_chal" id="pc_yes"><label class="form-check-label fw-bold"
+                                                    for="pc_yes">Yes</label></div>
+                                        </div>
+                                        <div id="challan-inputs" class="d-none mt-2">
+                                            <input type="text" class="form-control mb-2" placeholder="Challan Number">
+                                            <div class="btn-group w-100 btn-group-sm">
+                                                <input type="radio" class="btn-check" name="c_stat" id="cs_pen"
+                                                    checked><label class="btn btn-outline-danger"
+                                                    for="cs_pen">Pending</label>
+                                                <input type="radio" class="btn-check" name="c_stat" id="cs_pd"><label
+                                                    class="btn btn-outline-success" for="cs_pd">Paid</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 pt-3 border-top d-flex align-items-center justify-content-between">
+                                    <label class="form-check-label fw-bold text-danger mb-0" for="soldToggle">Mark as
+                                        Sold Out</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="soldToggle"
+                                            style="width: 3em; height: 1.5em;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 2: SELLER -->
+                        <div id="step-2" class="wizard-step d-none">
+                            <div class="card steps-id border-0 p-4 shadow-sm rounded-4">
+                                <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Seller Details</h6>
+                                <!-- Responsive Form Fields: 4/6 columns on desktop, 12 on mobile -->
+                                <div class="row g-3 mb-3">
+                                    <div class="col-12 col-md-4"><label>Date</label><input type="date"
+                                            class="form-control">
+                                    </div>
+                                    <div class="col-12 col-md-4"><label>Vehicle No</label><input type="text"
+                                            class="form-control"></div>
+                                    <div class="col-12 col-md-4"><label>Bike Name</label><input type="text"
+                                            class="form-control"></div>
+                                    <div class="col-12 col-md-6"><label>Chassis No</label><input type="text"
+                                            class="form-control"></div>
+                                    <div class="col-12 col-md-6"><label>Engine No</label><input type="text"
+                                            class="form-control"></div>
+                                    <div class="col-12"><label>Seller Name</label><input type="text"
+                                            class="form-control"></div>
+                                    <div class="col-12"><label>Address</label><textarea class="form-control"
+                                            rows="2"></textarea></div>
+                                </div>
+
+                                <label class="mb-2">Mobile Numbers</label>
+                                <!-- Responsive Mobile Number Inputs: 3 columns on all screen sizes -->
+                                <div class="row g-2 mb-3">
+                                    <div class="col-4"><input type="tel" class="form-control" placeholder="Mob 1"></div>
+                                    <div class="col-4"><input type="tel" class="form-control" placeholder="Mob 2"></div>
+                                    <div class="col-4"><input type="tel" class="form-control" placeholder="Mob 3"></div>
+                                </div>
+
+                                <div class="bg-light p-3 rounded-4 border mb-3">
+                                    <label class="mb-2">Papers Received</label>
+                                    <!-- Responsive Checkboxes: Wraps naturally, looks good on small screens -->
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <div class="form-check"><input type="checkbox" class="form-check-input"
+                                                id="pr_rc"><label class="fw-bold" for="pr_rc">RC</label></div>
+                                        <div class="form-check"><input type="checkbox" class="form-check-input"
+                                                id="pr_tax"><label class="fw-bold" for="pr_tax">Tax Token</label></div>
+                                        <div class="form-check"><input type="checkbox" class="form-check-input"
+                                                id="pr_ins"><label class="fw-bold" for="pr_ins">Insurance</label></div>
+                                        <div class="form-check"><input type="checkbox" class="form-check-input"
+                                                id="pr_puc"><label class="fw-bold" for="pr_puc">PUCC</label></div>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-12 col-md-6">
+                                        <label>Payment Type</label>
+                                        <div class="btn-group w-100 btn-group-sm">
+                                            <input type="radio" class="btn-check" name="s_pay" id="sp_cash"
+                                                checked><label class="btn btn-outline-secondary"
+                                                for="sp_cash">Cash</label>
+                                            <input type="radio" class="btn-check" name="s_pay" id="sp_fin"><label
+                                                class="btn btn-outline-secondary" for="sp_fin">Finance</label>
+                                        </div>
+                                        <div id="seller-fin-options"
+                                            class="d-none mt-2 p-3 bg-white rounded-4 border shadow-sm">
+                                            <div class="d-flex gap-3 mb-2">
+                                                <div class="form-check"><input class="form-check-input" type="radio"
+                                                        name="noc_stat" id="noc_rec"><label class="fw-bold"
+                                                        for="noc_rec">NOC Received</label></div>
+                                                <div class="form-check"><input class="form-check-input" type="radio"
+                                                        name="noc_stat" id="noc_not"><label class="fw-bold"
+                                                        for="noc_not">Not Received</label></div>
+                                            </div>
+                                            <div id="noc-photos" class="d-none row g-2">
+                                                <div class="col-6">
+                                                    <div class="photo-upload-box"><span
+                                                            class="small text-muted fw-bold">NOC 1</span><img
+                                                            src=""><input type="file" hidden></div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="photo-upload-box"><span
+                                                            class="small text-muted fw-bold">NOC 2</span><img
+                                                            src=""><input type="file" hidden></div>
+                                                </div>
+                                            </div>
+                                            <div id="noc-alert"
+                                                class="d-none text-danger fw-bold small text-center mt-1">⚠ NOC PENDING
+                                                FROM FINANCE</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label>Seller Challan</label>
+                                        <div class="d-flex gap-3 mb-2">
+                                            <div class="form-check"><input class="form-check-input" type="radio"
+                                                    name="s_chal" id="sc_no" checked><label class="fw-bold"
+                                                    for="sc_no">No</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="radio"
+                                                    name="s_chal" id="sc_yes"><label class="fw-bold"
+                                                    for="sc_yes">Yes</label></div>
+                                        </div>
+                                        <input type="text" id="s_chal_inp" class="form-control d-none"
+                                            placeholder="Challan No.">
+                                        <div id="s_chal_ok" class="text-success fw-bold small"><i
+                                                class="ph-fill ph-check-circle"></i> Clean</div>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-12 col-md-6">
+                                        <label>Exchange Showroom Name</label>
+                                        <input type="text" class="form-control" placeholder="Showroom Name">
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label>Staff Name</label>
+                                        <input type="text" class="form-control" placeholder="Staff Name">
+                                    </div>
+                                </div>
+
+                                <div class="bg-light p-3 rounded-4 border">
+                                    <label class="text-primary">Payment Calculation</label>
+                                    <!-- Responsive Calculation Fields: 3 columns on all screens -->
+                                    <div class="row g-2">
+                                        <div class="col-4"><input type="number" class="form-control" placeholder="Total"
+                                                id="s_total"></div>
+                                        <div class="col-4"><input type="number" class="form-control" placeholder="Paid"
+                                                id="s_paid"></div>
+                                        <div class="col-4"><input type="number"
+                                                class="form-control bg-white fw-bold text-danger" placeholder="Due"
+                                                id="s_due" readonly></div>
+                                        <div class="col-12"><input type="text" class="form-control d-none mt-1"
+                                                id="s_due_reason" placeholder="Reason for due amount..."></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 3: PURCHASER -->
+                        <div id="step-3" class="wizard-step d-none">
+                            <div class="card steps-id border-0 p-4 shadow-sm rounded-4">
+                                <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Purchaser Details</h6>
+                                <!-- Responsive Form Fields: 6 columns on desktop, 12 on mobile -->
+                                <div class="row g-3 mb-3">
+                                    <div class="col-12 col-md-6"><label>Date</label><input type="date"
+                                            class="form-control">
+                                    </div>
+                                    <div class="col-12 col-md-6"><label>Purchaser Name</label><input type="text"
+                                            class="form-control"></div>
+                                    <div class="col-12"><label>Address</label><textarea class="form-control"
+                                            rows="2"></textarea></div>
+                                    <div class="col-12 col-md-6"><label>Bike Name</label><input type="text"
+                                            class="form-control"></div>
+                                    <div class="col-12 col-md-6"><label>Vehicle No</label><input type="text"
+                                            class="form-control"></div>
+                                </div>
+                                <div class="bg-light p-3 rounded-4 border mb-3">
+                                    <label class="mb-2">Price Breakdown</label>
+                                    <!-- Responsive Price Breakdown: 3 columns on all screens -->
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-4"><input type="number" id="p_total" class="form-control"
+                                                placeholder="Total"></div>
+                                        <div class="col-4"><input type="number" id="p_paid" class="form-control"
+                                                placeholder="Paid"></div>
+                                        <div class="col-4"><input type="number" id="p_due" class="form-control bg-white"
+                                                placeholder="Due" readonly></div>
+                                    </div>
+                                    <div class="d-flex gap-3 mb-2">
+                                        <div class="form-check"><input class="form-check-input" type="radio"
+                                                name="p_mode" id="pm_cash" checked><label class="fw-bold"
+                                                for="pm_cash">Cash</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio"
+                                                name="p_mode" id="pm_fin"><label class="fw-bold"
+                                                for="pm_fin">Finance</label></div>
+                                    </div>
+                                    <div id="hpa_sec" class="d-none border-top pt-2 mt-2">
+                                        <div class="row g-2">
+                                            <div class="col-12"><label>HPA With</label><input type="text"
+                                                    class="form-control" placeholder="Finance Company"></div>
+                                            <div class="col-12"><label>Disburse Amount</label>
+                                                <div class="input-group">
+                                                    <input type="number" class="form-control" placeholder="Amt">
+                                                    <select class="form-select" style="max-width:100px;">
+                                                        <option>Paid</option>
+                                                        <option>Due</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-12"><label>Mobile Number 1</label><input type="tel"
+                                                    class="form-control" placeholder="Mobile 1"></div>
+                                            <div class="col-12"><label>Mobile Number 2</label><input type="tel"
+                                                    class="form-control" placeholder="Mobile 2"></div>
+                                            <div class="col-12"><label>Mobile Number 3</label><input type="tel"
+                                                    class="form-control" placeholder="Mobile 3"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="mb-2">Purchaser Documents</label>
+                                    <!-- Responsive Document Uploads: 2 columns on mobile, 4 on desktop -->
+                                    <div class="row g-2">
+                                        <div class="col-6 col-md-3">
+                                            <div class="photo-upload-box"><span class="small text-muted fw-bold">Aadhar
+                                                    Front</span><img src=""><input type="file" accept="image/*" hidden>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="photo-upload-box"><span class="small text-muted fw-bold">Aadhar
+                                                    Back</span><img src=""><input type="file" accept="image/*" hidden>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="photo-upload-box"><span class="small text-muted fw-bold">Voter
+                                                    Front</span><img src=""><input type="file" accept="image/*" hidden>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="photo-upload-box"><span class="small text-muted fw-bold">Voter
+                                                    Back</span><img src=""><input type="file" accept="image/*" hidden>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="all_paid">
+                                    <label class="form-check-label fw-bold text-success" for="all_paid">Payment All
+                                        Paid</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 4: TRANSFER -->
+                        <div id="step-4" class="wizard-step d-none">
+                            <div class="card steps-id border-0  shadow-sm rounded-4">
+                                <h6 class="fw-bold text-primary m-4 mb-3 text-uppercase ls-1">Ownership Transfer</h6>
+
+                                <div class="p-3 border rounded-4 mb-4">
+                                    <!-- Name Transfer -->
+                                    <!-- Responsive Transfer Details: 12 columns on mobile, 4 on desktop -->
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-12 col-md-4">
+                                            <label>Name Transfer</label>
+                                            <input type="text" class="form-control" placeholder="Enter Name">
+                                        </div>
+
+                                        <div class="col-12 col-md-4">
+                                            <label>Vehicle Number</label>
+                                            <input type="text" class="form-control" placeholder="Enter Vehicle Number">
+                                        </div>
+
+                                        <div class="col-12 col-md-4">
+                                            <label>RTO Name</label>
+                                            <select class="form-select">
+                                                <option>Bankura</option>
+                                                <option>Bishnupur</option>
+                                                <option>Durgapur</option>
+                                                <option>Manbazar</option>
+                                                <option>Suri</option>
+                                                <option>Asansol</option>
+                                                <option>Kalimpong</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Vendor Name -->
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-12 col-md-6">
+                                            <label>Vendor Name</label>
+                                            <input type="text" class="form-control" placeholder="Vendor Name">
+                                        </div>
+                                    </div>
+
+                                    <!-- Vendor Payments Section -->
+                                    <div class="bg-light p-3 rounded-4 border mb-4">
+                                        <label class="text-dark mb-3 d-block">Vendor Payment</label>
+
+                                        <!-- Name Transfer Payment (3 cols on desktop/md, 12 on mobile but input-group helps) -->
+                                        <div class="row g-2 align-items-end mb-3">
+                                            <div class="col-12 col-md-4">
+                                                <label>Transfer Amount</label>
+                                                <input type="number" class="form-control" placeholder="Amount">
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <label>Date</label>
+                                                <input type="date" class="form-control">
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <label>Status</label>
+                                                <select class="form-select">
+                                                    <option>Paid</option>
+                                                    <option>Due</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- HPA -->
+                                        <div class="row g-2 align-items-end mb-3">
+                                            <div class="col-12 col-md-4">
+                                                <label>HPA</label>
+                                                <input type="number" class="form-control" placeholder="Amount">
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <label>Date</label>
+                                                <input type="date" class="form-control">
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <label>Status</label>
+                                                <select class="form-select">
+                                                    <option>Paid</option>
+                                                    <option>Due</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- HP -->
+                                        <div class="row g-2 align-items-end mb-3">
+                                            <div class="col-12 col-md-4">
+                                                <label>HP</label>
+                                                <input type="number" class="form-control" placeholder="Amount">
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <label>Date</label>
+                                                <input type="date" class="form-control">
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <label>Status</label>
+                                                <select class="form-select">
+                                                    <option>Paid</option>
+                                                    <option>Due</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <!-- Purchaser & Seller Sign -->
+                                    <div class="row g-3 mb-4">
+
+                                        <div class="col-12 col-md-6">
+                                            <label>Purchaser Sign</label>
+                                            <!-- Responsive: Uses simple w-50 to split select and input -->
+                                            <div class="d-flex gap-2">
+                                                <select class="form-select w-50">
+                                                    <option>Yes</option>
+                                                    <option>No</option>
+                                                </select>
+                                                <input type="date" class="form-control w-50">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
+                                            <label>Seller Sign</label>
+                                            <div class="d-flex gap-2">
+                                                <select class="form-select w-50">
+                                                    <option>Yes</option>
+                                                    <option>No</option>
+                                                </select>
+                                                <input type="date" class="form-control w-50">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="modal-footer d-flex align-items-center">
+                    <button type="button" class="btn btn-light border px-4 shadow-sm me-2" id="prevBtn"
+                        style="display:none;">Back</button>
+                    <button type="button" class="btn btn-light border fw-bold shadow-sm text-primary"
+                        id="saveStepBtn"><i class="ph-bold ph-floppy-disk me-1"></i> Save</button>
+                    <button type="button" class="btn btn-primary px-4 ms-auto shadow-lg" id="nextBtn">Next Step</button>
+                    <button type="button" class="btn btn-success px-4 ms-auto text-white shadow-lg" id="finishBtn"
+                        style="display:none;">Finish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEAD MODAL -->
+    <!-- Responsive: Default small modal is already good on mobile -->
+    <div class="modal fade" id="leadModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold ms-2 fs-5">Capture Lead</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="card p-3 border-0 bg-white shadow-none">
+                        <div class="mb-3"><label>Name</label><input type="text" class="form-control"></div>
+                        <div class="mb-3"><label>Phone</label><input type="tel" class="form-control"></div>
+                        <div class="mb-3"><label>Bike Model</label><input type="text" class="form-control"
+                                placeholder="e.g. Splendor"></div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button class="btn btn-primary w-100 rounded-pill fw-bold shadow-sm" data-bs-dismiss="modal">Save
+                        Lead</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+</body>
+
+</html>
