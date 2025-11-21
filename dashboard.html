@@ -38,7 +38,7 @@
     <section id="dashboard-section" class="pb-5">
         <!-- HEADER / NAVIGATION BAR -->
         <!-- Responsive: Sticky-top, shadows, and flex ensures horizontal layout adapts on small screens -->
-        <nav class="navbar bg-white sticky-top shadow-sm rounded-4 py-3">
+        <nav class="navbar bg-white sticky-top shadow-sm rounded-4 py-3 mt-3">
             <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between">
 
                 <!-- Brand -->
@@ -51,10 +51,19 @@
                     <span class="fs-6">CHOWDHURY AUTO</span>
                 </a>
 
-                <!-- Log Out Button -->
-                <button id="logoutBtn" class="btn btn-light border fw-bold rounded-pill px-3 py-1 shadow-sm">
+                <!-- Desktop Log Out Button -->
+                <button id="logoutBtn"
+                    class="btn btn-light border fw-bold rounded-pill px-3 py-1 shadow-sm d-none d-md-inline-block">
                     Log Out
                 </button>
+
+                <!-- Mobile Log Out Icon -->
+                <button id="logoutIcon"
+                    class="btn btn-light border rounded-circle shadow-sm d-inline-flex d-md-none justify-content-center align-items-center p-2">
+                    <i class="ph-bold ph-sign-out fs-5"></i>
+                </button>
+
+
 
             </div>
         </nav>
@@ -72,56 +81,85 @@
             <!-- INDICATOR CARDS (RESPONSIVE GRID) -->
             <div class="row g-3 g-md-4">
 
-                <!-- Card Grid Definition (col-6 for mobile, col-md-4 for tablet, col-lg-3 for desktop) -->
+                <!-- Add Vehicle -->
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="app-card p-4 d-flex align-items-center" onclick="openModal('dealModal')">
+                        <div class="card-icon-box bg-blue-grad me-3 rounded-circle 
+                d-flex justify-content-center align-items-center p-4">
+                            <i class="ph-bold ph-plus fs-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0 fs-5">Add Vehicle</h5>
+                            <span class="text-secondary small fw-bold text-uppercase d-block mb-1">Quick Start</span>
+                            <p class="text-secondary mb-0 small">Easily add a new vehicle to your inventory.</p>
+                        </div>
+                    </div>
+                </div>
 
-                <!-- New Deal -->
-                <div class="col-6 col-md-4 col-lg-3 col-xl-3">
-                    <div class="app-card p-4 d-flex flex-column" onclick="openModal('dealModal')">
-                        <div class="card-icon-box bg-blue-grad"><i class="ph-bold ph-plus"></i></div>
-                        <h5 class="fw-bold mb-1 fs-5">New Deal</h5>
-                        <span class="text-secondary small fw-bold text-uppercase">Start Wizard</span>
-                    </div>
-                </div>
+
                 <!-- Inventory -->
-                <div class="col-6 col-md-4 col-lg-3 col-xl-3">
-                    <div class="app-card p-4 d-flex flex-column" onclick="window.location.href='inventory.html'">
-                        <div class="card-icon-box bg-indigo-grad"><i class="ph-bold ph-car"></i></div>
-                        <h5 class="fw-bold mb-1 fs-5">Inventory</h5>
-                        <span class="text-secondary small fw-bold text-uppercase">Search & Details</span>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="app-card p-4 d-flex align-items-center" onclick="window.location.href='inventory.html'">
+                        <div class="card-icon-box bg-indigo-grad me-3 rounded-circle 
+                    d-flex justify-content-center align-items-center p-4">
+                            <i class="ph-bold ph-car fs-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0 fs-5">Inventory</h5>
+                            <span class="text-secondary small fw-bold text-uppercase d-block mb-1">Search &
+                                Details</span>
+                            <p class="text-secondary mb-0 small">Browse stock and vehicle stats.</p>
+                        </div>
                     </div>
                 </div>
+
                 <!-- Leads -->
-                <div class="col-6 col-md-4 col-lg-3 col-xl-3">
-                    <div class="app-card p-4 d-flex flex-column" onclick="openModal('leadsListModal')">
-                        <div class="card-icon-box bg-pink-grad"><i class="ph-bold ph-users-three"></i></div>
-                        <h5 class="fw-bold mb-1 fs-5">Leads</h5>
-                        <span class="text-secondary small fw-bold text-uppercase">Manage List</span>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="app-card p-4 d-flex align-items-center" onclick="openModal('leadsListModal')">
+                        <div class="card-icon-box bg-pink-grad me-3 rounded-circle 
+                    d-flex justify-content-center align-items-center p-4">
+                            <i class="ph-bold ph-users-three fs-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0 fs-5">Leads</h5>
+                            <span class="text-secondary small fw-bold text-uppercase d-block mb-1">Manage List</span>
+                            <p class="text-secondary mb-0 small">View and track potential clients.</p>
+                        </div>
                     </div>
                 </div>
+
                 <!-- Quick Add -->
-                <div class="col-6 col-md-4 col-lg-3 col-xl-3">
-                    <div class="app-card p-4 d-flex flex-column" onclick="openModal('leadModal')">
-                        <div class="card-icon-box bg-purple-grad"><i class="ph-bold ph-user-plus"></i></div>
-                        <h5 class="fw-bold mb-1 fs-5">Quick Add</h5>
-                        <span class="text-secondary small fw-bold text-uppercase">Capture Lead</span>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="app-card p-4 d-flex align-items-center" onclick="openModal('leadModal')">
+                        <div class="card-icon-box bg-purple-grad me-3 rounded-circle 
+                    d-flex justify-content-center align-items-center p-4">
+                            <i class="ph-bold ph-user-plus fs-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0 fs-5">Quick Add</h5>
+                            <span class="text-secondary small fw-bold text-uppercase d-block mb-1">Capture Lead</span>
+                            <p class="text-secondary mb-0 small">Fast entry for new prospects.</p>
+                        </div>
                     </div>
                 </div>
+
+
                 <!-- Stats: Pending (Use responsive text sizing) -->
-                <div class="col-6 col-md-4 col-lg-3 col-xl-3">
+                <!-- <div class="col-6 col-md-4 col-lg-3 col-xl-3">
                     <div class="app-card p-4 d-flex flex-column">
                         <div class="card-icon-box bg-orange-grad"><i class="ph-bold ph-clock-countdown"></i></div>
                         <h5 class="fw-bold mb-1 fs-5">Pending</h5>
                         <span class="fs-4 fs-md-3 fw-bold text-dark">5 Tasks</span>
                     </div>
-                </div>
+                </div> -->
                 <!-- Stats: Sold (Use responsive text sizing) -->
-                <div class="col-6 col-md-4 col-lg-3 col-xl-3">
+                <!-- <div class="col-6 col-md-4 col-lg-3 col-xl-3">
                     <div class="app-card p-4 d-flex flex-column">
                         <div class="card-icon-box bg-green-grad"><i class="ph-bold ph-check-circle"></i></div>
                         <h5 class="fw-bold mb-1 fs-5">Sold</h5>
                         <span class="fs-4 fs-md-3 fw-bold text-dark">128 Deals</span>
                     </div>
-                </div>
+                </div> -->
                 <!-- Empty spaces to ensure alignment -->
                 <div class="d-none d-lg-block col-lg-3 col-xl-3"></div>
                 <div class="d-none d-lg-block col-lg-3 col-xl-3"></div>
@@ -310,10 +348,10 @@
                                             <label>Payment Mode</label>
                                             <div class="btn-group w-100" role="group">
                                                 <input type="radio" class="btn-check" name="v_pay" id="vp_cash"
-                                                    checked><label class="btn btn-outline-secondary"
+                                                    checked><label class="btn btn-outline-success"
                                                     for="vp_cash">Cash</label>
                                                 <input type="radio" class="btn-check" name="v_pay" id="vp_fin"><label
-                                                    class="btn btn-outline-secondary" for="vp_fin">Finance</label>
+                                                    class="btn btn-outline-primary" for="vp_fin">Finance</label>
                                             </div>
                                         </div>
                                         <div class="col-12 col-md-6">

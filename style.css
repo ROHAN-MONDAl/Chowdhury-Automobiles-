@@ -11,15 +11,15 @@
     --ios-gray: #8E8E93;
 
     /* Dimmed Background for App Feel */
-    --bg-body: #e8e8ed;
+    --bg-body: #F5F5F5;
     --bg-card: #FFFFFF;
 
     --radius-card: 20px;
     --radius-input: 12px;
 
     /* Deep Shadows */
-    --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.15);
-    --shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.22);
+    --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.356);
+    --shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.308);
     --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
 }
 
@@ -628,3 +628,53 @@ background-color: rgb(228, 226, 226);
         font-size: 32px;
     }
 }
+
+/* Dashboard styles complete */
+           
+ 
+        /* Card Hover Effects */
+        .inventory-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid rgba(0, 0, 0, 0.164);
+        }
+        .inventory-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.466) !important;
+        }
+
+        /* Soft Glass Header */
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* Modal Tweak */
+        .modal-content {
+            border: none;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .nav-pills .nav-link {
+            color: #64748b;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+        .nav-pills .nav-link.active {
+            background-color: #0f172a;
+            color: #fff;
+        }
+        
+        /* File Upload Box Design */
+        .upload-box {
+            border: 2px dashed #cbd5e1;
+            transition: all 0.2s;
+        }
+        .upload-box:hover {
+            border-color: #3b82f6;
+            background-color: #f8fafc;
+        }
+
+
+/* ------------------------------------------------------------------------- */
+/* END OF STYLE.CSS */
