@@ -37,17 +37,20 @@
     <section id="dashboard-section" class="pb-5">
         <!-- HEADER / NAVIGATION BAR -->
         <!-- Responsive: Sticky-top, shadows, and flex ensures horizontal layout adapts on small screens -->
-        <nav class="navbar bg-white sticky-top shadow-sm rounded-4 py-1 mt-2">
+        <nav class="navbar bg-white sticky-top shadow-sm rounded-4 py-3 mt-3">
             <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between">
 
                 <!-- Brand -->
-                <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#">
+                <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard.html">
                     <span
                         class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow"
                         style="width:40px; height:40px;">
                         <i class="ph-bold ph-car-profile"></i>
                     </span>
-                    <span class="fs-6">CHOWDHURY AUTO</span>
+                    <div class="d-flex flex-column lh-1">
+                        <span class="fs-5 fw-bold">CHOWDHURY</span>
+                        <span class="text-secondary small fw-semibold">AUTOMOBILE</span>
+                    </div>
                 </a>
 
                 <!-- Desktop Log Out Button -->
@@ -61,6 +64,9 @@
                     class="btn btn-light border rounded-circle shadow-sm d-inline-flex d-md-none justify-content-center align-items-center p-2">
                     <i class="ph-bold ph-sign-out fs-5"></i>
                 </button>
+
+
+
             </div>
         </nav>
     </section>
@@ -78,7 +84,7 @@
                             <i class="ph-fill ph-check-circle text-success me-1"></i> Active • Tracking vehicle data
                         </p>
                     </div>
-                    <div class="col-md-12 d-flex justify-content-center"  onclick="openModal('dealModal')">
+                    <div class="col-md-12 d-flex justify-content-center" onclick="openModal('dealModal')">
                         <button class="btn btn-primary rounded-pill px-4 py-2">
                             <i class="ph-bold ph-plus me-1"></i> Add New Vehicle
                         </button>
@@ -92,7 +98,8 @@
         <div class="card border-0 rounded-4 shadow-sm mb-4">
             <div class="card-header bg-white border-0 pt-4 px-4 pb-3 d-flex justify-content-between align-items-center pointer"
                 data-bs-toggle="collapse" data-bs-target="#filterCollapse">
-                <h5 class="fw-bold fs-6 text-uppercase text-secondary mb-0"><i class="ph-bold ph-faders me-2 text-danger"></i>Search
+                <h5 class="fw-bold fs-6 text-uppercase text-secondary mb-0"><i
+                        class="ph-bold ph-faders me-2 text-danger"></i>Search
                     Filters</h5>
                 <i class="ph-bold ph-caret-down text-muted"></i>
             </div>
@@ -202,6 +209,67 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="col">
+                    <div class="card h-100 bg-white rounded-4 overflow-hidden inventory-card">
+                        <div class="position-relative">
+
+                            <!-- 4:3 Ratio for Medium look -->
+                            <div style="width:100%; height:150px;" class="overflow-hidden rounded">
+                                <img src="https://www.jawayezdimotorcycles.com/cdn/shop/files/JSPORT_RED-6_copy.png?v=1699366187&width=2880"
+                                    class="w-100 h-100 object-fit-cover" alt="Car">
+                            </div>
+
+                            <!-- SOLD OUT TAG -->
+                            <div class="position-absolute top-0 end-0 p-3">
+                                <span
+                                    class="badge bg-white text-danger border border-danger shadow-sm rounded-pill px-3 py-2 fw-bold">
+                                    <i class="ph-bold ph-x-circle me-1" style="font-size: 10px;"></i> SOLD OUT
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="mb-3">
+                                <h5 class="card-title fw-bold text-dark mb-1">WB 12 XY 9876</h5>
+                                <p class="card-text text-secondary fw-medium small">TVS Apache RTR 160</p>
+                            </div>
+
+                            <div class="d-flex gap-2 mb-4">
+                                <span class="badge bg-light text-dark border fw-medium px-3 py-2 rounded-pill">
+                                    <i class="ph-bold ph-calendar-blank me-1 text-muted"></i> 2021
+                                </span>
+                                <span class="badge bg-light text-dark border fw-medium px-3 py-2 rounded-pill">
+                                    <i class="ph-bold ph-user me-1 text-muted"></i> 2nd Owner
+                                </span>
+                            </div>
+
+                            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-uppercase text-muted fw-bold"
+                                        style="font-size: 10px;">Price</small>
+                                    <div class="fs-4 fw-bold text-dark">₹58,000</div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-white border border-dark fw-bold rounded-pill px-4"
+                                        onclick="openModal('dealModal')">
+                                        <i class="ph-bold ph-pencil-simple text-dark"></i>
+                                    </button>
+
+                                    <button class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm"
+                                        data-bs-toggle="modal" data-bs-target="#viewDealModal">
+                                        View
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
 
             <!-- Vehicles not found -->
@@ -821,6 +889,8 @@
 
         </div>
 
+
+
     </div>
 
 
@@ -838,9 +908,10 @@
                             <i class="ph-bold ph-car-profile fs-5"></i>
                         </div>
 
-                        <h5 class="modal-title fw-bold text-uppercase ls-1 text-primary mb-0">
-                            CHOWDHURY AUTO
-                        </h5>
+                        <div class="d-flex flex-column lh-1">
+                            <span class="fs-5 fw-bold">CHOWDHURY</span>
+                            <span class="text-secondary small fw-semibold">AUTOMOBILE</span>
+                        </div>
                     </div>
 
                     <!-- Right: Bootstrap Close Button (Perfectly Centered) -->
@@ -882,7 +953,7 @@
 
                 </div>
 
-                <div class="modal-body p-4 pt-2">
+                <div class="modal-body">
                     <form id="dealForm">
 
                         <!-- STEP 1: VEHICLE -->
@@ -897,26 +968,22 @@
                                     <div class="row g-3 mb-4">
                                         <div class="col-6 col-md-3">
                                             <div class="photo-upload-box"><i
-                                                    class="ph-bold ph-camera fs-3 text-secondary"></i><img
-                                                    src="https://www.jawayezdimotorcycles.com/cdn/shop/files/JY_Walkthrough_video_Website_Thumbnail_1_Hero_IMG_Roadster_Desktop_1.png?v=1757934480&width=2880"><input
+                                                    class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input
                                                     type="file" accept="image/*" hidden></div>
                                         </div>
                                         <div class="col-6 col-md-3">
                                             <div class="photo-upload-box"><i
-                                                    class="ph-bold ph-camera fs-3 text-secondary"></i><img
-                                                    src="https://www.jawayezdimotorcycles.com/cdn/shop/files/JY_Walkthrough_video_Website_Thumbnail_1_Hero_IMG_Roadster_Desktop_1.png?v=1757934480&width=2880"><input
+                                                    class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input
                                                     type="file" accept="image/*" hidden></div>
                                         </div>
                                         <div class="col-6 col-md-3">
                                             <div class="photo-upload-box"><i
-                                                    class="ph-bold ph-camera fs-3 text-secondary"></i><img
-                                                    src="https://www.jawayezdimotorcycles.com/cdn/shop/files/JY_Walkthrough_video_Website_Thumbnail_1_Hero_IMG_Roadster_Desktop_1.png?v=1757934480&width=2880"><input
+                                                    class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input
                                                     type="file" accept="image/*" hidden></div>
                                         </div>
                                         <div class="col-6 col-md-3">
                                             <div class="photo-upload-box"><i
-                                                    class="ph-bold ph-camera fs-3 text-secondary"></i><img
-                                                    src="https://www.jawayezdimotorcycles.com/cdn/shop/files/JY_Walkthrough_video_Website_Thumbnail_1_Hero_IMG_Roadster_Desktop_1.png?v=1757934480&width=2880"><input
+                                                    class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input
                                                     type="file" accept="image/*" hidden></div>
                                         </div>
                                     </div>
@@ -924,10 +991,11 @@
                                     <!-- Responsive Form Fields: 6 columns on mobile, 4 on desktop -->
                                     <div class="row g-3 mb-3">
                                         <div class="col-12 col-md-6"><label>Vehicle Number</label><input type="text"
-                                                class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000">
+                                                class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000"
+                                                value="WB ">
                                         </div>
                                         <div class="col-12 col-md-6"><label>Register Date</label><input type="date"
-                                                class="form-control"></div>
+                                                class="form-control" value="2025-11-26"></div>
                                         <div class="col-12 col-md-4"><label>Owner Serial</label><select
                                                 class="form-select">
                                                 <option>1st</option>
@@ -1019,9 +1087,12 @@
                                 <label class="mb-2">Mobile Numbers</label>
                                 <!-- Responsive Mobile Number Inputs: 3 columns on all screen sizes -->
                                 <div class="row g-2 mb-3">
-                                    <div class="col-4"><input type="tel" class="form-control" placeholder="Mob 1"></div>
-                                    <div class="col-4"><input type="tel" class="form-control" placeholder="Mob 2"></div>
-                                    <div class="col-4"><input type="tel" class="form-control" placeholder="Mob 3"></div>
+                                    <div class="col-12"><input type="tel" class="form-control" placeholder="Mob 1">
+                                    </div>
+                                    <div class="col-12"><input type="tel" class="form-control" placeholder="Mob 2">
+                                    </div>
+                                    <div class="col-12"><input type="tel" class="form-control" placeholder="Mob 3">
+                                    </div>
                                 </div>
 
                                 <div class="bg-light p-3 rounded-4 border mb-3">
@@ -1063,14 +1134,12 @@
                                                 <div class="col-6">
                                                     <div class="photo-upload-box"><span
                                                             class="small text-muted fw-bold">NOC 1</span><img
-                                                            src="https://www.jawayezdimotorcycles.com/cdn/shop/files/JY_Walkthrough_video_Website_Thumbnail_1_Hero_IMG_Roadster_Desktop_1.png?v=1757934480&width=2880"><input
-                                                            type="file" hidden></div>
+                                                            src=""><input type="file" hidden></div>
                                                 </div>
                                                 <div class="col-6">
                                                     <div class="photo-upload-box"><span
                                                             class="small text-muted fw-bold">NOC 2</span><img
-                                                            src="https://www.jawayezdimotorcycles.com/cdn/shop/files/JY_Walkthrough_video_Website_Thumbnail_1_Hero_IMG_Roadster_Desktop_1.png?v=1757934480&width=2880"><input
-                                                            type="file" hidden></div>
+                                                            src=""><input type="file" hidden></div>
                                                 </div>
                                             </div>
                                             <div id="noc-alert"
@@ -1110,11 +1179,11 @@
                                     <label class="text-primary">Payment Calculation</label>
                                     <!-- Responsive Calculation Fields: 3 columns on all screens -->
                                     <div class="row g-2">
-                                        <div class="col-4"><input type="number" class="form-control" placeholder="Total"
-                                                id="s_total"></div>
-                                        <div class="col-4"><input type="number" class="form-control" placeholder="Paid"
+                                        <div class="col-12"><input type="number" class="form-control"
+                                                placeholder="Total" id="s_total"></div>
+                                        <div class="col-12"><input type="number" class="form-control" placeholder="Paid"
                                                 id="s_paid"></div>
-                                        <div class="col-4"><input type="number"
+                                        <div class="col-12"><input type="number"
                                                 class="form-control bg-white fw-bold text-danger" placeholder="Due"
                                                 id="s_due" readonly></div>
                                         <div class="col-12"><input type="text" class="form-control d-none mt-1"
@@ -1131,7 +1200,7 @@
                                 <!-- Responsive Form Fields: 6 columns on desktop, 12 on mobile -->
                                 <div class="row g-3 mb-3">
                                     <div class="col-12 col-md-6"><label>Date</label><input type="date"
-                                            class="form-control">
+                                            class="form-control" value="2025-11-26">
                                     </div>
                                     <div class="col-12 col-md-6"><label>Purchaser Name</label><input type="text"
                                             class="form-control"></div>
@@ -1146,12 +1215,12 @@
                                     <label class="mb-2">Price Breakdown</label>
                                     <!-- Responsive Price Breakdown: 3 columns on all screens -->
                                     <div class="row g-2 mb-3">
-                                        <div class="col-4"><input type="number" id="p_total" class="form-control"
+                                        <div class="col-12"><input type="number" id="p_total" class="form-control"
                                                 placeholder="Total"></div>
-                                        <div class="col-4"><input type="number" id="p_paid" class="form-control"
+                                        <div class="col-12"><input type="number" id="p_paid" class="form-control"
                                                 placeholder="Paid"></div>
-                                        <div class="col-4"><input type="number" id="p_due" class="form-control bg-white"
-                                                placeholder="Due" readonly></div>
+                                        <div class="col-12"><input type="number" id="p_due"
+                                                class="form-control bg-white" placeholder="Due" readonly></div>
                                     </div>
                                     <div class="d-flex gap-3 mb-2">
                                         <div class="form-check"><input class="form-check-input" type="radio"
@@ -1190,30 +1259,22 @@
                                     <div class="row g-2">
                                         <div class="col-6 col-md-3">
                                             <div class="photo-upload-box"><span class="small text-muted fw-bold">Aadhar
-                                                    Front</span><img
-                                                    src="https://www.jawayezdimotorcycles.com/cdn/shop/files/JY_Walkthrough_video_Website_Thumbnail_1_Hero_IMG_Roadster_Desktop_1.png?v=1757934480&width=2880"><input
-                                                    type="file" accept="image/*" hidden>
+                                                    Front</span><img src=""><input type="file" accept="image/*" hidden>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-3">
                                             <div class="photo-upload-box"><span class="small text-muted fw-bold">Aadhar
-                                                    Back</span><img
-                                                    src="https://www.jawayezdimotorcycles.com/cdn/shop/files/JY_Walkthrough_video_Website_Thumbnail_1_Hero_IMG_Roadster_Desktop_1.png?v=1757934480&width=2880"><input
-                                                    type="file" accept="image/*" hidden>
+                                                    Back</span><img src=""><input type="file" accept="image/*" hidden>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-3">
                                             <div class="photo-upload-box"><span class="small text-muted fw-bold">Voter
-                                                    Front</span><img
-                                                    src="https://www.jawayezdimotorcycles.com/cdn/shop/files/JY_Walkthrough_video_Website_Thumbnail_1_Hero_IMG_Roadster_Desktop_1.png?v=1757934480&width=2880"><input
-                                                    type="file" accept="image/*" hidden>
+                                                    Front</span><img src=""><input type="file" accept="image/*" hidden>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-3">
                                             <div class="photo-upload-box"><span class="small text-muted fw-bold">Voter
-                                                    Back</span><img
-                                                    src="https://www.jawayezdimotorcycles.com/cdn/shop/files/JY_Walkthrough_video_Website_Thumbnail_1_Hero_IMG_Roadster_Desktop_1.png?v=1757934480&width=2880"><input
-                                                    type="file" accept="image/*" hidden>
+                                                    Back</span><img src=""><input type="file" accept="image/*" hidden>
                                             </div>
                                         </div>
                                     </div>
@@ -1280,7 +1341,7 @@
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Date</label>
-                                                <input type="date" class="form-control">
+                                                <input type="date" class="form-control" value="2025-11-26">
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Status</label>
@@ -1299,7 +1360,7 @@
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Date</label>
-                                                <input type="date" class="form-control">
+                                                <input type="date" class="form-control" value="2025-11-26">
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Status</label>
@@ -1318,7 +1379,7 @@
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Date</label>
-                                                <input type="date" class="form-control">
+                                                <input type="date" class="form-control" value="2025-11-26">
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Status</label>
@@ -1332,31 +1393,52 @@
                                     </div>
 
                                     <!-- Purchaser & Seller Sign -->
-                                    <div class="row g-3 mb-4">
+                                    <div class="row g-4">
 
                                         <div class="col-12 col-md-6">
-                                            <label>Purchaser Sign</label>
-                                            <!-- Responsive: Uses simple w-50 to split select and input -->
-                                            <div class="d-flex gap-2">
-                                                <select class="form-select w-50">
-                                                    <option>Yes</option>
-                                                    <option>No</option>
-                                                </select>
-                                                <input type="date" class="form-control w-50">
+                                            <div class="border rounded-3">
+                                                <label class="form-label fw-bold">Purchaser Sign</label>
+
+                                                <div class="row g-3">
+                                                    <div class="col-6">
+                                                        <label class="form-label small">Status</label>
+                                                        <select class="form-select">
+                                                            <option>Yes</option>
+                                                            <option>No</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-6">
+                                                        <label class="form-label small">Date</label>
+                                                        <input type="date" class="form-control" value="2025-11-26">
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
                                         <div class="col-12 col-md-6">
-                                            <label>Seller Sign</label>
-                                            <div class="d-flex gap-2">
-                                                <select class="form-select w-50">
-                                                    <option>Yes</option>
-                                                    <option>No</option>
-                                                </select>
-                                                <input type="date" class="form-control w-50">
+                                            <div class="border rounded-3">
+                                                <label class="form-label fw-bold">Seller Sign</label>
+
+                                                <div class="row g-3">
+                                                    <div class="col-6">
+                                                        <label class="form-label small">Status</label>
+                                                        <select class="form-select">
+                                                            <option>Yes</option>
+                                                            <option>No</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-6">
+                                                        <label class="form-label small">Date</label>
+                                                        <input type="date" class="form-control" value="2025-11-26">
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
+
                                     </div>
+
                                 </div>
 
 
@@ -1371,7 +1453,7 @@
                         style="display:none;">Back</button>
                     <button type="button" class="btn btn-light border fw-bold shadow-sm text-primary"
                         id="saveStepBtn"><i class="ph-bold ph-floppy-disk me-1"></i> Save</button>
-                    <button type="button" class="btn btn-primary px-4 ms-auto shadow-lg" id="nextBtn">Next Step</button>
+                    <button type="button" class="btn btn-primary px-4 ms-auto shadow-lg" id="nextBtn">Next</button>
                     <button type="button" class="btn btn-success px-4 ms-auto text-white shadow-lg" id="finishBtn"
                         style="display:none;">Finish</button>
                 </div>

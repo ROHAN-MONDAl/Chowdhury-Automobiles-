@@ -42,14 +42,18 @@
             <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between">
 
                 <!-- Brand -->
-                <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#">
+                <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard.html">
                     <span
                         class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow"
                         style="width:40px; height:40px;">
                         <i class="ph-bold ph-car-profile"></i>
                     </span>
-                    <span class="fs-6">CHOWDHURY AUTO</span>
+                    <div class="d-flex flex-column lh-1">
+                        <span class="fs-5 fw-bold">CHOWDHURY</span>
+                        <span class="text-secondary small fw-semibold">AUTOMOBILE</span>
+                    </div>
                 </a>
+
 
                 <!-- Desktop Log Out Button -->
                 <button id="logoutBtn"
@@ -245,9 +249,10 @@
                             <i class="ph-bold ph-car-profile fs-5"></i>
                         </div>
 
-                        <h5 class="modal-title fw-bold text-uppercase ls-1 text-primary mb-0">
-                            CHOWDHURY AUTO
-                        </h5>
+                        <div class="d-flex flex-column lh-1">
+                            <span class="fs-5 fw-bold">CHOWDHURY</span>
+                            <span class="text-secondary small fw-semibold">AUTOMOBILE</span>
+                        </div>
                     </div>
 
                     <!-- Right: Bootstrap Close Button (Perfectly Centered) -->
@@ -289,7 +294,7 @@
 
                 </div>
 
-                <div class="modal-body p-4 pt-2">
+                <div class="modal-body">
                     <form id="dealForm">
 
                         <!-- STEP 1: VEHICLE -->
@@ -327,10 +332,11 @@
                                     <!-- Responsive Form Fields: 6 columns on mobile, 4 on desktop -->
                                     <div class="row g-3 mb-3">
                                         <div class="col-12 col-md-6"><label>Vehicle Number</label><input type="text"
-                                                class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000">
+                                                class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000"
+                                                value="WB ">
                                         </div>
                                         <div class="col-12 col-md-6"><label>Register Date</label><input type="date"
-                                                class="form-control"></div>
+                                                class="form-control" value="2025-11-26"></div>
                                         <div class="col-12 col-md-4"><label>Owner Serial</label><select
                                                 class="form-select">
                                                 <option>1st</option>
@@ -422,9 +428,12 @@
                                 <label class="mb-2">Mobile Numbers</label>
                                 <!-- Responsive Mobile Number Inputs: 3 columns on all screen sizes -->
                                 <div class="row g-2 mb-3">
-                                    <div class="col-4"><input type="tel" class="form-control" placeholder="Mob 1"></div>
-                                    <div class="col-4"><input type="tel" class="form-control" placeholder="Mob 2"></div>
-                                    <div class="col-4"><input type="tel" class="form-control" placeholder="Mob 3"></div>
+                                    <div class="col-12"><input type="tel" class="form-control" placeholder="Mob 1">
+                                    </div>
+                                    <div class="col-12"><input type="tel" class="form-control" placeholder="Mob 2">
+                                    </div>
+                                    <div class="col-12"><input type="tel" class="form-control" placeholder="Mob 3">
+                                    </div>
                                 </div>
 
                                 <div class="bg-light p-3 rounded-4 border mb-3">
@@ -511,11 +520,11 @@
                                     <label class="text-primary">Payment Calculation</label>
                                     <!-- Responsive Calculation Fields: 3 columns on all screens -->
                                     <div class="row g-2">
-                                        <div class="col-4"><input type="number" class="form-control" placeholder="Total"
-                                                id="s_total"></div>
-                                        <div class="col-4"><input type="number" class="form-control" placeholder="Paid"
+                                        <div class="col-12"><input type="number" class="form-control"
+                                                placeholder="Total" id="s_total"></div>
+                                        <div class="col-12"><input type="number" class="form-control" placeholder="Paid"
                                                 id="s_paid"></div>
-                                        <div class="col-4"><input type="number"
+                                        <div class="col-12"><input type="number"
                                                 class="form-control bg-white fw-bold text-danger" placeholder="Due"
                                                 id="s_due" readonly></div>
                                         <div class="col-12"><input type="text" class="form-control d-none mt-1"
@@ -532,7 +541,7 @@
                                 <!-- Responsive Form Fields: 6 columns on desktop, 12 on mobile -->
                                 <div class="row g-3 mb-3">
                                     <div class="col-12 col-md-6"><label>Date</label><input type="date"
-                                            class="form-control">
+                                            class="form-control" value="2025-11-26">
                                     </div>
                                     <div class="col-12 col-md-6"><label>Purchaser Name</label><input type="text"
                                             class="form-control"></div>
@@ -547,12 +556,12 @@
                                     <label class="mb-2">Price Breakdown</label>
                                     <!-- Responsive Price Breakdown: 3 columns on all screens -->
                                     <div class="row g-2 mb-3">
-                                        <div class="col-4"><input type="number" id="p_total" class="form-control"
+                                        <div class="col-12"><input type="number" id="p_total" class="form-control"
                                                 placeholder="Total"></div>
-                                        <div class="col-4"><input type="number" id="p_paid" class="form-control"
+                                        <div class="col-12"><input type="number" id="p_paid" class="form-control"
                                                 placeholder="Paid"></div>
-                                        <div class="col-4"><input type="number" id="p_due" class="form-control bg-white"
-                                                placeholder="Due" readonly></div>
+                                        <div class="col-12"><input type="number" id="p_due"
+                                                class="form-control bg-white" placeholder="Due" readonly></div>
                                     </div>
                                     <div class="d-flex gap-3 mb-2">
                                         <div class="form-check"><input class="form-check-input" type="radio"
@@ -673,7 +682,7 @@
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Date</label>
-                                                <input type="date" class="form-control">
+                                                <input type="date" class="form-control" value="2025-11-26">
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Status</label>
@@ -692,7 +701,7 @@
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Date</label>
-                                                <input type="date" class="form-control">
+                                                <input type="date" class="form-control" value="2025-11-26">
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Status</label>
@@ -711,7 +720,7 @@
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Date</label>
-                                                <input type="date" class="form-control">
+                                                <input type="date" class="form-control" value="2025-11-26">
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Status</label>
@@ -725,31 +734,52 @@
                                     </div>
 
                                     <!-- Purchaser & Seller Sign -->
-                                    <div class="row g-3 mb-4">
+                                    <div class="row g-4">
 
                                         <div class="col-12 col-md-6">
-                                            <label>Purchaser Sign</label>
-                                            <!-- Responsive: Uses simple w-50 to split select and input -->
-                                            <div class="d-flex gap-2">
-                                                <select class="form-select w-50">
-                                                    <option>Yes</option>
-                                                    <option>No</option>
-                                                </select>
-                                                <input type="date" class="form-control w-50">
+                                            <div class="border rounded-3">
+                                                <label class="form-label fw-bold">Purchaser Sign</label>
+
+                                                <div class="row g-3">
+                                                    <div class="col-6">
+                                                        <label class="form-label small">Status</label>
+                                                        <select class="form-select">
+                                                            <option>Yes</option>
+                                                            <option>No</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-6">
+                                                        <label class="form-label small">Date</label>
+                                                        <input type="date" class="form-control" value="2025-11-26">
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
                                         <div class="col-12 col-md-6">
-                                            <label>Seller Sign</label>
-                                            <div class="d-flex gap-2">
-                                                <select class="form-select w-50">
-                                                    <option>Yes</option>
-                                                    <option>No</option>
-                                                </select>
-                                                <input type="date" class="form-control w-50">
+                                            <div class="border rounded-3">
+                                                <label class="form-label fw-bold">Seller Sign</label>
+
+                                                <div class="row g-3">
+                                                    <div class="col-6">
+                                                        <label class="form-label small">Status</label>
+                                                        <select class="form-select">
+                                                            <option>Yes</option>
+                                                            <option>No</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-6">
+                                                        <label class="form-label small">Date</label>
+                                                        <input type="date" class="form-control" value="2025-11-26">
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
+
                                     </div>
+
                                 </div>
 
 
@@ -764,7 +794,7 @@
                         style="display:none;">Back</button>
                     <button type="button" class="btn btn-light border fw-bold shadow-sm text-primary"
                         id="saveStepBtn"><i class="ph-bold ph-floppy-disk me-1"></i> Save</button>
-                    <button type="button" class="btn btn-primary px-4 ms-auto shadow-lg" id="nextBtn">Next Step</button>
+                    <button type="button" class="btn btn-primary px-4 ms-auto shadow-lg" id="nextBtn">Next</button>
                     <button type="button" class="btn btn-success px-4 ms-auto text-white shadow-lg" id="finishBtn"
                         style="display:none;">Finish</button>
                 </div>
