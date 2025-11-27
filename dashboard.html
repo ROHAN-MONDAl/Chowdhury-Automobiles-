@@ -42,15 +42,19 @@
             <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between">
 
                 <!-- Brand -->
-                <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard.html">
-                    <span
-                        class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center shadow"
-                        style="width:40px; height:40px;">
-                        <i class="ph-bold ph-car-profile"></i>
-                    </span>
+                <a class="navbar-brand d-flex align-items-center gap-2" href="dashboard.html">
+                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-1"
+                        style="width: 48px; height: 48px; overflow: hidden; padding: 2px;">
+                        <img src="images/logo.jpeg" alt="Chowdhury Automobile Logo" class="rounded-circle"
+                            style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+
                     <div class="d-flex flex-column lh-1">
-                        <span class="fs-5 fw-bold">CHOWDHURY</span>
-                        <span class="text-secondary small fw-semibold">AUTOMOBILE</span>
+                        <span class="fs-5 fw-bolder text-dark">CHOWDHURY</span>
+                        <span class="text-secondary fw-bold text-uppercase"
+                            style="font-size: 0.7rem; letter-spacing: 1.5px;">
+                            Automobile
+                        </span>
                     </div>
                 </a>
 
@@ -244,14 +248,18 @@
 
                     <!-- Left Section: Icon + Title -->
                     <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center"
-                            style="width:42px; height:42px;">
-                            <i class="ph-bold ph-car-profile fs-5"></i>
+                        <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm border"
+                            style="width: 45px; height: 45px; overflow: hidden; padding: 2px;">
+                            <img src="images/logo.jpeg" alt="Chowdhury Automobile" class="rounded-circle"
+                                style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
 
                         <div class="d-flex flex-column lh-1">
-                            <span class="fs-5 fw-bold">CHOWDHURY</span>
-                            <span class="text-secondary small fw-semibold">AUTOMOBILE</span>
+                            <span class="fs-5 fw-bolder text-dark">CHOWDHURY</span>
+                            <span class="text-secondary fw-bold text-uppercase"
+                                style="font-size: 0.75rem; letter-spacing: 1.5px;">
+                                Automobile
+                            </span>
                         </div>
                     </div>
 
@@ -342,6 +350,8 @@
                                                 <option>1st</option>
                                                 <option>2nd</option>
                                                 <option>3rd</option>
+                                                <option>4th</option>
+                                                <option>5th</option>
                                             </select></div>
                                         <div class="col-12 col-md-4"><label>Chassis Number</label><input type="text"
                                                 class="form-control"></div>
@@ -351,44 +361,128 @@
 
                                     <div class="row g-3 mb-3">
                                         <div class="col-12 col-md-6">
-                                            <label>Payment Mode</label>
-                                            <div class="btn-group w-100" role="group">
-                                                <input type="radio" class="btn-check" name="v_pay" id="vp_cash"
-                                                    checked><label class="btn btn-outline-success"
-                                                    for="vp_cash">Cash</label>
-                                                <input type="radio" class="btn-check" name="v_pay" id="vp_fin"><label
-                                                    class="btn btn-outline-primary" for="vp_fin">Finance</label>
-                                            </div>
+                                            <label for="paymentModeSelect">Payment Mode</label>
+                                            <select class="form-select" id="paymentModeSelect" name="v_pay">
+                                                <option value="cash" selected>Cash</option>
+                                                <option value="phonepay">Phone Pay</option>
+                                                <option value="googlepay">Google Pay</option>
+                                                <option value="paytm">Paytm</option>
+                                                <option value="bharatpay">Bharat Pay</option>
+                                            </select>
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label>Price</label>
-                                            <div class="input-group"><span
-                                                    class="input-group-text bg-white border-end-0">₹</span><input
-                                                    type="number" class="form-control border-start-0 ps-0"></div>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0">₹</span>
+                                                <input type="number" class="form-control border-start-0 ps-0">
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div class="p-3 rounded-4 bg-light border">
                                         <label>Police Challan</label>
+
                                         <div class="d-flex gap-3 mb-2">
-                                            <div class="form-check"><input class="form-check-input" type="radio"
-                                                    name="p_chal" id="pc_no" checked><label
-                                                    class="form-check-label fw-bold" for="pc_no">No</label></div>
-                                            <div class="form-check"><input class="form-check-input" type="radio"
-                                                    name="p_chal" id="pc_yes"><label class="form-check-label fw-bold"
-                                                    for="pc_yes">Yes</label></div>
-                                        </div>
-                                        <div id="challan-inputs" class="d-none mt-2">
-                                            <input type="text" class="form-control mb-2" placeholder="Challan Number">
-                                            <div class="btn-group w-100 btn-group-sm">
-                                                <input type="radio" class="btn-check" name="c_stat" id="cs_pen"
-                                                    checked><label class="btn btn-outline-danger"
-                                                    for="cs_pen">Pending</label>
-                                                <input type="radio" class="btn-check" name="c_stat" id="cs_pd"><label
-                                                    class="btn btn-outline-success" for="cs_pd">Paid</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="p_chal"
+                                                    data-bs-toggle="collapse" data-bs-target="#challan-section" checked>
+                                                <label class="form-check-label fw-bold">No</label>
+                                            </div>
+
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="p_chal"
+                                                    data-bs-toggle="collapse" data-bs-target="#challan-section">
+                                                <label class="form-check-label fw-bold">Yes</label>
                                             </div>
                                         </div>
+
+                                        <!-- COLLAPSE SECTION -->
+                                        <div class="collapse mt-3" id="challan-section">
+
+                                            <!-- CHALLAN 1 -->
+                                            <div class="border rounded p-2 mb-2 bg-white">
+                                                <label class="fw-bold small">Challan 1</label>
+                                                <div class="row g-2">
+                                                    <div class="col-md-4">
+                                                        <input type="text" class="form-control"
+                                                            placeholder="Challan Number">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <input type="number" class="form-control" placeholder="Amount">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="btn-group w-100 btn-group-sm">
+                                                            <input type="radio" class="btn-check" name="status1"
+                                                                id="pen1" checked>
+                                                            <label class="btn btn-outline-danger"
+                                                                for="pen1">Pending</label>
+
+                                                            <input type="radio" class="btn-check" name="status1"
+                                                                id="paid1">
+                                                            <label class="btn btn-outline-success"
+                                                                for="paid1">Paid</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- CHALLAN 2 -->
+                                            <div class="border rounded p-2 mb-2 bg-white">
+                                                <label class="fw-bold small">Challan 2</label>
+                                                <div class="row g-2">
+                                                    <div class="col-md-4">
+                                                        <input type="text" class="form-control"
+                                                            placeholder="Challan Number">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <input type="number" class="form-control" placeholder="Amount">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="btn-group w-100 btn-group-sm">
+                                                            <input type="radio" class="btn-check" name="status2"
+                                                                id="pen2" checked>
+                                                            <label class="btn btn-outline-danger"
+                                                                for="pen2">Pending</label>
+
+                                                            <input type="radio" class="btn-check" name="status2"
+                                                                id="paid2">
+                                                            <label class="btn btn-outline-success"
+                                                                for="paid2">Paid</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- CHALLAN 3 -->
+                                            <div class="border rounded p-2 mb-2 bg-white">
+                                                <label class="fw-bold small">Challan 3</label>
+                                                <div class="row g-2">
+                                                    <div class="col-md-4">
+                                                        <input type="text" class="form-control"
+                                                            placeholder="Challan Number">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <input type="number" class="form-control" placeholder="Amount">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="btn-group w-100 btn-group-sm">
+                                                            <input type="radio" class="btn-check" name="status3"
+                                                                id="pen3" checked>
+                                                            <label class="btn btn-outline-danger"
+                                                                for="pen3">Pending</label>
+
+                                                            <input type="radio" class="btn-check" name="status3"
+                                                                id="paid3">
+                                                            <label class="btn btn-outline-success"
+                                                                for="paid3">Paid</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
                                     </div>
+
                                 </div>
 
                                 <div class="mt-4 pt-3 border-top d-flex align-items-center justify-content-between">
@@ -437,73 +531,164 @@
                                 </div>
 
                                 <div class="bg-light p-3 rounded-4 border mb-3">
-                                    <label class="mb-2">Papers Received</label>
-                                    <!-- Responsive Checkboxes: Wraps naturally, looks good on small screens -->
+                                    <label class="mb-2 fw-bold">Papers Received</label>
+
                                     <div class="d-flex flex-wrap gap-3">
-                                        <div class="form-check"><input type="checkbox" class="form-check-input"
-                                                id="pr_rc"><label class="fw-bold" for="pr_rc">RC</label></div>
-                                        <div class="form-check"><input type="checkbox" class="form-check-input"
-                                                id="pr_tax"><label class="fw-bold" for="pr_tax">Tax Token</label></div>
-                                        <div class="form-check"><input type="checkbox" class="form-check-input"
-                                                id="pr_ins"><label class="fw-bold" for="pr_ins">Insurance</label></div>
-                                        <div class="form-check"><input type="checkbox" class="form-check-input"
-                                                id="pr_puc"><label class="fw-bold" for="pr_puc">PUCC</label></div>
+
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="pr_rc">
+                                            <label class="fw-bold" for="pr_rc">RC</label>
+                                        </div>
+
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="pr_tax">
+                                            <label class="fw-bold" for="pr_tax">Tax Token</label>
+                                        </div>
+
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="pr_ins">
+                                            <label class="fw-bold" for="pr_ins">Insurance</label>
+                                        </div>
+
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="pr_puc">
+                                            <label class="fw-bold" for="pr_puc">PUCC</label>
+                                        </div>
+
+                                        <!-- NOC Checkbox -->
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="pr_noc"
+                                                data-bs-toggle="collapse" data-bs-target="#nocUploadBox">
+                                            <label class="fw-bold" for="pr_noc">NOC</label>
+                                        </div>
+
+                                    </div>
+
+                                    <!-- NOC Upload + Paid/Due Section -->
+                                    <div class="collapse mt-3" id="nocUploadBox">
+
+                                        <!-- Paid / Due Buttons -->
+                                        <label class="fw-bold small">NOC Status</label>
+                                        <div class="d-flex justify-content-center">
+                                            <div class="btn-group w-75 btn-group-sm mb-3 mx-auto" role="group">
+                                                <input type="radio" class="btn-check" name="noc_payment" id="noc_paid"
+                                                    checked>
+                                                <label class="btn btn-outline-success" for="noc_paid">Paid</label>
+
+                                                <input type="radio" class="btn-check" name="noc_payment" id="noc_due">
+                                                <label class="btn btn-outline-danger" for="noc_due">Due</label>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="row g-2">
+
+                                            <!-- NOC Front -->
+                                            <div class="col-6">
+                                                <div class="border rounded small-box text-center">
+                                                    <span class="small text-muted fw-bold">NOC Front</span>
+                                                    <input type="file" class="form-control form-control-sm mt-1">
+                                                </div>
+                                            </div>
+
+                                            <!-- NOC Back -->
+                                            <div class="col-6">
+                                                <div class="border rounded small-box text-center">
+                                                    <span class="small text-muted fw-bold">NOC Back</span>
+                                                    <input type="file" class="form-control form-control-sm mt-1">
+                                                </div>
+                                            </div>
+
+                                        </div>
+
                                     </div>
                                 </div>
 
                                 <div class="row g-3 mb-3">
+                                    <!-- Payment Type -->
                                     <div class="col-12 col-md-6">
-                                        <label>Payment Type</label>
-                                        <div class="btn-group w-100 btn-group-sm">
-                                            <input type="radio" class="btn-check" name="s_pay" id="sp_cash"
-                                                checked><label class="btn btn-outline-secondary"
-                                                for="sp_cash">Cash</label>
-                                            <input type="radio" class="btn-check" name="s_pay" id="sp_fin"><label
-                                                class="btn btn-outline-secondary" for="sp_fin">Finance</label>
+                                        <label class="fw-bold mb-1">Payment Type</label>
+
+                                        <div class="btn-group w-100 btn-group-sm" role="group">
+                                            <input type="radio" class="btn-check" name="s_pay" id="sp_cash" checked
+                                                data-bs-toggle="collapse" data-bs-target="#onlineBox"
+                                                data-bs-parent="#payParent">
+                                            <label class="btn btn-outline-secondary" for="sp_cash">Cash</label>
+
+                                            <input type="radio" class="btn-check" name="s_pay" id="sp_online"
+                                                data-bs-toggle="collapse" data-bs-target="#onlineBox">
+                                            <label class="btn btn-outline-secondary" for="sp_online">Online</label>
                                         </div>
-                                        <div id="seller-fin-options"
-                                            class="d-none mt-2 p-3 bg-white rounded-4 border shadow-sm">
-                                            <div class="d-flex gap-3 mb-2">
-                                                <div class="form-check"><input class="form-check-input" type="radio"
-                                                        name="noc_stat" id="noc_rec"><label class="fw-bold"
-                                                        for="noc_rec">NOC Received</label></div>
-                                                <div class="form-check"><input class="form-check-input" type="radio"
-                                                        name="noc_stat" id="noc_not"><label class="fw-bold"
-                                                        for="noc_not">Not Received</label></div>
-                                            </div>
-                                            <div id="noc-photos" class="d-none row g-2">
-                                                <div class="col-6">
-                                                    <div class="photo-upload-box"><span
-                                                            class="small text-muted fw-bold">NOC 1</span><img
-                                                            src=""><input type="file" hidden></div>
+
+                                        <!-- Online Payment Box -->
+                                        <div id="onlineBox"
+                                            class="collapse mt-2 p-3 bg-white rounded-4 border shadow-sm">
+
+                                            <label class="fw-bold small mb-2">Select Online Method</label>
+
+                                            <div class="d-flex flex-wrap gap-3">
+
+                                                <div class="form-check">
+                                                    <input type="radio" class="form-check-input" name="online_method"
+                                                        id="om_gpay">
+                                                    <label class="fw-bold small" for="om_gpay">Google Pay</label>
                                                 </div>
-                                                <div class="col-6">
-                                                    <div class="photo-upload-box"><span
-                                                            class="small text-muted fw-bold">NOC 2</span><img
-                                                            src=""><input type="file" hidden></div>
+
+                                                <div class="form-check">
+                                                    <input type="radio" class="form-check-input" name="online_method"
+                                                        id="om_paytm">
+                                                    <label class="fw-bold small" for="om_paytm">Paytm</label>
                                                 </div>
+
+                                                <div class="form-check">
+                                                    <input type="radio" class="form-check-input" name="online_method"
+                                                        id="om_phonepe">
+                                                    <label class="fw-bold small" for="om_phonepe">PhonePe</label>
+                                                </div>
+
+                                                <div class="form-check">
+                                                    <input type="radio" class="form-check-input" name="online_method"
+                                                        id="om_bharatpe">
+                                                    <label class="fw-bold small" for="om_bharatpe">BharatPe</label>
+                                                </div>
+
                                             </div>
-                                            <div id="noc-alert"
-                                                class="d-none text-danger fw-bold small text-center mt-1">⚠ NOC PENDING
-                                                FROM FINANCE</div>
+
+                                            <input type="text" class="form-control form-control-sm mt-2"
+                                                placeholder="Transaction / UPI Reference ID">
                                         </div>
                                     </div>
+
+                                    <!-- Seller Challan -->
                                     <div class="col-12 col-md-6">
-                                        <label>Seller Challan</label>
+                                        <label class="fw-bold mb-1">Seller Challan</label>
+
                                         <div class="d-flex gap-3 mb-2">
-                                            <div class="form-check"><input class="form-check-input" type="radio"
-                                                    name="s_chal" id="sc_no" checked><label class="fw-bold"
-                                                    for="sc_no">No</label></div>
-                                            <div class="form-check"><input class="form-check-input" type="radio"
-                                                    name="s_chal" id="sc_yes"><label class="fw-bold"
-                                                    for="sc_yes">Yes</label></div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="s_chal" id="sc_no"
+                                                    checked data-bs-toggle="collapse" data-bs-target="#chalInp">
+                                                <label class="fw-bold" for="sc_no">No</label>
+                                            </div>
+
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="s_chal" id="sc_yes"
+                                                    data-bs-toggle="collapse" data-bs-target="#chalInp">
+                                                <label class="fw-bold" for="sc_yes">Yes</label>
+                                            </div>
                                         </div>
-                                        <input type="text" id="s_chal_inp" class="form-control d-none"
-                                            placeholder="Challan No.">
-                                        <div id="s_chal_ok" class="text-success fw-bold small"><i
-                                                class="ph-fill ph-check-circle"></i> Clean</div>
+
+                                        <div id="chalInp" class="collapse">
+                                            <input type="text" class="form-control form-control-sm mb-1"
+                                                placeholder="Challan No.">
+                                        </div>
+
+                                        <div id="s_chal_ok" class="text-success fw-bold small">
+                                            <i class="ph-fill ph-check-circle"></i> Clean
+                                        </div>
                                     </div>
+
                                 </div>
+
 
                                 <div class="row g-3 mb-3">
                                     <div class="col-12 col-md-6">
@@ -552,6 +737,97 @@
                                     <div class="col-12 col-md-6"><label>Vehicle No</label><input type="text"
                                             class="form-control"></div>
                                 </div>
+
+                                <!-- Buyer Name -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-12 col-md-6">
+                                        <label>Buyer Name</label>
+                                        <input type="text" class="form-control" placeholder="Buyer Name">
+                                    </div>
+                                </div>
+
+                                <!-- Buyer Payments Section -->
+                                <div class="bg-light p-3 rounded-4 border mb-4">
+                                    <label class="text-dark mb-3 d-block">Buyer Payment</label>
+
+                                    <!-- Name Transfer Payment (3 cols on desktop/md, 12 on mobile but input-group helps) -->
+                                    <div class="row g-2 align-items-end mb-3">
+                                        <div class="col-12 col-md-4">
+                                            <label>Transfer Amount</label>
+                                            <input type="number" class="form-control" placeholder="Amount">
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label>Date</label>
+                                            <input type="date" class="form-control" value="2025-11-26">
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label>Status</label>
+                                            <select class="form-select">
+                                                <option>Paid</option>
+                                                <option>Due</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- HPA -->
+                                    <div class="row g-2 align-items-end mb-3">
+                                        <div class="col-12 col-md-4">
+                                            <label>HPA</label>
+                                            <input type="number" class="form-control" placeholder="Amount">
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label>Date</label>
+                                            <input type="date" class="form-control" value="2025-11-26">
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label>Status</label>
+                                            <select class="form-select">
+                                                <option>Paid</option>
+                                                <option>Due</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- HP -->
+                                    <div class="row g-2 align-items-end mb-3">
+                                        <div class="col-12 col-md-4">
+                                            <label>HP</label>
+                                            <input type="number" class="form-control" placeholder="Amount">
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label>Date</label>
+                                            <input type="date" class="form-control" value="2025-11-26">
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label>Status</label>
+                                            <select class="form-select">
+                                                <option>Paid</option>
+                                                <option>Due</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <!-- Insurance Column Added -->
+                                <div class="row g-2 align-items-end mb-3">
+                                    <div class="col-12 col-md-6">
+                                        <label class="fw-bold">Insurance Name</label>
+                                        <input type="text" class="form-control" placeholder="Insurance Name" required>
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="fw-bold">Policy No</label>
+                                        <input type="text" class="form-control" placeholder="Policy No" required>
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="fw-bold">Insurance Expiry Date</label>
+                                        <input type="date" class="form-control" value="2025-11-26" required>
+                                    </div>
+                                </div>
+
+
                                 <div class="bg-light p-3 rounded-4 border mb-3">
                                     <label class="mb-2">Price Breakdown</label>
                                     <!-- Responsive Price Breakdown: 3 columns on all screens -->
@@ -730,7 +1006,25 @@
                                                 </select>
                                             </div>
                                         </div>
+                                    </div>
 
+                                    <!-- Insurance Column Added -->
+                                    <div class="row g-2 align-items-end mb-3">
+                                        <div class="col-12 col-md-6">
+                                            <label class="fw-bold">Insurance Name</label>
+                                            <input type="text" class="form-control" placeholder="Insurance Name"
+                                                required>
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
+                                            <label class="fw-bold">Policy No</label>
+                                            <input type="text" class="form-control" placeholder="Policy No" required>
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
+                                            <label class="fw-bold">Insurance Expiry Date</label>
+                                            <input type="date" class="form-control" value="2025-11-26" required>
+                                        </div>
                                     </div>
 
                                     <!-- Purchaser & Seller Sign -->
