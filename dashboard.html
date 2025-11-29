@@ -239,8 +239,7 @@
         </div>
     </div>
 
-    <!-- 4-STEP WIZARD MODAL (Enhanced Indicators) -->
-    <!-- Responsive: modal-fullscreen-sm-down for mobile view -->
+    <!-- ADD / EDIT LEAD MODAL -->
     <div class="modal fade" id="dealModal" data-bs-backdrop="static" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
             <div class="modal-content">
@@ -361,14 +360,67 @@
 
                                     <div class="row g-3 mb-3">
                                         <div class="col-12 col-md-6">
-                                            <label for="paymentModeSelect">Payment Mode</label>
-                                            <select class="form-select" id="paymentModeSelect" name="v_pay">
-                                                <option value="cash" selected>Cash</option>
-                                                <option value="phonepay">Phone Pay</option>
-                                                <option value="googlepay">Google Pay</option>
-                                                <option value="paytm">Paytm</option>
-                                                <option value="bharatpay">Bharat Pay</option>
-                                            </select>
+                                            <label class="fw-bold mb-2">Payment Type</label>
+
+                                            <div class="d-flex gap-2 mb-3">
+                                                <input type="radio" class="btn-check" name="s_pay" id="sp_cash" checked
+                                                    data-bs-toggle="collapse" data-bs-target="#cashBox"
+                                                    aria-expanded="true" aria-controls="cashBox">
+                                                <label class="btn btn-outline-secondary" for="sp_cash">Cash</label>
+
+                                                <input type="radio" class="btn-check" name="s_pay" id="sp_online"
+                                                    data-bs-toggle="collapse" data-bs-target="#onlineBox"
+                                                    aria-expanded="false" aria-controls="onlineBox">
+                                                <label class="btn btn-outline-secondary" for="sp_online">Online</label>
+                                            </div>
+
+                                            <div id="payBoxes">
+
+                                                <div id="cashBox" class="collapse show" data-bs-parent="#payBoxes">
+                                                    <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
+                                                        <label class="fw-bold small mb-1">Cash Payment</label>
+                                                        <input type="number" class="form-control form-control-sm"
+                                                            placeholder="Enter Amount">
+                                                    </div>
+                                                </div>
+
+                                                <div id="onlineBox" class="collapse" data-bs-parent="#payBoxes">
+                                                    <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
+                                                        <label class="fw-bold small mb-2">Select Online Method</label>
+
+                                                        <div class="d-flex flex-wrap gap-3 mb-2">
+                                                            <div class="form-check">
+                                                                <input type="radio" class="form-check-input"
+                                                                    name="online_method" id="om_gpay">
+                                                                <label class="form-check-label small fw-bold"
+                                                                    for="om_gpay">Google Pay</label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input type="radio" class="form-check-input"
+                                                                    name="online_method" id="om_paytm">
+                                                                <label class="form-check-label small fw-bold"
+                                                                    for="om_paytm">Paytm</label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input type="radio" class="form-check-input"
+                                                                    name="online_method" id="om_phonepe">
+                                                                <label class="form-check-label small fw-bold"
+                                                                    for="om_phonepe">PhonePe</label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input type="radio" class="form-check-input"
+                                                                    name="online_method" id="om_bharatpe">
+                                                                <label class="form-check-label small fw-bold"
+                                                                    for="om_bharatpe">BharatPe</label>
+                                                            </div>
+                                                        </div>
+
+                                                        <input type="text" class="form-control form-control-sm"
+                                                            placeholder="Transaction / UPI Reference ID">
+                                                    </div>
+                                                </div>
+
+                                            </div>
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label>Price</label>

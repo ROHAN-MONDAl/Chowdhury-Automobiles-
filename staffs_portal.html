@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Inventory | Chowdhury Automobile</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --ather-black: #1a1a1a;
+            --ather-grey: #f4f4f4;
+            --card-radius: 20px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--ather-black);
+            background-color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            backdrop-filter: blur(12px);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding-top: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding-top: 140px;
+            padding-bottom: 80px;
+            background: linear-gradient(180deg, #fff 0%, #f8f9fa 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .display-heading {
+            font-weight: 900;
+            letter-spacing: -2px;
+            line-height: 1.1;
+        }
+
+        .hero-search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 600px;
+            /* adjust as needed */
+            margin-bottom: 1rem;
+            /* mb-4 equivalent */
+        }
+
+        .hero-search-icon {
+            position: absolute;
+            left: 10px;
+            font-size: 1.2rem;
+            color: #6c757d;
+            /* grey color, adjust as needed */
+        }
+
+        .hero-search-input {
+            width: 100%;
+            padding: 10px 45px 10px 35px;
+            /* left padding to make space for the icon */
+            border-radius: 25px;
+            border: 1px solid #ced4da;
+            outline: none;
+        }
+
+        .hero-search-input:focus {
+            border-color: #343a40;
+            box-shadow: 0 0 5px rgba(52, 58, 64, 0.3);
+        }
+
+        .hero-search-container button {
+            z-index: 2;
+            /* ensures button is above input */
+        }
+
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background-color: #f1f1f1;
+            color: #343a40;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .filter-chip i {
+            font-size: 0.95rem;
+        }
+
+        .filter-chip:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .filter-chip.active {
+            background-color: #343a40;
+            color: #fff;
+            border-color: #343a40;
+        }
+
+
+
+        /* Process Section */
+        .step-card {
+            border: 1px solid #eee;
+            border-radius: 20px;
+            padding: 30px;
+            height: 100%;
+            transition: 0.3s;
+            background: #fff;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border-color: #000;
+        }
+
+        .step-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #f0f0f0;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        /* Product Cards */
+        .product-card {
+            border: 1px solid #eee;
+            border-radius: var(--card-radius);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            background: #fff;
+            overflow: hidden;
+            height: 100%;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        }
+
+        .product-img-wrapper {
+            height: 220px;
+            overflow: hidden;
+            background-color: var(--ather-grey);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .product-img-wrapper img {
+            transition: transform 0.5s ease;
+            max-height: 100%;
+            width: auto;
+            max-width: 100%;
+            mix-blend-mode: multiply;
+        }
+
+        .product-card:hover .product-img-wrapper img {
+            transform: scale(1.08);
+        }
+
+        .spec-chip {
+            background: var(--ather-grey);
+            color: #333;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Badges */
+        .badge-status {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 2;
+        }
+
+        .bg-available {
+            background: #000;
+            color: #fff;
+        }
+
+        .bg-sold {
+            background: #fff;
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+
+        /* Map styling */
+        .footer-map-frame {
+            border-radius: 20px;
+            width: 100%;
+            height: 250px;
+            border: 0;
+            filter: grayscale(100%);
+            transition: 0.3s;
+        }
+
+        .footer-map-frame:hover {
+            filter: grayscale(0%);
+        }
+
+        /* Footer */
+        footer {
+            background: #111;
+            color: #fff;
+            border-top-left-radius: 40px;
+            border-top-right-radius: 40px;
+            margin-top: 50px;
+        }
+
+        /* Loading Screen Container */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #fff;
+            z-index: 99999;
+
+            display: flex;
+            flex-direction: column;
+            /* Stacks items vertically */
+            justify-content: center;
+            /* Vertically centers (because of column direction) */
+            align-items: center;
+            /* Horizontally centers */
+            text-align: center;
+            /* Ensures text inside is centered */
+
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Content Wrapper (Optional, ensures inner items align) */
+        .loader-content {
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Text Styling */
+        .loader-content h2 {
+            margin-top: -30px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            color: #343a40;
+            letter-spacing: 2px;
+            font-size: 1.9rem;
+            word-wrap: break-word;
+        }
+
+        /* Video Styling */
+        .bike-video {
+            width: 150px;
+            height: auto;
+            display: block;
+            object-fit: contain;
+
+            /* THE FIX: This centers a block element horizontally */
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader-content">
+            <video class="bike-video" autoplay muted loop playsinline>
+                <source src="images/Motorcycle.mp4" type="video/mp4">
+            </video>
+            <h2>Chowdhury</h2>
+            <span class="text-secondary fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing: 1.5px;">
+                Automobile
+            </span>
+        </div>
+    </div>
+
+
+
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="staffs_portal.html">
+                <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-1"
+                    style="width: 48px; height: 48px; overflow: hidden; padding: 2px;">
+                    <img src="images/logo.jpeg" alt="Chowdhury Automobile Logo" class="rounded-circle"
+                        style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+
+                <div class="d-flex flex-column lh-1">
+                    <span class="fs-5 fw-bolder text-dark">CHOWDHURY</span>
+                    <span class="text-secondary fw-bold text-uppercase"
+                        style="font-size: 0.7rem; letter-spacing: 1.5px;">
+                        Automobile
+                    </span>
+                </div>
+            </a>
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="fa-solid fa-bars fs-4"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto gap-3 align-items-center">
+                    <li class="nav-item"><a class="nav-link fw-medium text-dark" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-dark active" href="#">Inventory</a></li>
+                    <li class="nav-item">
+                        <a href="#" class="btn btn-sm btn-light border rounded-pill px-3 fw-bold text-secondary">
+                            <i class="fa-solid fa-user-shield me-1"></i> Staff Login
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <section class="hero-section mt-5 pt-5">
+        <div class="container py-5">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6 order-2 order-lg-1">
+                    <div class="badge bg-white border text-dark mb-3 px-3 py-2 rounded-pill fw-bold shadow-sm">
+                        <i class="fa-solid fa-check-circle text-success me-1"></i> 100% Verified Paperwork
+                    </div>
+                    <h1 class="display-heading mb-4">Upgrade your ride,<br>hassle-free.</h1>
+                    <p class="lead text-secondary mb-5">
+                        Discover the finest collection of pre-owned bikes and scooters in Howrah. Certified, serviced,
+                        and ready for the road.
+                    </p>
+
+                    <div class="d-flex gap-4 text-secondary small fw-bold">
+                        <span><i class="fa-solid fa-star text-warning me-1"></i> 4.8/5 Rating</span>
+                        <span><i class="fa-solid fa-users text-primary me-1"></i> 500+ Happy Customers</span>
+                    </div>
+                </div>
+                <div class="col-lg-6 order-1 order-lg-2">
+                    <div class="position-relative text-center">
+                        <div class="position-absolute top-50 start-50 translate-middle bg-white rounded-circle z-0 shadow-lg"
+                            style="width: 80%; padding-bottom: 80%;"></div>
+                        <img src="https://images.carandbike.com/cms/articles/3201199/Royal_Enfield_Hunter_350_1_2022_08_05_T03_41_40_503_Z_6ab6dc0960.png"
+                            class="img-fluid position-relative z-1" alt="Hero Bike" style="transform: scale(1.1);">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="inventory-header">
+        <div class="container text-center">
+            <h1 class="fw-black mb-4 display-5" style="font-weight: 800; letter-spacing: -1px;">Browse Inventory</h1>
+
+            <div class="hero-search-container mb-4 mx-auto">
+                <i class="fa-solid fa-magnifying-glass hero-search-icon"></i>
+                <input type="text" class="hero-search-input" placeholder="Try 'Royal Enfield' or 'Activa'...">
+                <button class="btn btn-dark rounded-circle position-absolute top-50 end-0 translate-middle-y me-2"
+                    style="width: 40px; height: 40px;">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <div class="filter-chip active">All Vehicles</div>
+                <div class="filter-chip"><i class="fa-solid fa-motorcycle"></i> Bikes</div>
+                <div class="filter-chip"><i class="fa-solid fa-moped"></i> Scooters</div>
+                <div class="filter-chip"><i class="fa-solid fa-indian-rupee-sign"></i> Under 50k</div>
+                <div class="filter-chip"><i class="fa-solid fa-bolt"></i> Sports</div>
+            </div>
+
+            <p class="text-muted mt-3 small fw-bold">Showing 9 Vehicles</p>
+        </div>
+    </section>
+
+    <section class="py-5 bg-white">
+        <div class="container">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
+                <div class="col">
+                    <div class="product-card">
+                        <span class="badge-status bg-available">Available</span>
+                        <div class="product-img-wrapper">
+                            <img src="https://www.jawayezdimotorcycles.com/cdn/shop/files/JY_Walkthrough_video_Website_Thumbnail_1_Hero_IMG_Roadster_Desktop_1.png?v=1757934480&width=2880"
+                                alt="Bike">
+                        </div>
+                        <div class="p-4 pt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-secondary fw-bold text-uppercase"
+                                    style="font-size: 0.7rem;">Commuter</small>
+                                <div class="text-warning small"><i class="fa-solid fa-star"></i> 4.5</div>
+                            </div>
+                            <h5 class="fw-bold mb-1">Hero Splendor Plus</h5>
+                            <p class="text-muted small fw-medium mb-3">WB 20 AB 1234</p>
+
+                            <div class="d-flex gap-2 mb-3">
+                                <span class="spec-chip">2023</span>
+                                <span class="spec-chip">1st Owner</span>
+                                <span class="spec-chip">Petrol</span>
+                            </div>
+
+                            <div class="d-flex align-items-end justify-content-between border-top pt-3">
+                                <div>
+                                    <small class="text-muted d-block" style="font-size: 0.75rem;">Price</small>
+                                    <span class="fw-bold fs-5">₹75,000</span>
+                                </div>
+                                <button class="btn btn-dark rounded-circle" style="width: 40px; height: 40px;"
+                                    data-bs-toggle="modal" data-bs-target="#vehicleModal1">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="product-card" style="opacity: 0.9;">
+                        <span class="badge-status bg-sold">Sold Out</span>
+                        <div class="product-img-wrapper" style="filter: grayscale(100%);">
+                            <img src="https://images.carandbike.com/cms/articles/3201199/Royal_Enfield_Hunter_350_1_2022_08_05_T03_41_40_503_Z_6ab6dc0960.png"
+                                alt="Bike">
+                        </div>
+                        <div class="p-4 pt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-secondary fw-bold text-uppercase"
+                                    style="font-size: 0.7rem;">Cruiser</small>
+                            </div>
+                            <h5 class="fw-bold mb-1">RE Classic 350</h5>
+                            <p class="text-muted small fw-medium mb-3">WB 12 AB 9999</p>
+
+                            <div class="d-flex gap-2 mb-3">
+                                <span class="spec-chip">2023</span>
+                                <span class="spec-chip">350cc</span>
+                            </div>
+
+                            <div class="d-flex align-items-end justify-content-between border-top pt-3">
+                                <div>
+                                    <small class="text-muted d-block" style="font-size: 0.75rem;">Price</small>
+                                    <span class="fw-bold fs-5 text-decoration-line-through text-muted">₹1.85L</span>
+                                </div>
+                                <button class="btn btn-light border rounded-circle" disabled>
+                                    <i class="fa-solid fa-lock text-muted"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="product-card">
+                        <span class="badge-status bg-available">Available</span>
+                        <div class="product-img-wrapper">
+                            <img src="https://www.drivio.in/_next/image?url=https%3A%2F%2Fcdn.drivio.in%2Fblog%2Fblog-1734089144775.webp&w=1280&q=75"
+                                alt="Bike">
+                        </div>
+                        <div class="p-4 pt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-secondary fw-bold text-uppercase"
+                                    style="font-size: 0.7rem;">Sports</small>
+                            </div>
+                            <h5 class="fw-bold mb-1">KTM Duke 200</h5>
+                            <p class="text-muted small fw-medium mb-3">WB 02 CD 1111</p>
+
+                            <div class="d-flex gap-2 mb-3">
+                                <span class="spec-chip">2022</span>
+                                <span class="spec-chip">200cc</span>
+                            </div>
+
+                            <div class="d-flex align-items-end justify-content-between border-top pt-3">
+                                <div>
+                                    <small class="text-muted d-block" style="font-size: 0.75rem;">Price</small>
+                                    <span class="fw-bold fs-5">₹1,45,000</span>
+                                </div>
+                                <button class="btn btn-outline-dark rounded-circle" style="width: 40px; height: 40px;">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="product-card">
+                        <span class="badge-status bg-available">Available</span>
+                        <div class="product-img-wrapper">
+                            <img src="https://www.drivio.in/_next/image?url=https%3A%2F%2Fcdn.drivio.in%2Fblog%2Fblog-1734089144775.webp&w=1280&q=75"
+                                alt="Bike">
+                        </div>
+                        <div class="p-4 pt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-secondary fw-bold text-uppercase"
+                                    style="font-size: 0.7rem;">Sports</small>
+                            </div>
+                            <h5 class="fw-bold mb-1">Yamaha R15 V4</h5>
+                            <p class="text-muted small fw-medium mb-3">WB 34 EF 2222</p>
+
+                            <div class="d-flex gap-2 mb-3">
+                                <span class="spec-chip">2023</span>
+                                <span class="spec-chip">ABS</span>
+                            </div>
+
+                            <div class="d-flex align-items-end justify-content-between border-top pt-3">
+                                <div>
+                                    <small class="text-muted d-block" style="font-size: 0.75rem;">Price</small>
+                                    <span class="fw-bold fs-5">₹1,60,000</span>
+                                </div>
+                                <button class="btn btn-outline-dark rounded-circle" style="width: 40px; height: 40px;">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="product-card">
+                        <span class="badge-status bg-available">Available</span>
+                        <div class="product-img-wrapper">
+                            <img src="https://www.drivio.in/_next/image?url=https%3A%2F%2Fcdn.drivio.in%2Fblog%2Fblog-1734089144775.webp&w=1280&q=75"
+                                alt="Bike">
+                        </div>
+                        <div class="p-4 pt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-secondary fw-bold text-uppercase"
+                                    style="font-size: 0.7rem;">Scooter</small>
+                            </div>
+                            <h5 class="fw-bold mb-1">Honda Activa 6G</h5>
+                            <p class="text-muted small fw-medium mb-3">WB 11 GH 3333</p>
+
+                            <div class="d-flex gap-2 mb-3">
+                                <span class="spec-chip">2024</span>
+                                <span class="spec-chip">Low KM</span>
+                            </div>
+
+                            <div class="d-flex align-items-end justify-content-between border-top pt-3">
+                                <div>
+                                    <small class="text-muted d-block" style="font-size: 0.75rem;">Price</small>
+                                    <span class="fw-bold fs-5">₹62,000</span>
+                                </div>
+                                <button class="btn btn-outline-dark rounded-circle" style="width: 40px; height: 40px;">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="product-card">
+                        <span class="badge-status bg-available">Available</span>
+                        <div class="product-img-wrapper">
+                            <img src="https://www.drivio.in/_next/image?url=https%3A%2F%2Fcdn.drivio.in%2Fblog%2Fblog-1734089144775.webp&w=1280&q=75"
+                                alt="Bike">
+                        </div>
+                        <div class="p-4 pt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-secondary fw-bold text-uppercase"
+                                    style="font-size: 0.7rem;">Street</small>
+                            </div>
+                            <h5 class="fw-bold mb-1">Pulsar NS200</h5>
+                            <p class="text-muted small fw-medium mb-3">WB 55 JK 4444</p>
+
+                            <div class="d-flex gap-2 mb-3">
+                                <span class="spec-chip">2022</span>
+                                <span class="spec-chip">200cc</span>
+                            </div>
+
+                            <div class="d-flex align-items-end justify-content-between border-top pt-3">
+                                <div>
+                                    <small class="text-muted d-block" style="font-size: 0.75rem;">Price</small>
+                                    <span class="fw-bold fs-5">₹95,000</span>
+                                </div>
+                                <button class="btn btn-outline-dark rounded-circle" style="width: 40px; height: 40px;">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="product-card" style="opacity: 0.9;">
+                        <span class="badge-status bg-sold">Sold Out</span>
+                        <div class="product-img-wrapper" style="filter: grayscale(100%);">
+                            <img src="https://www.drivio.in/_next/image?url=https%3A%2F%2Fcdn.drivio.in%2Fblog%2Fblog-1734089144775.webp&w=1280&q=75"
+                                alt="Bike">
+                        </div>
+                        <div class="p-4 pt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-secondary fw-bold text-uppercase"
+                                    style="font-size: 0.7rem;">Scooter</small>
+                            </div>
+                            <h5 class="fw-bold mb-1">Suzuki Access 125</h5>
+                            <p class="text-muted small fw-medium mb-3">WB 66 LM 5555</p>
+
+                            <div class="d-flex gap-2 mb-3">
+                                <span class="spec-chip">2021</span>
+                                <span class="spec-chip">125cc</span>
+                            </div>
+
+                            <div class="d-flex align-items-end justify-content-between border-top pt-3">
+                                <div>
+                                    <small class="text-muted d-block" style="font-size: 0.75rem;">Price</small>
+                                    <span class="fw-bold fs-5 text-decoration-line-through text-muted">₹55k</span>
+                                </div>
+                                <button class="btn btn-light border rounded-circle" disabled>
+                                    <i class="fa-solid fa-lock text-muted"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="product-card">
+                        <span class="badge-status bg-available">Available</span>
+                        <div class="product-img-wrapper">
+                            <img src="https://www.drivio.in/_next/image?url=https%3A%2F%2Fcdn.drivio.in%2Fblog%2Fblog-1734089144775.webp&w=1280&q=75"
+                                alt="Bike">
+                        </div>
+                        <div class="p-4 pt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-secondary fw-bold text-uppercase"
+                                    style="font-size: 0.7rem;">Cruiser</small>
+                            </div>
+                            <h5 class="fw-bold mb-1">RE Hunter 350</h5>
+                            <p class="text-muted small fw-medium mb-3">WB 77 NP 6666</p>
+
+                            <div class="d-flex gap-2 mb-3">
+                                <span class="spec-chip">2023</span>
+                                <span class="spec-chip">Metro</span>
+                            </div>
+
+                            <div class="d-flex align-items-end justify-content-between border-top pt-3">
+                                <div>
+                                    <small class="text-muted d-block" style="font-size: 0.75rem;">Price</small>
+                                    <span class="fw-bold fs-5">₹1,55,000</span>
+                                </div>
+                                <button class="btn btn-outline-dark rounded-circle" style="width: 40px; height: 40px;">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="product-card" style="opacity: 0.9;">
+                        <span class="badge-status bg-sold">Sold Out</span>
+                        <div class="product-img-wrapper" style="filter: grayscale(100%);">
+                            <img src="https://www.drivio.in/_next/image?url=https%3A%2F%2Fcdn.drivio.in%2Fblog%2Fblog-1734089144775.webp&w=1280&q=75"
+                                alt="Bike">
+                        </div>
+                        <div class="p-4 pt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-secondary fw-bold text-uppercase"
+                                    style="font-size: 0.7rem;">Street</small>
+                            </div>
+                            <h5 class="fw-bold mb-1">TVS Apache 160</h5>
+                            <p class="text-muted small fw-medium mb-3">WB 88 QR 7777</p>
+
+                            <div class="d-flex gap-2 mb-3">
+                                <span class="spec-chip">2020</span>
+                                <span class="spec-chip">160cc</span>
+                            </div>
+
+                            <div class="d-flex align-items-end justify-content-between border-top pt-3">
+                                <div>
+                                    <small class="text-muted d-block" style="font-size: 0.75rem;">Price</small>
+                                    <span class="fw-bold fs-5 text-decoration-line-through text-muted">₹45k</span>
+                                </div>
+                                <button class="btn btn-light border rounded-circle" disabled>
+                                    <i class="fa-solid fa-lock text-muted"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="d-flex justify-content-center mt-5">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li class="page-item disabled"><a
+                                class="page-link rounded-start-pill border-0 bg-light text-muted" href="#">Prev</a></li>
+                        <li class="page-item active"><a class="page-link border-0 bg-black text-white" href="#">1</a>
+                        </li>
+                        <li class="page-item"><a class="page-link border-0 text-dark" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link border-0 text-dark" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link rounded-end-pill border-0 text-dark" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+        </div>
+    </section>
+
+    <footer id="contact" class="section-footer py-5">
+        <div class="container py-4">
+            <div class="row g-5">
+
+                <div class="col-lg-4">
+                    <a class="navbar-brand d-flex align-items-center gap-2" href="staffs_portal.html">
+                        <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-1"
+                            style="width: 48px; height: 48px; overflow: hidden; padding: 2px;">
+                            <img src="images/logo.jpeg" alt="Chowdhury Automobile Logo" class="rounded-circle"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+
+                        <div class="d-flex flex-column lh-1">
+                            <span class="fs-5 fw-bolder text-white">CHOWDHURY</span>
+                            <span class="text-secondary fw-bold text-uppercase"
+                                style="font-size: 0.7rem; letter-spacing: 1.5px;">
+                                Automobile
+                            </span>
+                        </div>
+                    </a>
+
+
+                    <p class="text-secondary small mt-2 mb-4 pe-lg-4">
+                        West Bengal's most trusted pre-owned two-wheeler dealership. We ensure every ride you take is
+                        safe, legal, and reliable.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="btn btn-dark rounded-circle" style="width: 40px; height: 40px;"><i
+                                class="fa-brands fa-whatsapp mt-1"></i></a>
+                        <a href="#" class="btn btn-dark rounded-circle" style="width: 40px; height: 40px;"><i
+                                class="fa-brands fa-facebook-f mt-1"></i></a>
+                        <a href="#" class="btn btn-dark rounded-circle" style="width: 40px; height: 40px;"><i
+                                class="fa-brands fa-instagram mt-1"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
+                    <h6 class="fw-bold mb-4">Get in Touch</h6>
+                    <div class="d-flex gap-3 mb-4">
+                        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                            style="width: 40px; height: 40px;">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div>
+                            <span class="fw-bold small d-block">Showroom</span>
+                            <span class="small text-secondary">123, G.T. Road, Howrah - 711101, West Bengal.</span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                            style="width: 40px; height: 40px;">
+                            <i class="fa-solid fa-phone"></i>
+                        </div>
+                        <div>
+                            <span class="fw-bold small d-block">Call Us</span>
+                            <span class="small text-secondary">+91 98765 43210</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="overflow-hidden rounded-4 border border-secondary border-opacity-25"
+                        style="height: 100%; min-height: 250px;">
+                        <iframe class="footer-map-frame"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14736.313495863266!2d88.3308930740924!3d22.57615024479383!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a0277bd76922b03%3A0x6b4478206d9101d2!2sHowrah%2C%20West%20Bengal!5e0!3m2!1sen!2sin!4v1701358327495!5m2!1sen!2sin"
+                            allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-top border-secondary border-opacity-25 mt-5 pt-4 text-center small text-secondary">
+                © 2025 Chowdhury Automobile. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Navbar blur on scroll
+            $(window).on('scroll', function () {
+                if ($(this).scrollTop() > 50) {
+                    $('.navbar').addClass('shadow-sm');
+                } else {
+                    $('.navbar').removeClass('shadow-sm');
+                }
+            });
+
+            // Fade out loader once page is loaded
+            $(window).on('load', function () {
+                $('#loading-screen').fadeOut(500);
+            });
+        });
+    </script>
+
+</body>
+
+</html>

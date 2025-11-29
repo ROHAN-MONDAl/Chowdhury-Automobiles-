@@ -1,40 +1,44 @@
+<!-- Inventory Dashboard Page for Chowdhury Automobile Management System -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+    <!-- Character encoding for the document -->
     <meta charset="UTF-8">
+    <!-- Viewport meta tag for responsive design on mobile devices -->
     <!-- Ensure responsive scaling and disable zoom on mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Page title displayed in browser tab -->
     <title>Chowdhury Automobile | Manager</title>
 
-    <!-- Bootstrap 5 CSS -->
+    <!-- Bootstrap 5 CSS framework for responsive layout and components -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Icons -->
+    <!-- Phosphor Icons library for consistent iconography -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-    <!-- jQuery -->
+    <!-- jQuery library for DOM manipulation and AJAX requests -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-    <!-- Fonts -->
+    <!-- Google Fonts - Inter font family for consistent typography -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <!-- Custom CSS file containing additional styles and responsive breakpoints -->
     <!-- Custom CSS (Contains responsive breakpoints for specific components like .wizard-nav) -->
     <link rel="stylesheet" href="style.css">
-
 
 </head>
 
 <body>
-    <!-- LOADER -->
+    <!-- Loading Spinner Section - Displays a loading animation with 'LOADING...' text while the page initializes -->
     <div id="loader"
         style="position:fixed; inset:0; background:rgba(242,242,247,0.98); z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column;">
         <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
         <div class="mt-3 fw-bold text-secondary" style="letter-spacing: 1px;">LOADING...</div>
     </div>
 
-    <!-- DASHBOARD SECTION -->
-    <section id="dashboard-section" class="pb-5">
+    <!-- Main Dashboard Section - Contains the navigation bar and overall layout structure -->
+    <section id="dashboard-section">
         <!-- HEADER / NAVIGATION BAR -->
         <!-- Responsive: Sticky-top, shadows, and flex ensures horizontal layout adapts on small screens -->
         <nav class="navbar bg-white sticky-top shadow-sm rounded-4 py-3 mt-3">
@@ -77,84 +81,145 @@
 
     <div class="container pb-5">
 
-        <!-- HEADER -->
+        <!-- Page Header - Displays the inventory dashboard title, status, and add new vehicle button -->
         <div class="container-fluid py-4">
 
             <div class="p-3 rounded-4 shadow-sm bg-white">
                 <div class="row align-items-center justify-content-between g-3">
                     <div class="col-md-6">
-                        <h2 class="fw-bold mb-1 fs-4">Inventory Dashboard</h2>
+                        <h2 class="fw-bold fs-4">Inventory Dashboard</h2>
                         <p class="text-secondary mb-0 small">
                             <i class="ph-fill ph-check-circle text-success me-1"></i> Active • Tracking vehicle data
                         </p>
                     </div>
-                    <div class="col-md-12 d-flex justify-content-center" onclick="openModal('dealModal')">
+                    <!-- <div class="col-md-12 d-flex justify-content-center" onclick="openModal('dealModal')">
                         <button class="btn btn-primary rounded-pill px-4 py-2">
                             <i class="ph-bold ph-plus me-1"></i> Add New Vehicle
                         </button>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
 
 
-        <!-- FILTERS -->
-        <div class="card border-0 rounded-4 shadow-sm mb-4">
-            <div class="card-header bg-white border-0 pt-4 px-4 pb-3 d-flex justify-content-between align-items-center pointer"
-                data-bs-toggle="collapse" data-bs-target="#filterCollapse">
-                <h5 class="fw-bold fs-6 text-uppercase text-secondary mb-0"><i
-                        class="ph-bold ph-faders me-2 text-danger"></i>Search
-                    Filters</h5>
-                <i class="ph-bold ph-caret-down text-muted"></i>
+        <!-- Filters Section - Includes stock summary badges and filter button to open the filter modal -->
+        <!-- STOCK SUMMARY + FILTER BUTTON -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-2">
+
+            <!-- Stock Summary Badges -->
+            <div class="d-flex flex-column flex-md-row align-items-center justify-content-start gap-2">
+                <span class="small text-muted fw-bold me-2">Stock Summary:</span>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-dark">
+                        Total: <span class="fw-bolder">17</span>
+                    </span>
+                    <span class="badge bg-success">
+                        Available: <span class="fw-bolder">12</span>
+                    </span>
+                    <span class="badge bg-danger">
+                        Sold: <span class="fw-bolder">5</span>
+                    </span>
+                </div>
             </div>
-            <div class="collapse show" id="filterCollapse">
-                <div class="card-body px-4 pb-4 pt-3">
-                    <div class="row g-3">
-                        <div class="col-12 col-md-6 col-lg-3">
-                            <label class="form-label small text-muted fw-bold">General Search</label>
-                            <input type="text" id="globalSearch" class="form-control border bg-light"
-                                placeholder="Name, Bike, Engine...">
-                        </div>
-                        <div class="col-12 col-md-6 col-lg-3">
-                            <label class="form-label small text-muted fw-bold">Vehicle No.</label>
-                            <input type="text" id="filterReg" class="form-control border bg-light"
-                                placeholder="WB 00 AA 0000">
-                        </div>
-                        <div class="col-6 col-md-3 col-lg-2">
-                            <label class="form-label small text-muted fw-bold">RTO</label>
-                            <select class="form-select border bg-light small" id="filterRTO">
-                                <option value="all">All RTOs</option>
-                                <option value="bankura">Bankura</option>
-                                <option value="bishnupur">Bishnupur</option>
-                                <option value="durgapur">Durgapur</option>
-                                <option value="manbazar">Manbazar</option>
-                                <option value="suri">Suri</option>
-                                <option value="asansol">Asansol</option>
-                                <option value="kalimpong">Kalimpong </option>
-                            </select>
-                        </div>
-                        <div class="col-6 col-md-3 col-lg-2">
-                            <label class="form-label small text-muted fw-bold">Payment Mode</label>
-                            <select class="form-select border bg-light small" id="filterPay">
-                                <option value="all">All</option>
-                                <option value="cash">Cash</option>
-                                <option value="finance">Finance</option>
-                            </select>
-                        </div>
-                        <div class="col-6 col-md-3 col-lg-2">
-                            <label class="form-label small text-muted fw-bold">Status</label>
-                            <select class="form-select border bg-light small" id="statusFilter">
-                                <option value="all">All</option>
-                                <option value="available">Available</option>
-                                <option value="sold">Sold</option>
-                            </select>
+
+            <!-- Filter Button -->
+            <button class="btn btn-outline-secondary text-bg-danger" type="button" data-bs-toggle="modal"
+                data-bs-target="#filterModal">
+                <i class="ph-bold ph-faders me-2"></i>Apply Filters
+            </button>
+        </div>
+
+        <!-- Filter Modal - Provides advanced search and filtering options for vehicles by various criteria -->
+        <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold text-uppercase text-secondary" id="filterModalLabel">
+                            <i class="ph-bold ph-faders me-2 text-danger"></i>Search Filters
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="row g-3">
+
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <label class="form-label small text-muted fw-bold">General Search</label>
+                                <input type="text" class="form-control border" placeholder="Name, Bike, Engine...">
+                            </div>
+
+                            <div class="col-6 col-md-3 col-lg-2">
+                                <label class="form-label small text-muted fw-bold">Vehicle No.</label>
+                                <input type="text" class="form-control border" placeholder="WB 00 AA 0000">
+                            </div>
+
+                            <div class="col-6 col-md-3 col-lg-2">
+                                <label class="form-label small text-muted fw-bold">Date</label>
+                                <input type="date" class="form-control border">
+                            </div>
+
+                            <div class="col-6 col-md-3 col-lg-2">
+                                <label class="form-label small text-muted fw-bold">RTO</label>
+                                <select class="form-select border small">
+                                    <option>All RTOs</option>
+                                    <option>Bankura</option>
+                                    <option>Bishnupur</option>
+                                    <option>Durgapur</option>
+                                    <option>Manbazar</option>
+                                    <option>Suri</option>
+                                    <option>Asansol</option>
+                                    <option>Kalimpong</option>
+                                </select>
+                            </div>
+
+                            <div class="col-6 col-md-3 col-lg-2">
+                                <label class="form-label small text-muted fw-bold">Status</label>
+                                <select class="form-select border small">
+                                    <option>All</option>
+                                    <option class="fw-bold text-success">Available</option>
+                                    <option class="fw-bold text-danger">Sold</option>
+                                </select>
+                            </div>
+
+                            <div class="col-6 col-md-4 col-lg-2">
+                                <label class="form-label small text-muted fw-bold">Payment</label>
+                                <select class="form-select border small">
+                                    <option>All</option>
+                                    <option>Cash</option>
+                                    <option>Finance</option>
+                                </select>
+                            </div>
+
+                            <div class="col-6 col-md-4 col-lg-2">
+                                <label class="form-label small text-muted fw-bold">Model</label>
+                                <input type="text" class="form-control border" placeholder="Bike Model">
+                            </div>
+
+                            <div class="col-6 col-md-4 col-lg-2">
+                                <label class="form-label small text-muted fw-bold">Engine No.</label>
+                                <input type="text" class="form-control border" placeholder="Engine No">
+                            </div>
+
+                            <div class="col-6 col-md-6 col-lg-2">
+                                <label class="form-label small text-muted fw-bold">Chassis No.</label>
+                                <input type="text" class="form-control border" placeholder="Chassis No">
+                            </div>
+
                         </div>
                     </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-danger">Apply Filters</button>
+                    </div>
+
                 </div>
             </div>
         </div>
 
-        <!-- DATA GRID -->
+
+        <!-- Vehicle Data Grid - Displays inventory vehicles in a responsive card layout with availability status and action buttons -->
         <div class="position-relative" style="min-height: 400px;">
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
 
@@ -282,10 +347,7 @@
             </div>
 
 
-            <!-- view modal -->
-            <!-- 1. VIEW DEAL MODAL (Static Design) -->
-            <!-- SMOOTH ACCORDION VIEW MODAL -->
-            <!-- VIEW DEAL MODAL -->
+            <!-- Vehicle Details View Modal - Accordion-based modal to view comprehensive vehicle and deal information including photos, specs, and transaction details -->
             <div class="modal fade" id="viewDealModal" tabindex="-1" aria-hidden="true">
                 <div
                     class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
@@ -988,8 +1050,7 @@
     </div>
 
 
-    <!-- 4-STEP WIZARD MODAL (Enhanced Indicators) For Edit Data -->
-    <!-- Responsive: modal-fullscreen-sm-down for mobile view -->
+    <!-- Add/Edit Vehicle Modal - 4-step wizard modal for adding or editing vehicle details, seller information, buyer details, and ownership transfer -->
     <div class="modal fade" id="dealModal" data-bs-backdrop="static" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
             <div class="modal-content">
@@ -1110,14 +1171,67 @@
 
                                     <div class="row g-3 mb-3">
                                         <div class="col-12 col-md-6">
-                                            <label for="paymentModeSelect">Payment Mode</label>
-                                            <select class="form-select" id="paymentModeSelect" name="v_pay">
-                                                <option value="cash" selected>Cash</option>
-                                                <option value="phonepay">Phone Pay</option>
-                                                <option value="googlepay">Google Pay</option>
-                                                <option value="paytm">Paytm</option>
-                                                <option value="bharatpay">Bharat Pay</option>
-                                            </select>
+                                            <label class="fw-bold mb-2">Payment Type</label>
+
+                                            <div class="d-flex gap-2 mb-3">
+                                                <input type="radio" class="btn-check" name="s_pay" id="sp_cash" checked
+                                                    data-bs-toggle="collapse" data-bs-target="#cashBox"
+                                                    aria-expanded="true" aria-controls="cashBox">
+                                                <label class="btn btn-outline-secondary" for="sp_cash">Cash</label>
+
+                                                <input type="radio" class="btn-check" name="s_pay" id="sp_online"
+                                                    data-bs-toggle="collapse" data-bs-target="#onlineBox"
+                                                    aria-expanded="false" aria-controls="onlineBox">
+                                                <label class="btn btn-outline-secondary" for="sp_online">Online</label>
+                                            </div>
+
+                                            <div id="payBoxes">
+
+                                                <div id="cashBox" class="collapse show" data-bs-parent="#payBoxes">
+                                                    <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
+                                                        <label class="fw-bold small mb-1">Cash Payment</label>
+                                                        <input type="number" class="form-control form-control-sm"
+                                                            placeholder="Enter Amount">
+                                                    </div>
+                                                </div>
+
+                                                <div id="onlineBox" class="collapse" data-bs-parent="#payBoxes">
+                                                    <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
+                                                        <label class="fw-bold small mb-2">Select Online Method</label>
+
+                                                        <div class="d-flex flex-wrap gap-3 mb-2">
+                                                            <div class="form-check">
+                                                                <input type="radio" class="form-check-input"
+                                                                    name="online_method" id="om_gpay">
+                                                                <label class="form-check-label small fw-bold"
+                                                                    for="om_gpay">Google Pay</label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input type="radio" class="form-check-input"
+                                                                    name="online_method" id="om_paytm">
+                                                                <label class="form-check-label small fw-bold"
+                                                                    for="om_paytm">Paytm</label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input type="radio" class="form-check-input"
+                                                                    name="online_method" id="om_phonepe">
+                                                                <label class="form-check-label small fw-bold"
+                                                                    for="om_phonepe">PhonePe</label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input type="radio" class="form-check-input"
+                                                                    name="online_method" id="om_bharatpe">
+                                                                <label class="form-check-label small fw-bold"
+                                                                    for="om_bharatpe">BharatPe</label>
+                                                            </div>
+                                                        </div>
+
+                                                        <input type="text" class="form-control form-control-sm"
+                                                            placeholder="Transaction / UPI Reference ID">
+                                                    </div>
+                                                </div>
+
+                                            </div>
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label>Price</label>
