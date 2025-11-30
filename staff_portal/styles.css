@@ -1,0 +1,277 @@
+:root {
+    --ather-black: #1a1a1a;
+    --ather-grey: #f4f4f4;
+    --card-radius: 20px;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--ather-black);
+    background-color: #fff;
+    overflow-x: hidden;
+}
+
+/* Navbar */
+.navbar {
+    backdrop-filter: blur(12px);
+    background-color: rgba(255, 255, 255, 0.9);
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Hero Section */
+.hero-section {
+    padding-top: 140px;
+    padding-bottom: 80px;
+    background: linear-gradient(180deg, #fff 0%, #f8f9fa 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.display-heading {
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1.1;
+}
+
+.hero-search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 600px;
+    /* adjust as needed */
+    margin-bottom: 1rem;
+    /* mb-4 equivalent */
+}
+
+.hero-search-icon {
+    position: absolute;
+    left: 10px;
+    font-size: 1.2rem;
+    color: #6c757d;
+    /* grey color, adjust as needed */
+}
+
+.hero-search-input {
+    width: 100%;
+    padding: 10px 45px 10px 35px;
+    /* left padding to make space for the icon */
+    border-radius: 25px;
+    border: 1px solid #ced4da;
+    outline: none;
+}
+
+.hero-search-input:focus {
+    border-color: #343a40;
+    box-shadow: 0 0 5px rgba(52, 58, 64, 0.3);
+}
+
+.hero-search-container button {
+    z-index: 2;
+    /* ensures button is above input */
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    background-color: #f1f1f1;
+    color: #343a40;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.filter-chip i {
+    font-size: 0.95rem;
+}
+
+.filter-chip:hover {
+    background-color: #e0e0e0;
+    transform: translateY(-2px);
+}
+
+.filter-chip.active {
+    background-color: #343a40;
+    color: #fff;
+    border-color: #343a40;
+}
+
+
+
+/* Process Section */
+.step-card {
+    border: 1px solid #eee;
+    border-radius: 20px;
+    padding: 30px;
+    height: 100%;
+    transition: 0.3s;
+    background: #fff;
+}
+
+.step-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    border-color: #000;
+}
+
+.step-number {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #f0f0f0;
+    line-height: 1;
+    margin-bottom: 10px;
+}
+
+/* Product Cards */
+.product-card {
+    border: 1px solid #eee;
+    border-radius: var(--card-radius);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    background: #fff;
+    overflow: hidden;
+    height: 100%;
+    position: relative;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+}
+
+.product-img-wrapper {
+    height: 220px;
+    overflow: hidden;
+    background-color: var(--ather-grey);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.product-img-wrapper img {
+    transition: transform 0.5s ease;
+    max-height: 100%;
+    width: auto;
+    max-width: 100%;
+    mix-blend-mode: multiply;
+}
+
+.product-card:hover .product-img-wrapper img {
+    transform: scale(1.08);
+}
+
+.spec-chip {
+    background: var(--ather-grey);
+    color: #333;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Badges */
+.badge-status {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 2;
+}
+
+.bg-available {
+    background: #000;
+    color: #fff;
+}
+
+.bg-sold {
+    background: #fff;
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}
+
+/* Map styling */
+.footer-map-frame {
+    border-radius: 20px;
+    width: 100%;
+    height: 250px;
+    border: 0;
+    filter: grayscale(100%);
+    transition: 0.3s;
+}
+
+.footer-map-frame:hover {
+    filter: grayscale(0%);
+}
+
+/* Footer */
+footer {
+    background: #111;
+    color: #fff;
+    border-top-left-radius: 40px;
+    border-top-right-radius: 40px;
+    margin-top: 50px;
+}
+
+/* Loading Screen Container */
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #fff;
+    z-index: 99999;
+
+    display: flex;
+    flex-direction: column;
+    /* Stacks items vertically */
+    justify-content: center;
+    /* Vertically centers (because of column direction) */
+    align-items: center;
+    /* Horizontally centers */
+    text-align: center;
+    /* Ensures text inside is centered */
+
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Content Wrapper (Optional, ensures inner items align) */
+.loader-content {
+    width: 100%;
+    text-align: center;
+}
+
+/* Text Styling */
+.loader-content h2 {
+    margin-top: -30px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    color: #343a40;
+    letter-spacing: 2px;
+    font-size: 1.9rem;
+    word-wrap: break-word;
+}
+
+/* Video Styling */
+.bike-video {
+    width: 150px;
+    height: auto;
+    display: block;
+    object-fit: contain;
+
+    /* THE FIX: This centers a block element horizontally */
+    margin: 0 auto;
+}
