@@ -74,6 +74,7 @@ body {
     /* ensures button is above input */
 }
 
+
 .filter-chip {
     display: inline-flex;
     align-items: center;
