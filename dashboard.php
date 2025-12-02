@@ -176,70 +176,7 @@
     </section>
 
 
-    <!-- LEADS LIST MODAL -->
-    <!-- Responsive: modal-fullscreen-sm-down for mobile view -->
-    <div class="modal fade" id="leadsListModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
-            <div class="modal-content">
-                <div class="modal-header border-0 pb-0">
-                    <h4 class="modal-title fw-bold ms-2 fs-5 fs-md-4">Manage Leads</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <!-- Responsive Grid: Two columns on medium/desktop, one column on mobile -->
-                    <div class="row g-3">
-                        <div class="col-12 col-md-6 lead-item">
-                            <div class="lead-card">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h5 class="fw-bold mb-1 fs-5">Suman Roy</h5>
-                                        <div class="text-secondary fw-semibold small">+91 90000 12345</div>
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        <button class="btn-icon edit" onclick="openModal('leadModal')"><i
-                                                class="ph-bold ph-pencil-simple"></i></button>
-                                        <button class="btn-icon delete delete-lead"><i
-                                                class="ph-bold ph-trash"></i></button>
-                                    </div>
-                                </div>
-                                <div class="d-flex gap-2 mt-3 flex-wrap">
-                                    <span
-                                        class="badge-pill bg-primary-subtle text-primary border border-primary-subtle">Pulsar
-                                        150</span>
-                                    <span class="badge-pill bg-light text-dark border">1st Owner</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- More items -->
-                        <div class="col-12 col-md-6 lead-item">
-                            <div class="lead-card">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h5 class="fw-bold mb-1 fs-5">Rahul Dev</h5>
-                                        <div class="text-secondary fw-semibold small">+91 88888 11111</div>
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        <button class="btn-icon edit" onclick="openModal('leadModal')"><i
-                                                class="ph-bold ph-pencil-simple"></i></button>
-                                        <button class="btn-icon delete delete-lead"><i
-                                                class="ph-bold ph-trash"></i></button>
-                                    </div>
-                                </div>
-                                <div class="d-flex gap-2 mt-3 flex-wrap">
-                                    <span
-                                        class="badge-pill bg-primary-subtle text-primary border border-primary-subtle">Apache
-                                        160</span>
-                                    <span class="badge-pill bg-light text-dark border">Any Owner</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ADD / EDIT LEAD MODAL -->
+    <!-- ADD / EDIT vechical form -->
     <div class="modal fade" id="dealModal" data-bs-backdrop="static" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
             <div class="modal-content">
@@ -289,7 +226,7 @@
                         <div class="step-circle d-flex align-items-center justify-content-center rounded-circle">
                             3
                         </div>
-                        <div class="step-label small mt-1">Buyer</div>
+                        <div class="step-label small mt-1">Purchaser</div>
                     </div>
 
                     <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="4">
@@ -363,27 +300,32 @@
                                             <label class="fw-bold mb-2">Payment Type</label>
 
                                             <div class="d-flex gap-2 mb-3">
+                                                <!-- CASH -->
                                                 <input type="radio" class="btn-check" name="s_pay" id="sp_cash" checked
                                                     data-bs-toggle="collapse" data-bs-target="#cashBox"
-                                                    aria-expanded="true" aria-controls="cashBox">
-                                                <label class="btn btn-outline-secondary" for="sp_cash">Cash</label>
+                                                    aria-controls="cashBox">
+                                                <label class="btn btn-outline-success" for="sp_cash">Cash</label>
 
+                                                <!-- ONLINE -->
                                                 <input type="radio" class="btn-check" name="s_pay" id="sp_online"
                                                     data-bs-toggle="collapse" data-bs-target="#onlineBox"
-                                                    aria-expanded="false" aria-controls="onlineBox">
-                                                <label class="btn btn-outline-secondary" for="sp_online">Online</label>
+                                                    aria-controls="onlineBox">
+                                                <label class="btn btn-outline-primary" for="sp_online">Online</label>
                                             </div>
 
+                                            <!-- ACCORDION CONTAINER -->
                                             <div id="payBoxes">
 
+                                                <!-- CASH BOX -->
                                                 <div id="cashBox" class="collapse show" data-bs-parent="#payBoxes">
                                                     <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
                                                         <label class="fw-bold small mb-1">Cash Payment</label>
-                                                        <input type="number" class="form-control form-control-sm"
+                                                        <input type="number" class="form-control form-control-sm mb-3"
                                                             placeholder="Enter Amount">
                                                     </div>
                                                 </div>
 
+                                                <!-- ONLINE BOX -->
                                                 <div id="onlineBox" class="collapse" data-bs-parent="#payBoxes">
                                                     <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
                                                         <label class="fw-bold small mb-2">Select Online Method</label>
@@ -415,21 +357,24 @@
                                                             </div>
                                                         </div>
 
-                                                        <input type="text" class="form-control form-control-sm"
+                                                        <input type="text" class="form-control form-control-sm mb-3"
                                                             placeholder="Transaction / UPI Reference ID">
+
+                                                        <!-- PRICE SECTION (Visible only when Online is active) -->
+                                                        <label class="fw-bold small mb-1">Price</label>
+                                                        <div class="input-group">
+                                                            <span
+                                                                class="input-group-text bg-white border-end-0">₹</span>
+                                                            <input type="number"
+                                                                class="form-control border-start-0 ps-0"
+                                                                placeholder="Enter Price">
+                                                        </div>
                                                     </div>
                                                 </div>
-
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-md-6">
-                                            <label>Price</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text bg-white border-end-0">₹</span>
-                                                <input type="number" class="form-control border-start-0 ps-0">
                                             </div>
                                         </div>
                                     </div>
+
 
                                     <div class="p-3 rounded-4 bg-light border">
                                         <label>Police Challan</label>
@@ -552,27 +497,47 @@
                         <div id="step-2" class="wizard-step d-none">
                             <div class="card steps-id border-0 p-4 shadow-sm rounded-4">
                                 <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Seller Details</h6>
-                                <!-- Responsive Form Fields: 4/6 columns on desktop, 12 on mobile -->
+
+                                <!-- SELLER BASIC INFO -->
                                 <div class="row g-3 mb-3">
-                                    <div class="col-12 col-md-4"><label>Date</label><input type="date"
-                                            class="form-control">
+                                    <div class="col-12 col-md-4">
+                                        <label>Date</label>
+                                        <input type="date" class="form-control">
                                     </div>
-                                    <div class="col-12 col-md-4"><label>Vehicle No</label><input type="text"
-                                            class="form-control"></div>
-                                    <div class="col-12 col-md-4"><label>Bike Name</label><input type="text"
-                                            class="form-control"></div>
-                                    <div class="col-12 col-md-6"><label>Chassis No</label><input type="text"
-                                            class="form-control"></div>
-                                    <div class="col-12 col-md-6"><label>Engine No</label><input type="text"
-                                            class="form-control"></div>
-                                    <div class="col-12"><label>Seller Name</label><input type="text"
-                                            class="form-control"></div>
-                                    <div class="col-12"><label>Address</label><textarea class="form-control"
-                                            rows="2"></textarea></div>
+
+                                    <div class="col-12 col-md-4">
+                                        <label>Vehicle No</label>
+                                        <input type="text" class="form-control">
+                                    </div>
+
+                                    <div class="col-12 col-md-4">
+                                        <label>Bike Name</label>
+                                        <input type="text" class="form-control">
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label>Chassis No</label>
+                                        <input type="text" class="form-control">
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label>Engine No</label>
+                                        <input type="text" class="form-control">
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label>Seller Name</label>
+                                        <input type="text" class="form-control">
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label>Address</label>
+                                        <textarea class="form-control" rows="2"></textarea>
+                                    </div>
                                 </div>
 
+                                <!-- MOBILE NUMBERS -->
                                 <label class="mb-2">Mobile Numbers</label>
-                                <!-- Responsive Mobile Number Inputs: 3 columns on all screen sizes -->
                                 <div class="row g-2 mb-3">
                                     <div class="col-12"><input type="tel" class="form-control" placeholder="Mob 1">
                                     </div>
@@ -582,32 +547,66 @@
                                     </div>
                                 </div>
 
+                                <!-- Responsive Document Uploads: 2 columns on mobile, 4 on desktop -->
+                                <div class="mb-3">
+                                    <label class="mb-2">Purchaser Documents</label>
+
+                                    <div class="row g-2">
+                                        <div class="col-6 col-md-3">
+                                            <div class="photo-upload-box"><span class="small text-muted fw-bold">Aadhar
+                                                    Front</span><img src=""><input type="file" accept="image/*" hidden>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="photo-upload-box"><span class="small text-muted fw-bold">Aadhar
+                                                    Back</span><img src=""><input type="file" accept="image/*" hidden>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="photo-upload-box"><span class="small text-muted fw-bold">Voter
+                                                    Front</span><img src=""><input type="file" accept="image/*" hidden>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="photo-upload-box"><span class="small text-muted fw-bold">Voter
+                                                    Back</span><img src=""><input type="file" accept="image/*" hidden>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- PAPERS RECEIVED -->
                                 <div class="bg-light p-3 rounded-4 border mb-3">
                                     <label class="mb-2 fw-bold">Papers Received</label>
 
                                     <div class="d-flex flex-wrap gap-3">
 
+                                        <!-- RC -->
                                         <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="pr_rc">
+                                            <input type="checkbox" class="form-check-input" id="pr_rc"
+                                                data-bs-toggle="collapse" data-bs-target="#rcUploadBox">
                                             <label class="fw-bold" for="pr_rc">RC</label>
                                         </div>
 
+                                        <!-- TAX -->
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="pr_tax">
                                             <label class="fw-bold" for="pr_tax">Tax Token</label>
                                         </div>
 
+                                        <!-- INSURANCE -->
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="pr_ins">
                                             <label class="fw-bold" for="pr_ins">Insurance</label>
                                         </div>
 
+                                        <!-- PUCC -->
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="pr_puc">
                                             <label class="fw-bold" for="pr_puc">PUCC</label>
                                         </div>
 
-                                        <!-- NOC Checkbox -->
+                                        <!-- NOC -->
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="pr_noc"
                                                 data-bs-toggle="collapse" data-bs-target="#nocUploadBox">
@@ -616,11 +615,45 @@
 
                                     </div>
 
-                                    <!-- NOC Upload + Paid/Due Section -->
-                                    <div class="collapse mt-3" id="nocUploadBox">
+                                    <!-- RC UPLOAD PREVIEW BOX -->
+                                    <div class="collapse mt-3" id="rcUploadBox">
+                                        <label class="fw-bold small">RC Upload</label>
 
-                                        <!-- Paid / Due Buttons -->
+                                        <div class="row g-2">
+
+                                            <!-- RC FRONT -->
+                                            <div class="col-6">
+                                                <div class="border rounded p-2 text-center bg-white">
+
+                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">RC
+                                                        FRONT</small>
+                                                    <!-- Upload Input -->
+                                                    <input type="file" class="form-control form-control-sm mt-1">
+
+                                                </div>
+                                            </div>
+
+                                            <!-- RC BACK -->
+                                            <div class="col-6">
+                                                <div class="border rounded p-2 text-center bg-white">
+
+                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">RC
+                                                        BACK</small>
+                                                    <!-- Upload Input -->
+                                                    <input type="file" class="form-control form-control-sm mt-1">
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+
+                                    <!-- EXISTING NOC UPLOAD BOX BELOW (UNCHANGED) -->
+                                    <div class="collapse mt-3" id="nocUploadBox">
                                         <label class="fw-bold small">NOC Status</label>
+
                                         <div class="d-flex justify-content-center">
                                             <div class="btn-group w-75 btn-group-sm mb-3 mx-auto" role="group">
                                                 <input type="radio" class="btn-check" name="noc_payment" id="noc_paid"
@@ -632,144 +665,158 @@
                                             </div>
                                         </div>
 
-
                                         <div class="row g-2">
-
-                                            <!-- NOC Front -->
                                             <div class="col-6">
-                                                <div class="border rounded small-box text-center">
+                                                <div class="border rounded small-box text-center p-2">
                                                     <span class="small text-muted fw-bold">NOC Front</span>
                                                     <input type="file" class="form-control form-control-sm mt-1">
                                                 </div>
                                             </div>
 
-                                            <!-- NOC Back -->
                                             <div class="col-6">
-                                                <div class="border rounded small-box text-center">
+                                                <div class="border rounded small-box text-center p-2">
                                                     <span class="small text-muted fw-bold">NOC Back</span>
                                                     <input type="file" class="form-control form-control-sm mt-1">
                                                 </div>
                                             </div>
-
                                         </div>
-
                                     </div>
+
                                 </div>
 
+
+
+                                <!-- PAYMENT SECTION -->
                                 <div class="row g-3 mb-3">
-                                    <!-- Payment Type -->
                                     <div class="col-12 col-md-6">
-                                        <label class="fw-bold mb-1">Payment Type</label>
 
-                                        <div class="btn-group w-100 btn-group-sm" role="group">
-                                            <input type="radio" class="btn-check" name="s_pay" id="sp_cash" checked
-                                                data-bs-toggle="collapse" data-bs-target="#onlineBox"
-                                                data-bs-parent="#payParent">
-                                            <label class="btn btn-outline-secondary" for="sp_cash">Cash</label>
+                                        <label class="fw-bold mb-2">Payment Type</label>
 
-                                            <input type="radio" class="btn-check" name="s_pay" id="sp_online"
+                                        <div class="d-flex gap-2 mb-3">
+                                            <!-- CASH -->
+                                            <input type="radio" class="btn-check" name="pay_type" id="pay_cash" checked
+                                                data-bs-toggle="collapse" data-bs-target="#cashBox">
+                                            <label class="btn btn-outline-success" for="pay_cash">Cash</label>
+
+                                            <!-- ONLINE -->
+                                            <input type="radio" class="btn-check" name="pay_type" id="pay_online"
                                                 data-bs-toggle="collapse" data-bs-target="#onlineBox">
-                                            <label class="btn btn-outline-secondary" for="sp_online">Online</label>
+                                            <label class="btn btn-outline-primary" for="pay_online">Online</label>
                                         </div>
 
-                                        <!-- Online Payment Box -->
-                                        <div id="onlineBox"
-                                            class="collapse mt-2 p-3 bg-white rounded-4 border shadow-sm">
+                                        <!-- ACCORDION GROUP -->
+                                        <div id="payAccordion">
 
-                                            <label class="fw-bold small mb-2">Select Online Method</label>
+                                            <!-- CASH SECTION -->
+                                            <div id="cashBox" class="collapse show" data-bs-parent="#payAccordion">
+                                                <div class="p-3 bg-white border rounded shadow-sm">
 
-                                            <div class="d-flex flex-wrap gap-3">
+                                                    <!-- <label class="fw-bold small mb-1">Cash Amount</label>
+                                                    <input type="number" class="form-control form-control-sm mb-3"
+                                                        placeholder="Enter Cash Amount"> -->
 
-                                                <div class="form-check">
-                                                    <input type="radio" class="form-check-input" name="online_method"
-                                                        id="om_gpay">
-                                                    <label class="fw-bold small" for="om_gpay">Google Pay</label>
+                                                    <!-- SINGLE PRICE FIELD -->
+                                                    <label class="fw-bold small mb-1">Price</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text bg-white border-end-0">₹</span>
+                                                        <input type="number" class="form-control border-start-0 ps-0"
+                                                            placeholder="Enter Price">
+                                                    </div>
+
                                                 </div>
-
-                                                <div class="form-check">
-                                                    <input type="radio" class="form-check-input" name="online_method"
-                                                        id="om_paytm">
-                                                    <label class="fw-bold small" for="om_paytm">Paytm</label>
-                                                </div>
-
-                                                <div class="form-check">
-                                                    <input type="radio" class="form-check-input" name="online_method"
-                                                        id="om_phonepe">
-                                                    <label class="fw-bold small" for="om_phonepe">PhonePe</label>
-                                                </div>
-
-                                                <div class="form-check">
-                                                    <input type="radio" class="form-check-input" name="online_method"
-                                                        id="om_bharatpe">
-                                                    <label class="fw-bold small" for="om_bharatpe">BharatPe</label>
-                                                </div>
-
                                             </div>
 
-                                            <input type="text" class="form-control form-control-sm mt-2"
-                                                placeholder="Transaction / UPI Reference ID">
+                                            <!-- ONLINE SECTION -->
+                                            <div id="onlineBox" class="collapse" data-bs-parent="#payAccordion">
+                                                <div class="p-3 bg-white border rounded shadow-sm">
+
+                                                    <label class="fw-bold small mb-2">Online Method</label>
+
+                                                    <div class="d-flex flex-wrap gap-3 mb-3">
+                                                        <label class="form-check">
+                                                            <input type="radio" class="form-check-input"
+                                                                name="online_method">
+                                                            <span class="form-check-label fw-bold">Google
+                                                                Pay</span>
+                                                        </label>
+
+                                                        <label class="form-check">
+                                                            <input type="radio" class="form-check-input"
+                                                                name="online_method">
+                                                            <span class="form-check-label fw-bold">Paytm</span>
+                                                        </label>
+
+                                                        <label class="form-check">
+                                                            <input type="radio" class="form-check-input"
+                                                                name="online_method">
+                                                            <span class="form-check-label fw-bold">PhonePe</span>
+                                                        </label>
+
+                                                        <label class="form-check">
+                                                            <input type="radio" class="form-check-input"
+                                                                name="online_method">
+                                                            <span class="form-check-label fw-bold">BharatPe</span>
+                                                        </label>
+                                                    </div>
+
+                                                    <input type="text" class="form-control form-control-sm mb-3"
+                                                        placeholder="Transaction / UPI Reference ID">
+
+                                                    <!-- SAME SINGLE PRICE FIELD -->
+                                                    <label class="fw-bold small mb-1">Price</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text bg-white border-end-0">₹</span>
+                                                        <input type="number" class="form-control border-start-0 ps-0"
+                                                            placeholder="Enter Price">
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
-
-                                    <!-- Seller Challan -->
-                                    <div class="col-12 col-md-6">
-                                        <label class="fw-bold mb-1">Seller Challan</label>
-
-                                        <div class="d-flex gap-3 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="s_chal" id="sc_no"
-                                                    checked data-bs-toggle="collapse" data-bs-target="#chalInp">
-                                                <label class="fw-bold" for="sc_no">No</label>
-                                            </div>
-
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="s_chal" id="sc_yes"
-                                                    data-bs-toggle="collapse" data-bs-target="#chalInp">
-                                                <label class="fw-bold" for="sc_yes">Yes</label>
-                                            </div>
-                                        </div>
-
-                                        <div id="chalInp" class="collapse">
-                                            <input type="text" class="form-control form-control-sm mb-1"
-                                                placeholder="Challan No.">
-                                        </div>
-
-                                        <div id="s_chal_ok" class="text-success fw-bold small">
-                                            <i class="ph-fill ph-check-circle"></i> Clean
-                                        </div>
-                                    </div>
-
                                 </div>
 
 
+                                <!-- OTHER FIELDS -->
                                 <div class="row g-3 mb-3">
                                     <div class="col-12 col-md-6">
                                         <label>Exchange Showroom Name</label>
                                         <input type="text" class="form-control" placeholder="Showroom Name">
                                     </div>
+
                                     <div class="col-12 col-md-6">
                                         <label>Staff Name</label>
                                         <input type="text" class="form-control" placeholder="Staff Name">
                                     </div>
                                 </div>
 
+                                <!-- PAYMENT CALCULATION -->
                                 <div class="bg-light p-3 rounded-4 border">
                                     <label class="text-primary">Payment Calculation</label>
-                                    <!-- Responsive Calculation Fields: 3 columns on all screens -->
+
                                     <div class="row g-2">
-                                        <div class="col-12"><input type="number" class="form-control"
-                                                placeholder="Total" id="s_total"></div>
-                                        <div class="col-12"><input type="number" class="form-control" placeholder="Paid"
-                                                id="s_paid"></div>
-                                        <div class="col-12"><input type="number"
-                                                class="form-control bg-white fw-bold text-danger" placeholder="Due"
-                                                id="s_due" readonly></div>
-                                        <div class="col-12"><input type="text" class="form-control d-none mt-1"
-                                                id="s_due_reason" placeholder="Reason for due amount..."></div>
+                                        <div class="col-12">
+                                            <input type="number" class="form-control" placeholder="Total" id="s_total">
+                                        </div>
+
+                                        <div class="col-12">
+                                            <input type="number" class="form-control" placeholder="Paid" id="s_paid">
+                                        </div>
+
+                                        <div class="col-12">
+                                            <input type="number" class="form-control bg-white fw-bold text-danger"
+                                                placeholder="Due" id="s_due" readonly>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <input type="text" class="form-control d-none mt-1" id="s_due_reason"
+                                                placeholder="Reason for due amount...">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
 
                         <!-- STEP 3: PURCHASER -->
                         <div id="step-3" class="wizard-step d-none">
@@ -1148,8 +1195,9 @@
         </div>
     </div>
 
+
     <!-- LEAD MODAL -->
-    <!-- Responsive: Default small modal is already good on mobile -->
+    <!-- Add Leads -->
     <div class="modal fade" id="leadModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -1172,6 +1220,72 @@
             </div>
         </div>
     </div>
+
+
+    <!-- LEADS LIST MODAL -->
+    <!-- Responsive: modal-fullscreen-sm-down for mobile view -->
+    <div class="modal fade" id="leadsListModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h4 class="modal-title fw-bold ms-2 fs-5 fs-md-4">Manage Leads</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Responsive Grid: Two columns on medium/desktop, one column on mobile -->
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6 lead-item">
+                            <div class="lead-card">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="fw-bold mb-1 fs-5">Suman Roy</h5>
+                                        <div class="text-secondary fw-semibold small">+91 90000 12345</div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn-icon edit" onclick="openModal('leadModal')"><i
+                                                class="ph-bold ph-pencil-simple"></i></button>
+                                        <button class="btn-icon delete delete-lead"><i
+                                                class="ph-bold ph-trash"></i></button>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 mt-3 flex-wrap">
+                                    <span
+                                        class="badge-pill bg-primary-subtle text-primary border border-primary-subtle">Pulsar
+                                        150</span>
+                                    <span class="badge-pill bg-light text-dark border">1st Owner</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- More items -->
+                        <div class="col-12 col-md-6 lead-item">
+                            <div class="lead-card">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="fw-bold mb-1 fs-5">Rahul Dev</h5>
+                                        <div class="text-secondary fw-semibold small">+91 88888 11111</div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn-icon edit" onclick="openModal('leadModal')"><i
+                                                class="ph-bold ph-pencil-simple"></i></button>
+                                        <button class="btn-icon delete delete-lead"><i
+                                                class="ph-bold ph-trash"></i></button>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 mt-3 flex-wrap">
+                                    <span
+                                        class="badge-pill bg-primary-subtle text-primary border border-primary-subtle">Apache
+                                        160</span>
+                                    <span class="badge-pill bg-light text-dark border">Any Owner</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

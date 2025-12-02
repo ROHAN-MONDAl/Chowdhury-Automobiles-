@@ -347,7 +347,9 @@
             </div>
 
 
-            <!-- Vehicle Details View Modal - Accordion-based modal to view comprehensive vehicle and deal information including photos, specs, and transaction details -->
+            <!-- Vehicle Details View Modal - Accordion-based modal to view comprehensive vehicle and deal
+              information including photos, specs, and transaction details -->
+
             <div class="modal fade" id="viewDealModal" tabindex="-1" aria-hidden="true">
                 <div
                     class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
@@ -630,17 +632,72 @@
                                                     <small class="fw-bold text-uppercase text-muted">NOC Details</small>
                                                     <span class="badge bg-success">Paid</span>
                                                 </div>
+
                                                 <div class="row g-2">
+
+                                                    <!-- NOC FRONT -->
                                                     <div class="col-6">
-                                                        <button class="btn btn-outline-dark btn-sm w-100"><i
-                                                                class="ph-bold ph-file me-1"></i> Front</button>
+                                                        <div class="border rounded p-2 text-center bg-white">
+
+                                                            <small class="fw-bold d-block mb-1"
+                                                                style="font-size:10px">NOC FRONT</small>
+
+                                                            <!-- Small square preview -->
+                                                            <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
+                                                                style="width:50px; height:50px; margin:auto;">
+                                                                <img src="your-image-path/noc-front.jpg"
+                                                                    class="w-100 h-100" style="object-fit:cover;">
+                                                            </div>
+
+                                                            <!-- View -->
+                                                            <a href="your-image-path/noc-front.jpg" target="_blank"
+                                                                class="btn btn-outline-dark btn-sm w-50 py-0"
+                                                                style="font-size:10px">
+                                                                View
+                                                            </a>
+
+                                                            <!-- Download -->
+                                                            <a href="your-image-path/noc-front.jpg" download
+                                                                class="btn btn-dark btn-sm w-50 mt-1 py-0"
+                                                                style="font-size:10px">
+                                                                Download
+                                                            </a>
+                                                        </div>
                                                     </div>
+
+                                                    <!-- NOC BACK -->
                                                     <div class="col-6">
-                                                        <button class="btn btn-outline-dark btn-sm w-100"><i
-                                                                class="ph-bold ph-file me-1"></i> Back</button>
+                                                        <div class="border rounded p-2 text-center bg-white">
+
+                                                            <small class="fw-bold d-block mb-1"
+                                                                style="font-size:10px">NOC BACK</small>
+
+                                                            <!-- Small square preview -->
+                                                            <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
+                                                                style="width:50px; height:50px; margin:auto;">
+                                                                <img src="your-image-path/noc-back.jpg"
+                                                                    class="w-100 h-100" style="object-fit:cover;">
+                                                            </div>
+
+                                                            <!-- View -->
+                                                            <a href="your-image-path/noc-back.jpg" target="_blank"
+                                                                class="btn btn-outline-dark btn-sm w-50 py-0"
+                                                                style="font-size:10px">
+                                                                View
+                                                            </a>
+
+                                                            <!-- Download -->
+                                                            <a href="your-image-path/noc-back.jpg" download
+                                                                class="btn btn-dark btn-sm w-50 mt-1 py-0"
+                                                                style="font-size:10px">
+                                                                Download
+                                                            </a>
+                                                        </div>
                                                     </div>
+
                                                 </div>
                                             </div>
+
 
                                             <!-- Payment Info -->
                                             <div class="bg-light border rounded-4 p-3 mb-3">
@@ -872,39 +929,104 @@
                                             <!-- Documents -->
                                             <h6 class="fw-bold text-muted small text-uppercase mb-3">Purchaser Documents
                                             </h6>
+
                                             <div class="row g-2">
-                                                <div class="col-6 col-md-3">
-                                                    <div class="border rounded p-2 text-center bg-light">
-                                                        <small class="d-block fw-bold mb-1"
+
+                                                <!-- AADHAR FRONT -->
+                                                <div class="col-6 col-md-3" style="object-fit: cover;">
+                                                    <div class="border rounded p-2 text-center bg-white">
+                                                        <small class="fw-bold d-block mb-1"
                                                             style="font-size:10px">AADHAR FRONT</small>
-                                                        <button class="btn btn-dark btn-sm w-100 py-0"
-                                                            style="font-size:10px">View</button>
+
+                                                        <!-- Square Preview -->
+                                                        <div
+                                                            class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                            <img src="your-image-path/aadhar-front.jpg"
+                                                                class="w-100 h-100 object-fit-cover">
+                                                        </div>
+
+                                                        <!-- View (opens image in new tab) -->
+                                                        <a href="your-image-path/aadhar-front.jpg" target="_blank"
+                                                            class="btn btn-dark btn-sm w-100 py-0"
+                                                            style="font-size:10px">
+                                                            View
+                                                        </a>
+
+                                                        <!-- Download -->
+                                                        <a href="your-image-path/aadhar-front.jpg" download
+                                                            class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                            style="font-size:10px">
+                                                            Download
+                                                        </a>
                                                     </div>
                                                 </div>
+
+                                                <!-- AADHAR BACK -->
                                                 <div class="col-6 col-md-3">
-                                                    <div class="border rounded p-2 text-center bg-light">
-                                                        <small class="d-block fw-bold mb-1"
+                                                    <div class="border rounded p-2 text-center bg-white">
+                                                        <small class="fw-bold d-block mb-1"
                                                             style="font-size:10px">AADHAR BACK</small>
-                                                        <button class="btn btn-dark btn-sm w-100 py-0"
-                                                            style="font-size:10px">View</button>
+
+                                                        <div
+                                                            class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                            <img src="your-image-path/aadhar-back.jpg"
+                                                                class="w-100 h-100 object-fit-cover">
+                                                        </div>
+
+                                                        <a href="your-image-path/aadhar-back.jpg" target="_blank"
+                                                            class="btn btn-dark btn-sm w-100 py-0"
+                                                            style="font-size:10px">View</a>
+
+                                                        <a href="your-image-path/aadhar-back.jpg" download
+                                                            class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                            style="font-size:10px">Download</a>
                                                     </div>
                                                 </div>
+
+                                                <!-- VOTER FRONT -->
                                                 <div class="col-6 col-md-3">
-                                                    <div class="border rounded p-2 text-center bg-light">
-                                                        <small class="d-block fw-bold mb-1" style="font-size:10px">VOTER
+                                                    <div class="border rounded p-2 text-center bg-white">
+                                                        <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
                                                             FRONT</small>
-                                                        <button class="btn btn-dark btn-sm w-100 py-0"
-                                                            style="font-size:10px">View</button>
+
+                                                        <div
+                                                            class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                            <img src="your-image-path/voter-front.jpg"
+                                                                class="w-100 h-100 object-fit-cover">
+                                                        </div>
+
+                                                        <a href="your-image-path/voter-front.jpg" target="_blank"
+                                                            class="btn btn-dark btn-sm w-100 py-0"
+                                                            style="font-size:10px">View</a>
+
+                                                        <a href="your-image-path/voter-front.jpg" download
+                                                            class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                            style="font-size:10px">Download</a>
                                                     </div>
                                                 </div>
+
+                                                <!-- VOTER BACK -->
                                                 <div class="col-6 col-md-3">
-                                                    <div class="border rounded p-2 text-center bg-light">
-                                                        <small class="d-block fw-bold mb-1" style="font-size:10px">VOTER
+                                                    <div class="border rounded p-2 text-center bg-white">
+                                                        <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
                                                             BACK</small>
-                                                        <button class="btn btn-dark btn-sm w-100 py-0"
-                                                            style="font-size:10px">View</button>
+
+                                                        <div
+                                                            class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                            <img src="your-image-path/voter-back.jpg"
+                                                                class="w-100 h-100 object-fit-cover">
+                                                        </div>
+
+                                                        <a href="your-image-path/voter-back.jpg" target="_blank"
+                                                            class="btn btn-dark btn-sm w-100 py-0"
+                                                            style="font-size:10px">View</a>
+
+                                                        <a href="your-image-path/voter-back.jpg" download
+                                                            class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                            style="font-size:10px">Download</a>
                                                     </div>
                                                 </div>
+
                                             </div>
 
                                         </div>
@@ -1039,6 +1161,8 @@
 
                             </div>
                         </div>
+
+                        
                         <div class="modal-footer border-top bg-white px-4 py-3">
                             <button type="button" class="btn btn-light border fw-bold rounded-pill px-4 shadow-sm w-100"
                                 data-bs-dismiss="modal">Close</button>
@@ -1046,11 +1170,13 @@
                     </div>
                 </div>
             </div>
+
+
         </div>
     </div>
 
 
-    <!-- Add/Edit Vehicle Modal - 4-step wizard modal for adding or editing vehicle details, seller information, buyer details, and ownership transfer -->
+    <!-- Edit Vehicle adding or editing vehicle details, seller information, buyer details, and ownership transfer -->
     <div class="modal fade" id="dealModal" data-bs-backdrop="static" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
             <div class="modal-content">

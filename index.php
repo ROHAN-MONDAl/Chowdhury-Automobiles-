@@ -39,6 +39,17 @@
                 <p class="text-muted small fw-semibold text-uppercase" style="font-size: 0.65rem;">Manager Portal</p>
             </div>
             <form id="loginForm">
+                <!-- Optional: Role selector if you want user to choose role at login -->
+
+                <div class="mb-4">
+                    <label for="roleSelect" class="form-label visually-hidden">Role</label>
+                    <select class="form-select" id="roleSelect" name="role">
+                        <option value="manager">Manager</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+
+
                 <div class="mb-3">
                     <label for="usernameInput" class="form-label visually-hidden">Username</label>
                     <div class="input-group">
