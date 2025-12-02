@@ -45,7 +45,7 @@
             <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between">
 
                 <!-- Brand -->
-                <a class="navbar-brand d-flex align-items-center gap-2" href="dashboard.html">
+                <a class="navbar-brand d-flex align-items-center gap-2" href="dashboard.php">
                     <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-1"
                         style="width: 48px; height: 48px; overflow: hidden; padding: 2px;">
                         <img src="images/logo.jpeg" alt="Chowdhury Automobile Logo" class="rounded-circle"

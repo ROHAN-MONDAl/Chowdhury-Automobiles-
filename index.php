@@ -75,7 +75,7 @@
 
                 <div class="mt-4 pt-3 border-top text-center">
                     <p class="small text-muted mb-2">Not a Manager?</p>
-                    <a href="staff_portal/staffs_portal.html"
+                    <a href="staff_portal/staffs_portal.php"
                         class="btn btn-light border w-100 rounded-pill fw-bold py-2 text-secondary">
                         <i class="ph-bold ph-users me-2"></i>
                         Staff Portal
