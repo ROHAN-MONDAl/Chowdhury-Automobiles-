@@ -8,15 +8,15 @@ $(document).ready(function () {
     // --- LOGIN FLOW ---
     $('#loginForm').on('submit', function (e) {
         e.preventDefault();
-        window.location.href = 'dashboard.php';
+        window.location.href = 'dashboard.html';
     });
 
     $('#logoutBtn').on('click', function () {
-        window.location.href = 'index.php';
+        window.location.href = 'index.html';
     });
 
      $('#logoutIcon').on('click', function () {
-        window.location.href = 'index.php';
+        window.location.href = 'index.html';
     });
 
     // --- MODAL HANDLERS ---
