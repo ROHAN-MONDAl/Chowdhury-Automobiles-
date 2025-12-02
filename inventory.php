@@ -593,6 +593,110 @@
                                                 </div>
                                             </div>
 
+                                             <!-- Documents -->
+                                            <h6 class="fw-bold text-muted small text-uppercase mb-3">Purchaser Documents
+                                            </h6>
+
+                                            <div class="row g-2">
+
+                                                <!-- AADHAR FRONT -->
+                                                <div class="col-6 col-md-3" style="object-fit: cover;">
+                                                    <div class="border rounded p-2 text-center bg-white">
+                                                        <small class="fw-bold d-block mb-1"
+                                                            style="font-size:10px">AADHAR FRONT</small>
+
+                                                        <!-- Square Preview -->
+                                                        <div
+                                                            class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                            <img src="your-image-path/aadhar-front.jpg"
+                                                                class="w-100 h-100 object-fit-cover">
+                                                        </div>
+
+                                                        <!-- View (opens image in new tab) -->
+                                                        <a href="your-image-path/aadhar-front.jpg" target="_blank"
+                                                            class="btn btn-dark btn-sm w-100 py-0"
+                                                            style="font-size:10px">
+                                                            View
+                                                        </a>
+
+                                                        <!-- Download -->
+                                                        <a href="your-image-path/aadhar-front.jpg" download
+                                                            class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                            style="font-size:10px">
+                                                            Download
+                                                        </a>
+                                                    </div>
+                                                </div>
+
+                                                <!-- AADHAR BACK -->
+                                                <div class="col-6 col-md-3">
+                                                    <div class="border rounded p-2 text-center bg-white">
+                                                        <small class="fw-bold d-block mb-1"
+                                                            style="font-size:10px">AADHAR BACK</small>
+
+                                                        <div
+                                                            class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                            <img src="your-image-path/aadhar-back.jpg"
+                                                                class="w-100 h-100 object-fit-cover">
+                                                        </div>
+
+                                                        <a href="your-image-path/aadhar-back.jpg" target="_blank"
+                                                            class="btn btn-dark btn-sm w-100 py-0"
+                                                            style="font-size:10px">View</a>
+
+                                                        <a href="your-image-path/aadhar-back.jpg" download
+                                                            class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                            style="font-size:10px">Download</a>
+                                                    </div>
+                                                </div>
+
+                                                <!-- VOTER FRONT -->
+                                                <div class="col-6 col-md-3">
+                                                    <div class="border rounded p-2 text-center bg-white">
+                                                        <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
+                                                            FRONT</small>
+
+                                                        <div
+                                                            class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                            <img src="your-image-path/voter-front.jpg"
+                                                                class="w-100 h-100 object-fit-cover">
+                                                        </div>
+
+                                                        <a href="your-image-path/voter-front.jpg" target="_blank"
+                                                            class="btn btn-dark btn-sm w-100 py-0"
+                                                            style="font-size:10px">View</a>
+
+                                                        <a href="your-image-path/voter-front.jpg" download
+                                                            class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                            style="font-size:10px">Download</a>
+                                                    </div>
+                                                </div>
+
+                                                <!-- VOTER BACK -->
+                                                <div class="col-6 col-md-3">
+                                                    <div class="border rounded p-2 text-center bg-white">
+                                                        <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
+                                                            BACK</small>
+
+                                                        <div
+                                                            class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                            <img src="your-image-path/voter-back.jpg"
+                                                                class="w-100 h-100 object-fit-cover">
+                                                        </div>
+
+                                                        <a href="your-image-path/voter-back.jpg" target="_blank"
+                                                            class="btn btn-dark btn-sm w-100 py-0"
+                                                            style="font-size:10px">View</a>
+
+                                                        <a href="your-image-path/voter-back.jpg" download
+                                                            class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                            style="font-size:10px">Download</a>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+
                                             <!-- Papers & Challan -->
                                             <div class="row g-3 mb-3">
                                                 <div class="col-12">
@@ -697,6 +801,79 @@
 
                                                 </div>
                                             </div>
+
+                                            <!-- RC -->
+                                            <div class="border rounded-4 p-3 mb-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <small class="fw-bold text-uppercase text-muted">RC Details</small>
+                                                    <span class="badge bg-success">Paid</span>
+                                                </div>
+
+                                                <div class="row g-2">
+
+                                                    <!-- RC FRONT -->
+                                                    <div class="col-6">
+                                                        <div class="border rounded p-2 text-center bg-white">
+
+                                                            <small class="fw-bold d-block mb-1"
+                                                                style="font-size:10px">RC FRONT</small>
+
+                                                            <!-- Small square preview -->
+                                                            <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
+                                                                style="width:50px; height:50px; margin:auto;">
+                                                                <img src="your-image-path/rc-front.jpg"
+                                                                    class="w-100 h-100" style="object-fit:cover;">
+                                                            </div>
+
+                                                            <!-- View -->
+                                                            <a href="your-image-path/rc-front.jpg" target="_blank"
+                                                                class="btn btn-outline-dark btn-sm w-50 py-0"
+                                                                style="font-size:10px">
+                                                                View
+                                                            </a>
+
+                                                            <!-- Download -->
+                                                            <a href="your-image-path/rc-front.jpg" download
+                                                                class="btn btn-dark btn-sm w-50 mt-1 py-0"
+                                                                style="font-size:10px">
+                                                                Download
+                                                            </a>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- RC BACK -->
+                                                    <div class="col-6">
+                                                        <div class="border rounded p-2 text-center bg-white">
+
+                                                            <small class="fw-bold d-block mb-1"
+                                                                style="font-size:10px">RC BACK</small>
+
+                                                            <!-- Small square preview -->
+                                                            <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
+                                                                style="width:50px; height:50px; margin:auto;">
+                                                                <img src="your-image-path/rc-back.jpg"
+                                                                    class="w-100 h-100" style="object-fit:cover;">
+                                                            </div>
+
+                                                            <!-- View -->
+                                                            <a href="your-image-path/rc-back.jpg" target="_blank"
+                                                                class="btn btn-outline-dark btn-sm w-50 py-0"
+                                                                style="font-size:10px">
+                                                                View
+                                                            </a>
+
+                                                            <!-- Download -->
+                                                            <a href="your-image-path/rc-back.jpg" download
+                                                                class="btn btn-dark btn-sm w-50 mt-1 py-0"
+                                                                style="font-size:10px">
+                                                                Download
+                                                            </a>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
 
 
                                             <!-- Payment Info -->
@@ -1162,7 +1339,7 @@
                             </div>
                         </div>
 
-                        
+
                         <div class="modal-footer border-top bg-white px-4 py-3">
                             <button type="button" class="btn btn-light border fw-bold rounded-pill px-4 shadow-sm w-100"
                                 data-bs-dismiss="modal">Close</button>
