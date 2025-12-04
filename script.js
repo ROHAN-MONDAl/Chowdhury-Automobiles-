@@ -15,7 +15,7 @@ $(document).ready(function () {
         window.location.href = 'index.html';
     });
 
-     $('#logoutIcon').on('click', function () {
+    $('#logoutIcon').on('click', function () {
         window.location.href = 'index.html';
     });
 
@@ -193,4 +193,28 @@ $(document).ready(function () {
             $(this).closest('.lead-item').remove();
         }
     });
+
+
+
+    $(document).on("change", "#todayDate", function () {
+
+        let today = new Date($(this).val());
+
+        if (!isNaN(today.getTime())) {
+
+            // Add +1 year expiry
+            let expiry = new Date(today);
+            expiry.setFullYear(expiry.getFullYear() + 1);
+
+            let formattedDate = expiry.toISOString().split('T')[0];
+
+            // Set actual date in expiry input
+            $("#expiryDate").val(formattedDate);
+
+            // Show "1 Year" text only
+            $("#expiryText").text("1 Year");
+        }
+    });
+
+
 });
