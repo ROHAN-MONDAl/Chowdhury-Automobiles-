@@ -13,11 +13,17 @@ body {
 
 /* Navbar */
 .navbar {
-    backdrop-filter: blur(12px);
-    background-color: rgba(255, 255, 255, 0.9);
+    /* Stronger blur effect */
+    backdrop-filter: blur(20px); 
+    /* Darker, semi-transparent background */
+    background-color: rgba(206, 206, 206, 0.582); 
+    /* Maintain padding */
     padding-top: 15px;
     padding-bottom: 15px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    /* Add a lighter border for contrast */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2); 
+    /* Set text color to white for readability on dark background */
+    color: white; 
 }
 
 /* Hero Section */

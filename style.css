@@ -11,16 +11,16 @@
     --ios-gray: #8E8E93;
 
     /* Dimmed Background for App Feel */
-    --bg-body: #F5F5F5;
+    --bg-body: #dad7d77e;
     --bg-card: #FFFFFF;
 
     --radius-card: 20px;
     --radius-input: 12px;
 
     /* Deep Shadows */
-    --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.356);
+    --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.521);
     --shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.308);
-    --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+    --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.493);
 }
 
 /* ------------------------------------------------------------------------- */
