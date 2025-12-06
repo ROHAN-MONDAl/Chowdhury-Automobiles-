@@ -1,220 +1,229 @@
 $(document).ready(function () {
-
-    // --- LOADER ---
-    setTimeout(function () {
-        $('#loader').fadeOut(500);
-    }, 500);
-
-    // --- LOGIN FLOW ---
-    $('#loginForm').on('submit', function (e) {
-        e.preventDefault();
-        window.location.href = 'dashboard.html';
+    // Navbar blur on scroll
+    $(window).on('scroll', function () {
+        if ($(this).scrollTop() > 50) {
+            $('.navbar').addClass('shadow-sm');
+        } else {
+            $('.navbar').removeClass('shadow-sm');
+        }
     });
 
-    $('#logoutBtn').on('click', function () {
-        window.location.href = 'index.html';
+    // Fade out loader once page is loaded
+    $(window).on('load', function () {
+        $('#loading-screen').fadeOut(500);
     });
 
-    $('#logoutIcon').on('click', function () {
-        window.location.href = 'index.html';
-    });
+    // --------------------------------------------
+    // CONFIG
+    // --------------------------------------------
+    const itemsPerPage = 6; // Set to 6 or 9 for better grid view
+    // Important: Select the column (.col), not the card, so the grid doesn't break
+    const allItems = $(".row .col");
+    let matchedItems = allItems; // This stores the filtered list (even if hidden)
 
-    // --- MODAL HANDLERS ---
-    window.openModal = function (id) {
-        var myModal = new bootstrap.Modal(document.getElementById(id));
-        if (id === 'dealModal') resetWizard();
-        myModal.show();
-    };
+    // --------------------------------------------
+    // 1. UPDATE COUNT
+    // --------------------------------------------
+    function updateCount() {
+        $(".vehicle-count").text(matchedItems.length + " Vehicles");
+    }
 
-    window.viewVehicleDetails = function () {
-        var myModal = new bootstrap.Modal(document.getElementById('vehicleDetailsModal'));
-        myModal.show();
-    };
+    // --------------------------------------------
+    // 2. BUILD PAGINATION UI
+    // --------------------------------------------
+    function buildPaginationUI() {
+        let totalPages = Math.ceil(matchedItems.length / itemsPerPage);
+        let paginationHTML = `
+        <li class="page-item prev disabled"><a class="page-link" href="#">Prev</a></li>
+    `;
 
-    // --- WIZARD LOGIC ---
-    let currentStep = 1;
-    const totalSteps = 4; // Removed Step 5
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHTML += `
+            <li class="page-item page-num" data-page="${i}">
+                <a class="page-link" href="#">${i}</a>
+            </li>
+        `;
+        }
 
-    window.jumpStep = function (step) {
-        currentStep = step;
-        updateWizardUI();
-    };
+        paginationHTML += `
+        <li class="page-item next"><a class="page-link" href="#">Next</a></li>
+    `;
 
-    window.resetWizard = function () {
-        currentStep = 1;
-        updateWizardUI();
-    };
+        $(".pagination").html(paginationHTML);
+    }
 
-    function updateWizardUI() {
-        // Hide/Show Steps
-        $('.wizard-step').addClass('d-none');
-        $('#step-' + currentStep).removeClass('d-none');
+    // --------------------------------------------
+    // 3. SHOW SPECIFIC PAGE
+    // --------------------------------------------
+    function showPage(page) {
+        let totalPages = Math.ceil(matchedItems.length / itemsPerPage);
 
-        // Update Indicators
-        $('.step-item').removeClass('active completed');
-        $('.step-item').each(function () {
-            let step = $(this).data('step');
-            if (step == currentStep) $(this).addClass('active');
-            else if (step < currentStep) $(this).addClass('completed');
+        // Calculate start/end based on the MASTER list (matchedItems), not the visible DOM
+        let start = (page - 1) * itemsPerPage;
+        let end = start + itemsPerPage;
+
+        // Hide EVERYTHING first
+        allItems.hide();
+
+        // Show only the specific slice of the master list
+        matchedItems.slice(start, end).fadeIn(200);
+
+        // Update Buttons
+        $(".pagination .page-item").removeClass("active");
+        $(`.pagination .page-item[data-page="${page}"]`).addClass("active");
+
+        $(".prev").toggleClass("disabled", page === 1);
+        $(".next").toggleClass("disabled", page === totalPages || totalPages === 0);
+    }
+
+    // --------------------------------------------
+    // 4. MASTER FILTER (Search + Category)
+    // --------------------------------------------
+    function applyFilters() {
+        let searchValue = $(".hero-search-input").val().toLowerCase();
+        let categoryFilter = "";
+
+        // --- MODIFIED SECTION START ---
+        // Check if the Mobile Dropdown is visible
+        if ($('#mobileFilterSelect').is(':visible')) {
+            // Read text from the selected dropdown option
+            categoryFilter = $('#mobileFilterSelect option:selected').text().trim().toLowerCase();
+        } else {
+            // Read text from the active desktop chip
+            categoryFilter = $(".filter-chip.active").text().trim().toLowerCase();
+        }
+        // --- MODIFIED SECTION END ---
+
+        // Filter the original list of all items
+        matchedItems = allItems.filter(function () {
+            let cardText = $(this).text().toLowerCase();
+
+            // 1. Check Search
+            let matchesSearch = cardText.includes(searchValue);
+
+            // 2. Check Category
+            let matchesCategory = false;
+
+            if (categoryFilter === "all vehicles") {
+                matchesCategory = true;
+            } else if (categoryFilter.includes("motorcycle")) {
+                // Note: Added this because it was missing in your list but exists in HTML
+                matchesCategory = cardText.includes("motorcycle");
+            } else if (categoryFilter.includes("scooter")) {
+                matchesCategory = cardText.includes("scooter") || cardText.includes("activa");
+            } else if (categoryFilter.includes("moped")) {
+                matchesCategory = cardText.includes("moped");
+            } else if (categoryFilter.includes("electric")) {
+                matchesCategory = cardText.includes("electric");
+            } else if (categoryFilter.includes("cruiser")) {
+                matchesCategory = cardText.includes("cruiser");
+            } else if (categoryFilter.includes("sport")) {
+                matchesCategory = cardText.includes("sport");
+            } else if (categoryFilter.includes("touring")) {
+                matchesCategory = cardText.includes("touring");
+            } else if (categoryFilter.includes("adventure")) {
+                matchesCategory = cardText.includes("adventure") || cardText.includes("dual-sport");
+            } else if (categoryFilter.includes("naked")) {
+                matchesCategory = cardText.includes("naked") || cardText.includes("standard");
+            } else if (categoryFilter.includes("cafe")) {
+                matchesCategory = cardText.includes("cafe");
+            } else if (categoryFilter.includes("bobber")) {
+                matchesCategory = cardText.includes("bobber");
+            } else if (categoryFilter.includes("chopper")) {
+                matchesCategory = cardText.includes("chopper");
+            } else if (categoryFilter.includes("pocket") || categoryFilter.includes("mini")) {
+                matchesCategory = cardText.includes("pocket") || cardText.includes("mini");
+            }
+
+            return matchesSearch && matchesCategory;
         });
 
-        // Buttons
-        if (currentStep === 1) $('#prevBtn').hide();
-        else $('#prevBtn').show();
+        updateCount();
+        buildPaginationUI();
 
-        if (currentStep === totalSteps) {
-            $('#nextBtn').hide();
-            $('#finishBtn').show();
+        if (matchedItems.length > 0) {
+            showPage(1);
         } else {
-            $('#nextBtn').show();
-            $('#finishBtn').hide();
+            allItems.hide();
+            $(".pagination").empty();
         }
     }
 
-    $('#nextBtn').click(function () {
-        if (currentStep < totalSteps) {
-            currentStep++;
-            updateWizardUI();
-        }
-    });
+    // ==================================================
+    // 3. ADD THESE EVENT LISTENERS TO MAKE IT WORK
+    // ==================================================
+    $(document).ready(function () {
 
-    $('#prevBtn').click(function () {
-        if (currentStep > 1) {
-            currentStep--;
-            updateWizardUI();
-        }
-    });
+        // Trigger filter when Mobile Dropdown changes
+        $('#mobileFilterSelect').on('change', function () {
+            applyFilters();
+        });
 
-    $('#saveStepBtn').click(function () {
-        let btn = $(this);
-        let originalContent = btn.html();
-        btn.html('<i class="ph-bold ph-check me-1"></i> Saved');
-        btn.addClass('btn-success text-white').removeClass('btn-light text-primary');
+        // Trigger filter when Desktop Chip is clicked (Existing logic)
+        $('.filter-chip').on('click', function () {
+            $('.filter-chip').removeClass('active');
+            $(this).addClass('active');
+            applyFilters();
+        });
 
-        setTimeout(function () {
-            btn.html(originalContent);
-            btn.removeClass('btn-success text-white').addClass('btn-light text-primary');
-        }, 1500);
-    });
-
-    $('#finishBtn').click(function () {
-        alert("Data Saved Successfully!");
-        bootstrap.Modal.getInstance(document.getElementById('dealModal')).hide();
-    });
-
-    $('.step-item').click(function () {
-        let step = $(this).data('step');
-        if (step <= totalSteps) jumpStep(step); // Prevent jumping to non-existent step 5
-    });
-
-    // --- LOGIC: STEP 1 (Vehicle) ---
-    $('#soldToggle').change(function () {
-        if ($(this).is(':checked')) $('#step1-card').addClass('is-sold');
-        else $('#step1-card').removeClass('is-sold');
-    });
-
-    $('input[name="p_chal"]').change(function () {
-        if ($('#pc_yes').is(':checked')) $('#challan-inputs').removeClass('d-none');
-        else $('#challan-inputs').addClass('d-none');
-    });
-
-    // --- LOGIC: STEP 2 (Seller) ---
-    $('input[name="s_pay"]').change(function () {
-        if ($('#sp_fin').is(':checked')) $('#seller-fin-options').removeClass('d-none');
-        else $('#seller-fin-options').addClass('d-none');
-    });
-
-    $('input[name="noc_stat"]').change(function () {
-        if ($('#noc_rec').is(':checked')) {
-            $('#noc-photos').removeClass('d-none');
-            $('#noc-alert').addClass('d-none');
-        } else {
-            $('#noc-photos').addClass('d-none');
-            $('#noc-alert').removeClass('d-none');
-        }
-    });
-
-    $('input[name="s_chal"]').change(function () {
-        if ($('#sc_yes').is(':checked')) {
-            $('#s_chal_inp').removeClass('d-none');
-            $('#s_chal_ok').addClass('d-none');
-        } else {
-            $('#s_chal_inp').addClass('d-none');
-            $('#s_chal_ok').removeClass('d-none');
-        }
-    });
-
-    $('#s_total, #s_paid').on('input', function () {
-        let total = parseFloat($('#s_total').val()) || 0;
-        let paid = parseFloat($('#s_paid').val()) || 0;
-        let due = total - paid;
-        $('#s_due').val(due);
-        if (due > 0) $('#s_due_reason').removeClass('d-none');
-        else $('#s_due_reason').addClass('d-none');
-    });
-
-    // --- LOGIC: STEP 3 (Purchaser) ---
-    $('#p_total, #p_paid').on('input', function () {
-        let total = parseFloat($('#p_total').val()) || 0;
-        let paid = parseFloat($('#p_paid').val()) || 0;
-        let due = total - paid;
-        $('#p_due').val(due);
-    });
-
-    $('input[name="p_mode"]').change(function () {
-        if ($('#pm_fin').is(':checked')) $('#hpa_sec').removeClass('d-none');
-        else $('#hpa_sec').addClass('d-none');
-    });
-
-    // --- IMAGE UPLOAD PREVIEW ---
-    $(document).on('click', '.photo-upload-box', function (e) {
-        if (e.target.tagName !== 'INPUT') {
-            $(this).find('input[type="file"]').trigger('click');
-        }
-    });
-
-    $(document).on('change', '.photo-upload-box input[type="file"]', function () {
-        if (this.files && this.files[0]) {
-            let reader = new FileReader();
-            let $box = $(this).closest('.photo-upload-box');
-
-            reader.onload = function (e) {
-                $box.find('img').attr('src', e.target.result);
-                $box.addClass('has-image');
-            };
-
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
-
-    // Delete Lead Action
-    $(document).on('click', '.delete-lead', function () {
-        if (confirm('Are you sure you want to delete this lead?')) {
-            $(this).closest('.lead-item').remove();
-        }
+        // Trigger filter when typing in search
+        $(".hero-search-input").on("keyup", function () {
+            applyFilters();
+        });
     });
 
 
+    // --------------------------------------------
+    // EVENTS
+    // --------------------------------------------
 
-    $(document).on("change", "#todayDate", function () {
-
-        let today = new Date($(this).val());
-
-        if (!isNaN(today.getTime())) {
-
-            // Add +1 year expiry
-            let expiry = new Date(today);
-            expiry.setFullYear(expiry.getFullYear() + 1);
-
-            let formattedDate = expiry.toISOString().split('T')[0];
-
-            // Set actual date in expiry input
-            $("#expiryDate").val(formattedDate);
-
-            // Show "1 Year" text only
-            $("#expiryText").text("1 Year");
-        }
+    // Search Input
+    $(".hero-search-input").on("keyup", function () {
+        applyFilters();
     });
 
+    // Search Button
+    $(".hero-search-container button").on("click", function () {
+        applyFilters();
+    });
+
+    // Filter Chips
+    $(".filter-chip").on("click", function () {
+        $(".filter-chip").removeClass("active");
+        $(this).addClass("active");
+        applyFilters();
+    });
+
+    // Pagination Number Click
+    $(document).on("click", ".page-num", function (e) {
+        e.preventDefault();
+        let page = parseInt($(this).attr("data-page"));
+        showPage(page);
+    });
+
+    // Prev Button
+    $(document).on("click", ".prev", function (e) {
+        e.preventDefault();
+        if ($(this).hasClass("disabled")) return;
+        let active = parseInt($(".pagination .active").attr("data-page"));
+        showPage(active - 1);
+    });
+
+    // Next Button
+    $(document).on("click", ".next", function (e) {
+        e.preventDefault();
+        if ($(this).hasClass("disabled")) return;
+        let active = parseInt($(".pagination .active").attr("data-page"));
+        let max = Math.ceil(matchedItems.length / itemsPerPage);
+        if (active < max) showPage(active + 1);
+    });
+
+    // --------------------------------------------
+    // INIT
+    // --------------------------------------------
+    $(document).ready(function () {
+        applyFilters();
+    });
 
 });
+

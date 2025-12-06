@@ -33,14 +33,17 @@
 }
 
 body {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
     background-color: var(--bg-body);
     font-family: 'Inter', sans-serif;
     color: #1d1d1f;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
 }
+
 
 /* --- COMPONENTS --- */
 .app-card {
@@ -80,13 +83,33 @@ body {
 }
 
 /* Gradients (no responsive changes needed) */
-.bg-blue-grad { background: linear-gradient(135deg, #007AFF, #00C6FF); }
-.bg-indigo-grad { background: linear-gradient(135deg, #5856D6, #8E8CFF); }
-.bg-pink-grad { background: linear-gradient(135deg, #FF2D55, #FF5E7D); }
-.bg-orange-grad { background: linear-gradient(135deg, #FF9500, #FFD60A); }
-.bg-green-grad { background: linear-gradient(135deg, #34C759, #30D158); }
-.bg-teal-grad { background: linear-gradient(135deg, #30B0C7, #5AC8FA); }
-.bg-purple-grad { background: linear-gradient(135deg, #AF52DE, #DA8FFF); }
+.bg-blue-grad {
+    background: linear-gradient(135deg, #007AFF, #00C6FF);
+}
+
+.bg-indigo-grad {
+    background: linear-gradient(135deg, #5856D6, #8E8CFF);
+}
+
+.bg-pink-grad {
+    background: linear-gradient(135deg, #FF2D55, #FF5E7D);
+}
+
+.bg-orange-grad {
+    background: linear-gradient(135deg, #FF9500, #FFD60A);
+}
+
+.bg-green-grad {
+    background: linear-gradient(135deg, #34C759, #30D158);
+}
+
+.bg-teal-grad {
+    background: linear-gradient(135deg, #30B0C7, #5AC8FA);
+}
+
+.bg-purple-grad {
+    background: linear-gradient(135deg, #AF52DE, #DA8FFF);
+}
 
 /* Enhanced Forms */
 .form-control,
@@ -135,9 +158,20 @@ label {
     transform: translateY(0);
 }
 
-.btn-primary { background: var(--ios-blue); color: white; }
-.btn-light { background: #FFFFFF; color: #1d1d1f; }
-.btn-success { background: var(--ios-green); color: white; }
+.btn-primary {
+    background: var(--ios-blue);
+    color: white;
+}
+
+.btn-light {
+    background: #FFFFFF;
+    color: #1d1d1f;
+}
+
+.btn-success {
+    background: var(--ios-green);
+    color: white;
+}
 
 /* Modals */
 .modal-content {
@@ -166,7 +200,7 @@ label {
 }
 
 .steps-id {
-background-color: rgb(228, 226, 226);
+    background-color: rgb(228, 226, 226);
 }
 
 /* ENHANCED WIZARD INDICATORS */
@@ -263,18 +297,22 @@ background-color: rgb(228, 226, 226);
 /* 1. Toolbar Layout for Responsiveness */
 .inventory-toolbar {
     display: flex;
-    gap: 1rem; /* Space between search and filter */
+    gap: 1rem;
+    /* Space between search and filter */
     align-items: center;
     padding: 0 1rem;
 }
 
 .search-box {
-    flex-grow: 1; /* Search takes up remaining space */
+    flex-grow: 1;
+    /* Search takes up remaining space */
     display: flex;
     align-items: center;
     padding: 0.5rem 1rem;
-    border-radius: 0.75rem; /* Rounded search field */
-    background-color: #f8f9fa; /* Light background for search */
+    border-radius: 0.75rem;
+    /* Rounded search field */
+    background-color: #f8f9fa;
+    /* Light background for search */
     border: 1px solid #dee2e6;
 }
 
@@ -284,19 +322,23 @@ background-color: rgb(228, 226, 226);
 }
 
 .filter-select {
-    max-width: 150px; /* Limit filter width on desktop */
+    max-width: 150px;
+    /* Limit filter width on desktop */
     border-radius: 0.75rem !important;
 }
 
 /* Responsive Stacking for Search/Filter on smaller screens (e.g., < 576px) */
 @media (max-width: 575.98px) {
     .inventory-toolbar {
-        flex-direction: column; /* Stack items vertically */
+        flex-direction: column;
+        /* Stack items vertically */
         gap: 0.75rem;
     }
+
     .search-box,
     .filter-select {
-        width: 100%; /* Make them full width */
+        width: 100%;
+        /* Make them full width */
         max-width: none;
     }
 }
@@ -311,25 +353,29 @@ background-color: rgb(228, 226, 226);
 /* 3. Custom Table Styling for Row Gaps */
 .custom-inventory-table {
     /* Forces separate border model for spacing to work */
-    border-collapse: separate; 
-    border-spacing: 0 10px; /* Adds 10px vertical space between rows */
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    /* Adds 10px vertical space between rows */
 }
 
 .custom-inventory-table thead th {
     /* Remove padding-bottom to bring header closer to first row */
-    padding-bottom: 0.5rem !important; 
+    padding-bottom: 0.5rem !important;
     font-weight: 600 !important;
 }
 
 .custom-inventory-table tbody tr {
     /* Base style for table rows */
-    background-color: #f8f9fa !important; /* Light background */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow for lift */
+    background-color: #f8f9fa !important;
+    /* Light background */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    /* Subtle shadow for lift */
     transition: all 0.2s;
 }
 
 .custom-inventory-table tbody tr:hover {
-    background-color: #e9ecef !important; /* Slightly darker on hover */
+    background-color: #e9ecef !important;
+    /* Slightly darker on hover */
 }
 
 /* Remove default cell borders for the custom card-like row look */
@@ -345,7 +391,8 @@ background-color: rgb(228, 226, 226);
 
 /* Status Badge refinement */
 .badge {
-    min-width: 90px; /* Ensure badge has a consistent minimum width */
+    min-width: 90px;
+    /* Ensure badge has a consistent minimum width */
     text-align: center;
 }
 
@@ -485,10 +532,25 @@ background-color: rgb(228, 226, 226);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.btn-icon.edit { background: #FFFFFF; color: var(--ios-blue); }
-.btn-icon.edit:hover { background: var(--ios-blue); color: white; }
-.btn-icon.delete { background: #FFFFFF; color: var(--ios-red); }
-.btn-icon.delete:hover { background: var(--ios-red); color: white; }
+.btn-icon.edit {
+    background: #FFFFFF;
+    color: var(--ios-blue);
+}
+
+.btn-icon.edit:hover {
+    background: var(--ios-blue);
+    color: white;
+}
+
+.btn-icon.delete {
+    background: #FFFFFF;
+    color: var(--ios-red);
+}
+
+.btn-icon.delete:hover {
+    background: var(--ios-red);
+    color: white;
+}
 
 
 /* ------------------------------------------------------------------------- */
@@ -498,6 +560,7 @@ background-color: rgb(228, 226, 226);
 /* A. SMALL DEVICES (Phones/Mobile - max-width: 575.98px) */
 /* Adjustments for the smallest screens: tighter spacing, smaller elements, removed hover effects. */
 @media (max-width: 575.98px) {
+
     /* Main body padding for safe zones */
     body {
         padding: 0 10px;
@@ -507,20 +570,25 @@ background-color: rgb(228, 226, 226);
     .app-card:active {
         transform: scale(0.99);
     }
+
     .app-card:hover {
-        transform: translateY(0); /* Disable hover translation on touch devices */
+        transform: translateY(0);
+        /* Disable hover translation on touch devices */
         box-shadow: var(--shadow-card);
     }
 
     /* Forms */
-    .form-control, .form-select {
+    .form-control,
+    .form-select {
         padding: 10px 14px;
         font-size: 14px;
     }
+
     label {
         font-size: 0.7rem;
         margin-bottom: 4px;
     }
+
     .btn {
         padding: 8px 18px;
         font-size: 14px;
@@ -541,17 +609,21 @@ background-color: rgb(228, 226, 226);
         flex-direction: column;
         gap: 10px;
     }
+
     .search-box input,
     .filter-select {
         width: 100%;
-        height: 44px; /* Slightly smaller input height */
+        height: 44px;
+        /* Slightly smaller input height */
     }
 
     /* Modal Styling */
     .modal-content {
         border-radius: 20px;
     }
-    .modal-header, .modal-footer {
+
+    .modal-header,
+    .modal-footer {
         padding: 15px 20px;
     }
 
@@ -571,15 +643,19 @@ background-color: rgb(228, 226, 226);
     .wizard-nav {
         padding: 20px 30px;
     }
+
     .wizard-nav::before {
         top: 40px;
         left: 40px;
         right: 40px;
     }
+
     .step-circle {
-        width: 38px; /* Slightly smaller circles */
+        width: 38px;
+        /* Slightly smaller circles */
         height: 38px;
     }
+
     .step-item.active .step-circle {
         transform: scale(1.1);
     }
@@ -589,8 +665,10 @@ background-color: rgb(228, 226, 226);
         padding: 18px;
         margin: 15px;
     }
+
     .filter-select {
-        min-width: 120px; /* Allow filter select to shrink slightly */
+        min-width: 120px;
+        /* Allow filter select to shrink slightly */
     }
 
     /* Sold Stamp */
@@ -603,19 +681,23 @@ background-color: rgb(228, 226, 226);
 /* C. LARGE DEVICES (Desktop - 992px to 1199.98px) */
 /* Optimized for standard desktop views. No major changes, mainly ensuring generous padding. */
 @media (min-width: 992px) and (max-width: 1199.98px) {
+
     /* Inventory Toolbar - Standard layout */
     .inventory-toolbar {
         padding: 20px;
         margin: 20px;
     }
+
     .filter-select {
-        min-width: 150px; /* Full width for filter select */
+        min-width: 150px;
+        /* Full width for filter select */
     }
 }
 
 /* D. EXTRA LARGE DEVICES (Widescreen - min-width: 1200px) */
 /* Ensure elements scale slightly up for spacious feel on very large screens */
 @media (min-width: 1200px) {
+
     /* Global Padding/Margin */
     body {
         padding: 20px 40px;
@@ -630,51 +712,97 @@ background-color: rgb(228, 226, 226);
 }
 
 /* Dashboard styles complete */
-           
- 
-        /* Card Hover Effects */
-        .inventory-card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            border: 1px solid rgba(0, 0, 0, 0.164);
-        }
-        .inventory-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.466) !important;
-        }
 
-        /* Soft Glass Header */
-        .glass-header {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
 
-        /* Modal Tweak */
-        .modal-content {
-            border: none;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-        .nav-pills .nav-link {
-            color: #64748b;
-            font-weight: 600;
-            border: 1px solid transparent;
-        }
-        .nav-pills .nav-link.active {
-            background-color: #0f172a;
-            color: #fff;
-        }
-        
-        /* File Upload Box Design */
-        .upload-box {
-            border: 2px dashed #cbd5e1;
-            transition: all 0.2s;
-        }
-        .upload-box:hover {
-            border-color: #3b82f6;
-            background-color: #f8fafc;
-        }
+/* Card Hover Effects */
+.inventory-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(0, 0, 0, 0.164);
+}
 
+.inventory-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.466) !important;
+}
+
+/* Soft Glass Header */
+.glass-header {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Modal Tweak */
+.modal-content {
+    border: none;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.nav-pills .nav-link {
+    color: #64748b;
+    font-weight: 600;
+    border: 1px solid transparent;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #0f172a;
+    color: #fff;
+}
+
+/* File Upload Box Design */
+.upload-box {
+    border: 2px dashed #cbd5e1;
+    transition: all 0.2s;
+}
+
+.upload-box:hover {
+    border-color: #3b82f6;
+    background-color: #f8fafc;
+}
+
+
+/* Inventory Cards section */
+/* Container styling */
+.hover-card {
+    height: 250px;
+    /* Fixed compact height */
+    overflow: hidden;
+    position: relative;
+    border-radius: 12px;
+}
+
+/* The dark gradient overlay at the bottom */
+.info-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 10%, rgba(0, 0, 0, 0.8) 50%, transparent 100%);
+    padding: 20px 15px 15px;
+    /* Top padding creates the fade space */
+    color: white;
+
+    /* Animation Magic */
+    transform: translateY(55px);
+    /* Pushes buttons down/hidden by default */
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Hover State */
+.hover-card:hover .info-overlay {
+    transform: translateY(0);
+    /* Slides up to show everything */
+}
+
+/* Optional: Zoom image on hover */
+.hover-card img {
+    transition: transform 0.5s ease;
+}
+
+.hover-card:hover img {
+    transform: scale(1.05);
+}
 
 /* ------------------------------------------------------------------------- */
 /* END OF STYLE.CSS */

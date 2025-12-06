@@ -1,0 +1,54 @@
+
+
+ 
+/* Loading Screen Container */
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #fff;
+    z-index: 99999;
+
+    display: flex;
+    flex-direction: column;
+    /* Stacks items vertically */
+    justify-content: center;
+    /* Vertically centers (because of column direction) */
+    align-items: center;
+    /* Horizontally centers */
+    text-align: center;
+    /* Ensures text inside is centered */
+
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Content Wrapper (Optional, ensures inner items align) */
+.loader-content {
+    width: 100%;
+    text-align: center;
+}
+
+/* Text Styling */
+.loader-content h2 {
+    margin-top: -30px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    color: #343a40;
+    letter-spacing: 2px;
+    font-size: 1.9rem;
+    word-wrap: break-word;
+}
+
+/* Video Styling */
+.bike-video {
+    width: 150px;
+    height: auto;
+    display: block;
+    object-fit: contain;
+
+    /* THE FIX: This centers a block element horizontally */
+    margin: 0 auto;
+}
