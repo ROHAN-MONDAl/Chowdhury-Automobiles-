@@ -1,15 +1,40 @@
      
-     
-     // Navbar blur on scroll
-    $(window).on('scroll', function () {
-        if ($(this).scrollTop() > 50) {
-            $('.navbar').addClass('shadow-sm');
-        } else {
-            $('.navbar').removeClass('shadow-sm');
+     $(document).ready(function () {
+
+
+         // Navbar blur on scroll
+         $(window).on('scroll', function () {
+             if ($(this).scrollTop() > 50) {
+                 $('.navbar').addClass('shadow-sm');
+             } else {
+                 $('.navbar').removeClass('shadow-sm');
+             }
+         });
+
+         // Fade out loader once page is loaded
+         $(window).on('load', function () {
+             $('#loading-screen').fadeOut(500);
+         });
+
+
+    // Step 1 → Step 2
+    $("#sendResetBtn").click(function () {
+        $("#modalTitle").text("Verify OTP");
+        $("#emailStep").addClass("d-none");
+        $("#otpStep").removeClass("d-none");
+
+        $(".otp-input").first().focus();
+    });
+
+    // Auto move to next OTP input
+    $(".otp-input").on("input", function () {
+        if (this.value.length === 1) {
+            $(this).next(".otp-input").focus();
         }
     });
 
-    // Fade out loader once page is loaded
-    $(window).on('load', function () {
-        $('#loading-screen').fadeOut(500);
-    });
+});
+
+
+
+

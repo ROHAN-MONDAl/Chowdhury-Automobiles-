@@ -280,4 +280,20 @@ $(document).ready(function () {
         }, 3000);
     });
 
+
+    $("#profileConfigForm").submit(function (e) {
+        let pass = $("#password").val();
+        let confirm = $("#confirmPassword").val();
+
+        if (pass !== confirm) {
+            e.preventDefault(); // stop form submission
+            $("#passwordError").removeClass("d-none");
+            return false;
+        }
+
+        $("#passwordError").addClass("d-none");
+        $("#successAlert").removeClass("d-none");
+
+    });
+
 });
