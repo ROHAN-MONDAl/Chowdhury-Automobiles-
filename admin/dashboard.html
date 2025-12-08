@@ -284,22 +284,26 @@
                                         <div class="col-6 col-md-3">
                                             <div class="photo-upload-box"><i
                                                     class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input
-                                                    type="file" accept="image/*" hidden></div>
+                                                    type="file" accept="image/*" hidden required>
+                                            </div>
                                         </div>
                                         <div class="col-6 col-md-3">
                                             <div class="photo-upload-box"><i
                                                     class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input
-                                                    type="file" accept="image/*" hidden></div>
+                                                    type="file" accept="image/*" hidden required>
+                                            </div>
                                         </div>
                                         <div class="col-6 col-md-3">
                                             <div class="photo-upload-box"><i
                                                     class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input
-                                                    type="file" accept="image/*" hidden></div>
+                                                    type="file" accept="image/*" hidden required>
+                                            </div>
                                         </div>
                                         <div class="col-6 col-md-3">
                                             <div class="photo-upload-box"><i
                                                     class="ph-bold ph-camera fs-3 text-secondary"></i><img src=""><input
-                                                    type="file" accept="image/*" hidden></div>
+                                                    type="file" accept="image/*" hidden required>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -309,7 +313,7 @@
                                         <!-- Vehicle Type Dropdown -->
                                         <div class="col-12 col-md-6">
                                             <label for="vehicleType" class="form-label">Vehicle Type</label>
-                                            <select id="vehicleType" class="form-select fw-bold">
+                                            <select id="vehicleType" class="form-select fw-bold" required>
                                                 <option selected disabled>Choose Vehicle Type</option>
                                                 <option>Scooters</option>
                                                 <option>Mopeds</option>
@@ -326,14 +330,18 @@
                                                 <option>Pocket Bikes / Mini Bikes</option>
                                             </select>
                                         </div>
-
-
+                                        <div class="col-12 col-md-6">
+                                            <label class="fw-bold">Name</label>
+                                            <input type="text" id="nameField" class="form-control"
+                                                placeholder="Enter Name" required>
+                                        </div>
                                         <div class="col-12 col-md-6"><label>Vehicle Number</label>
                                             <input type="text" class="form-control fw-bold text-uppercase"
-                                                placeholder="WB 00 AA 0000" value="WB ">
+                                                placeholder="WB 00 AA 0000" value="WB " required>
                                         </div>
-                                        <div class="col-12 col-md-6"><label>Register Date</label><input type="date"
-                                                class="form-control" value="2025-11-26"></div>
+                                        <div class="col-12 col-md-6"><label>Register Date</label>
+                                            <input type="date" class="form-control" value="2025-11-26" required>
+                                        </div>
                                         <div class="col-12 col-md-4"><label>Owner Serial</label><select
                                                 class="form-select">
                                                 <option>1st</option>
@@ -421,7 +429,7 @@
                                                                 class="input-group-text bg-white border-end-0">₹</span>
                                                             <input type="number"
                                                                 class="form-control border-start-0 ps-0"
-                                                                placeholder="Enter Price">
+                                                                placeholder="Enter Price" required>
                                                         </div>
                                                     </div>
                                                 </div>

@@ -99,10 +99,10 @@ $(document).ready(function () {
         }, 1500);
     });
 
-    $('#finishBtn').click(function () {
-        alert("Data Saved Successfully!");
-        bootstrap.Modal.getInstance(document.getElementById('dealModal')).hide();
-    });
+    // $('#finishBtn').click(function () {
+    //     alert("Data Saved Successfully!");
+    //     bootstrap.Modal.getInstance(document.getElementById('dealModal')).hide();
+    // });
 
     $('.step-item').click(function () {
         let step = $(this).data('step');
