@@ -269,7 +269,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <form id="dealForm">
+                    <form action="welcome.php" id="dealForm" method="POST" class="app-form">
 
                         <!-- STEP 1: VEHICLE -->
                         <div id="step-1" class="wizard-step">
@@ -1395,25 +1395,27 @@
                             </div>
                         </div>
 
+                        <div class="modal-footer d-flex align-items-center">
+                            <button type="submit" class="btn btn-light border fw-bold shadow-sm text-primary"
+                                id="saveStepBtn"><i class="ph-bold ph-floppy-disk me-1"></i> Save</button>
+
+                            <button type="submit" class="btn btn-success px-4 ms-auto text-white shadow-lg"
+                                id="finishBtn" style="display:none;">Finish</button>
+                        </div>
+
                     </form>
                 </div>
 
                 <div class="modal-footer d-flex align-items-center">
-
                     <button type="button" class="btn btn-light border px-4 shadow-sm me-2" id="prevBtn"
                         style="display:none;">Back</button>
-
-                    <button type="submit" class="btn btn-light border fw-bold shadow-sm text-primary"
-                        id="saveStepBtn"><i class="ph-bold ph-floppy-disk me-1"></i> Save</button>
-
                     <button type="button" class="btn btn-primary px-4 ms-auto shadow-lg" id="nextBtn">Next</button>
-
-                    <button type="submit" class="btn btn-success px-4 ms-auto text-white shadow-lg" id="finishBtn"
-                        style="display:none;">Finish</button>
-
                 </div>
             </div>
+
+
         </div>
+    </div>
     </div>
 
 
