@@ -36,7 +36,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom JS -->
-    <script src="script.js" defer></script>
     <script src="login.js" defer></script>
 </head>
 
@@ -56,6 +55,11 @@
         </div>
     </div>
 
+
+    <?php include 'global_message.php'; ?>
+
+
+    <!-- Main Section -->
     <section class="min-vh-100 d-flex p-0 m-0 bg-light">
         <div class="container-fluid g-0">
             <div class="row g-0 min-vh-100">
@@ -87,16 +91,20 @@
                             <p class="text-muted small text-uppercase fw-semibold ls-1">Manager Portal Login</p>
                         </div>
 
-                        <form id="loginForm">
-
+                        <!-- Form -->
+                        <form id="loginForm" method="POST" action="auth.php">
+                            <input type="hidden" name="action" value="login">
+                            <!-- ROLE -->
                             <div class="mb-4">
                                 <label class="form-label small text-muted fw-bold">Select Role</label>
                                 <select class="form-select py-2 bg-light border-0 fw-semibold" id="roleSelect"
-                                    name="role">
+                                    name="role" required>
+                                    <option value="">Select Role</option>
                                     <option value="admin">Admin</option>
                                 </select>
                             </div>
 
+                            <!-- USER ID -->
                             <div class="mb-3">
                                 <label class="form-label small text-muted">User ID</label>
                                 <div class="input-group input-group-lg">
@@ -104,10 +112,11 @@
                                         <i class="ph-bold ph-user-circle fs-5"></i>
                                     </span>
                                     <input type="text" class="form-control border-start-0 ps-0 fs-6" id="usernameInput"
-                                        placeholder="Enter your ID">
+                                        name="user_id" placeholder="Enter your ID" required>
                                 </div>
                             </div>
 
+                            <!-- PASSWORD -->
                             <div class="mb-3">
                                 <label class="form-label small text-muted">Password</label>
                                 <div class="input-group input-group-lg">
@@ -115,22 +124,26 @@
                                         <i class="ph-bold ph-lock-key fs-5"></i>
                                     </span>
                                     <input type="password" class="form-control border-start-0 ps-0 fs-6"
-                                        id="passwordInput" placeholder="••••••••">
+                                        id="passwordInput" name="password" placeholder="••••••••" required>
                                 </div>
                             </div>
 
+                            <!-- REMEMBER + FORGOT -->
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="rememberMe">
-                                    <label class="form-check-label small text-muted" for="rememberMe">Remember
-                                        me</label>
+                                    <input class="form-check-input" type="checkbox" id="rememberMe" name="remember">
+                                    <label class="form-check-label small text-muted" for="rememberMe">
+                                        Remember me
+                                    </label>
                                 </div>
+
                                 <a href="#" class="small text-decoration-none fw-bold text-primary"
                                     data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
                                     Forgot password?
                                 </a>
                             </div>
 
+                            <!-- CAPTCHA -->
                             <div class="d-flex justify-content-center"
                                 style="transform: scale(0.70); transform-origin: center;">
                                 <div class="g-recaptcha rounded-5"
@@ -145,9 +158,10 @@
 
                         </form>
 
+
                         <div class="mt-5 text-center">
                             <p class="text-muted small mb-3">Looking for the Staff Portal?</p>
-                            <a href="../index.html"
+                            <a href="../index.php"
                                 class="btn btn-outline-dark w-75 py-2 rounded-3 fw-semibold small text-light">
                                 <i class="ph-bold ph-users me-2"></i> Access Staff Portal
                             </a>
@@ -163,7 +177,6 @@
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow">
 
-                <!-- Header -->
                 <div class="modal-header border-bottom-0 pb-0">
                     <h6 class="modal-title fw-bold" id="modalTitle">Reset Password</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -171,43 +184,71 @@
 
                 <div class="modal-body pt-2">
 
-                    <!-- Step 1: Email Input -->
-                    <div id="emailStep">
-                        <p class="small text-muted mb-3">Enter your registered email address.</p>
-                        <input type="email" id="emailInput" class="form-control mb-3" placeholder="name@company.com"
-                            required>
+                    <form id="step1Form" action="auth.php" method="POST">
+                        <input type="hidden" name="action" value="send_otp">
 
-                        <div class="d-grid">
-                            <button type="button" id="sendResetBtn" class="btn btn-primary btn-sm">
-                                Send Reset Link
-                            </button>
+                        <div id="emailStep">
+                            <p class="small text-muted mb-3">Enter your registered email address.</p>
+
+                            <div class="mb-3">
+                                <input type="email" id="resetEmail" name="email" class="form-control"
+                                    placeholder="name@company.com" required>
+                            </div>
+
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-primary btn-sm">Send OTP</button>
+                            </div>
+
+                            <div class="text-center">
+                                <a href="#" onclick="toggleResetSteps()" class="small text-decoration-none text-muted">
+                                    Already have a code? <span class="text-primary fw-bold">Enter it here</span>
+                                </a>
+                            </div>
                         </div>
-                    </div>
+                    </form>
 
-                    <!-- Step 2: OTP Verification -->
-                    <div id="otpStep" class="d-none">
-                        <p class="small text-muted mb-3">Enter the 6-digit OTP sent to your email.</p>
+                    <form id="step2Form" action="auth.php" method="POST" onsubmit="combineOtp()">
+                        <input type="hidden" name="action" value="verify_otp">
 
-                        <div class="d-flex justify-content-between mb-3 gap-2">
-                            <input type="text" maxlength="1" class="form-control text-center otp-input">
-                            <input type="text" maxlength="1" class="form-control text-center otp-input">
-                            <input type="text" maxlength="1" class="form-control text-center otp-input">
-                            <input type="text" maxlength="1" class="form-control text-center otp-input">
-                            <input type="text" maxlength="1" class="form-control text-center otp-input">
-                            <input type="text" maxlength="1" class="form-control text-center otp-input">
+                        <input type="hidden" name="email" id="hiddenEmail">
+
+                        <div id="otpStep" class="d-none">
+                            <p class="small text-muted mb-3">Enter the 6-digit OTP sent to your email.</p>
+
+                            <div class="d-flex justify-content-between mb-3 gap-2">
+                                <input type="text" maxlength="1" class="form-control text-center otp-box"
+                                    oninput="moveToNext(this, 0)">
+                                <input type="text" maxlength="1" class="form-control text-center otp-box"
+                                    oninput="moveToNext(this, 1)">
+                                <input type="text" maxlength="1" class="form-control text-center otp-box"
+                                    oninput="moveToNext(this, 2)">
+                                <input type="text" maxlength="1" class="form-control text-center otp-box"
+                                    oninput="moveToNext(this, 3)">
+                                <input type="text" maxlength="1" class="form-control text-center otp-box"
+                                    oninput="moveToNext(this, 4)">
+                                <input type="text" maxlength="1" class="form-control text-center otp-box"
+                                    oninput="moveToNext(this, 5)">
+
+                                <input type="hidden" id="fullOtp" name="otp">
+                            </div>
+
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-dark btn-sm">Verify & Reset</button>
+                            </div>
+
+                            <div class="text-center">
+                                <a href="#" onclick="toggleResetSteps()" class="small text-decoration-none text-muted">
+                                    Wrong email? <span class="text-primary fw-bold">Go back</span>
+                                </a>
+                            </div>
                         </div>
-
-                        <div class="d-grid">
-                            <button type="button" class="btn btn-dark btn-sm" id="verifyOtpBtn">
-                                Verify OTP
-                            </button>
-                        </div>
-                    </div>
+                    </form>
 
                 </div>
             </div>
         </div>
     </div>
+
 
 
 

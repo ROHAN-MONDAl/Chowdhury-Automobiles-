@@ -10,15 +10,15 @@ $(document).ready(function () {
     // --- LOGIN FLOW ---
     $('#loginForm').on('submit', function (e) {
         e.preventDefault();
-        window.location.href = 'dashboard.html';
+        window.location.href = 'dashboard.php';
     });
 
     $('#logoutBtn').on('click', function () {
-        window.location.href = 'index.html';
+        window.location.href = 'index.php';
     });
 
     $('#logoutIcon').on('click', function () {
-        window.location.href = 'index.html';
+        window.location.href = 'index.php';
     });
 
     // --- MODAL HANDLERS ---

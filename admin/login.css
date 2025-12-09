@@ -52,3 +52,53 @@
     /* THE FIX: This centers a block element horizontally */
     margin: 0 auto;
 }
+
+
+/* Global Message Styling */
+.global-msg {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #ffffff;
+    border-left: 6px solid #000;
+    padding: 12px 18px;
+    border-radius: 8px;
+    min-width: 260px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: show-msg 10s forwards;
+    z-index: 9999;
+}
+
+/* Keyframes for show -> stay -> hide */
+@keyframes show-msg {
+    0%   { opacity: 0; transform: translateY(-20px); }
+    5%   { opacity: 1; transform: translateY(0); }
+    95%  { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
+}
+
+/* Colors */
+.msg-success { border-color: #28a745; }
+.msg-error   { border-color: #dc3545; }
+.msg-warning { border-color: #ffc107; }
+.msg-info    { border-color: #17a2b8; }
+
+.text-success { color: #28a745 !important; }
+.text-danger  { color: #dc3545 !important; }
+.text-warning { color: #ffc107 !important; }
+.text-info    { color: #17a2b8 !important; }
+
+/* Optional: stacking multiple messages */
+.global-msg-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+}
