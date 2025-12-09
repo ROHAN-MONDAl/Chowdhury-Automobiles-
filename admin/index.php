@@ -78,96 +78,91 @@
                     </div>
                 </div>
 
-                <div class="col-lg-6 d-flex flex-column justify-content-center align-items-center"
-                    style="background: linear-gradient(to top, #000000b7, transparent); z-index: 1;">
-                    <div class="w-100 p-4 p-sm-5" style="max-width: 520px;">
+                <div class="col-lg-6 d-flex flex-column justify-content-center align-items-center bg-light">
 
-                        <div class="text-center mb-5">
-                            <div class="d-inline-block rounded-circle p-1 border border-2 border-light mb-3">
-                                <img src="../images/logo.jpeg" alt="Logo" class="rounded-circle"
-                                    style="width: 90px; height: 90px; object-fit: cover;">
-                            </div>
-                            <h4 class="fw-bold text-dark mb-1">Chowdhury Automobile</h4>
-                            <p class="text-muted small text-uppercase fw-semibold ls-1">Manager Portal Login</p>
-                        </div>
+                    <div class="card border-0 shadow-lg rounded-4 w-100" style="max-width: 500px;">
+                        <div class="card-body p-4 p-sm-5">
 
-                        <!-- Form -->
-                        <form id="loginForm" method="POST" action="auth.php">
-                            <input type="hidden" name="action" value="login">
-                            <!-- ROLE -->
-                            <div class="mb-4">
-                                <label class="form-label small text-muted fw-bold">Select Role</label>
-                                <select class="form-select py-2 bg-light border-0 fw-semibold" id="roleSelect"
-                                    name="role" required>
-                                    <option value="">Select Role</option>
-                                    <option value="admin">Admin</option>
-                                </select>
-                            </div>
-
-                            <!-- USER ID -->
-                            <div class="mb-3">
-                                <label class="form-label small text-muted">User ID</label>
-                                <div class="input-group input-group-lg">
-                                    <span class="input-group-text bg-white border-end-0 text-muted ps-3">
-                                        <i class="ph-bold ph-user-circle fs-5"></i>
-                                    </span>
-                                    <input type="text" class="form-control border-start-0 ps-0 fs-6" id="usernameInput"
-                                        name="user_id" placeholder="Enter your ID" required>
+                            <div class="text-center mb-4">
+                                <div
+                                    class="d-inline-block rounded-circle p-1 border border-3 border-light shadow-sm mb-3">
+                                    <img src="../images/logo.jpeg" alt="Logo" class="rounded-circle"
+                                        style="width: 80px; height: 80px; object-fit: cover;">
                                 </div>
+                                <h4 class="fw-bold text-dark mb-1">Chowdhury Automobile</h4>
+                                <p class="text-muted small text-uppercase fw-semibold ls-1">Manager Portal Login</p>
                             </div>
 
-                            <!-- PASSWORD -->
-                            <div class="mb-3">
-                                <label class="form-label small text-muted">Password</label>
-                                <div class="input-group input-group-lg">
-                                    <span class="input-group-text bg-white border-end-0 text-muted ps-3">
-                                        <i class="ph-bold ph-lock-key fs-5"></i>
-                                    </span>
-                                    <input type="password" class="form-control border-start-0 ps-0 fs-6"
-                                        id="passwordInput" name="password" placeholder="••••••••" required>
-                                </div>
-                            </div>
+                            <form id="loginForm" method="POST" action="auth.php">
+                                <input type="hidden" name="action" value="login">
 
-                            <!-- REMEMBER + FORGOT -->
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="rememberMe" name="remember">
-                                    <label class="form-check-label small text-muted" for="rememberMe">
-                                        Remember me
-                                    </label>
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted fw-bold">Select Role</label>
+                                    <select class="form-select py-2 bg-light border-0 fw-semibold" id="roleSelect"
+                                        name="role" required>
+                                        <option value="">Select Role</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
                                 </div>
 
-                                <a href="#" class="small text-decoration-none fw-bold text-primary"
-                                    data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
-                                    Forgot password?
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted">User ID</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0 text-muted ps-3">
+                                            <i class="ph-bold ph-user-circle fs-5"></i>
+                                        </span>
+                                        <input type="text" class="form-control bg-light border-start-0 ps-0"
+                                            id="usernameInput" name="user_id" placeholder="Enter your ID" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted">Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0 text-muted ps-3">
+                                            <i class="ph-bold ph-lock-key fs-5"></i>
+                                        </span>
+                                        <input type="password" class="form-control bg-light border-start-0 ps-0"
+                                            id="passwordInput" name="password" placeholder="••••••••" required>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="rememberMe" name="remember">
+                                        <label class="form-check-label small text-muted" for="rememberMe">
+                                            Remember me
+                                        </label>
+                                    </div>
+
+                                    <a href="#" class="small text-decoration-none fw-bold text-primary"
+                                        data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
+                                        Forgot password?
+                                    </a>
+                                </div>
+
+                                <div class="d-flex justify-content-center mb-3"
+                                    style="transform: scale(0.85); transform-origin: center;">
+                                    <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-dark w-100 py-2 rounded-3 fw-bold shadow-sm">
+                                    Sign In to Portal
+                                </button>
+
+                            </form>
+
+                            <div class="mt-4 text-center">
+                                <p class="text-muted small mb-2">Looking for the Staff Portal?</p>
+                                <a href="../index.php" class="text-decoration-none fw-bold text-dark small">
+                                    <i class="ph-bold ph-arrow-right me-1"></i> Access Staff Portal
                                 </a>
                             </div>
-
-                            <!-- CAPTCHA -->
-                            <div class="d-flex justify-content-center"
-                                style="transform: scale(0.70); transform-origin: center;">
-                                <div class="g-recaptcha rounded-5"
-                                    data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI">
-                                </div>
-                            </div>
-
-                            <button type="submit"
-                                class="btn btn-dark w-100 py-3 rounded-3 fw-bold shadow-sm transition-hover">
-                                Sign In to Portal
-                            </button>
-
-                        </form>
-
-
-                        <div class="mt-5 text-center">
-                            <p class="text-muted small mb-3">Looking for the Staff Portal?</p>
-                            <a href="../index.php"
-                                class="btn btn-outline-dark w-75 py-2 rounded-3 fw-semibold small text-light">
-                                <i class="ph-bold ph-users me-2"></i> Access Staff Portal
-                            </a>
                         </div>
-
                     </div>
+
+
                 </div>
             </div>
         </div>
@@ -175,7 +170,7 @@
 
     <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content border-0 shadow">
+            <div class="modal-content border-0 shadow-lg rounded-4">
 
                 <div class="modal-header border-bottom-0 pb-0">
                     <h6 class="modal-title fw-bold" id="modalTitle">Reset Password</h6>
@@ -191,7 +186,7 @@
                             <p class="small text-muted mb-3">Enter your registered email address.</p>
 
                             <div class="mb-3">
-                                <input type="email" id="resetEmail" name="email" class="form-control"
+                                <input type="email" id="resetEmail" name="email" class="form-control bg-light"
                                     placeholder="name@company.com" required>
                             </div>
 
@@ -209,26 +204,24 @@
 
                     <form id="step2Form" action="auth.php" method="POST" onsubmit="combineOtp()">
                         <input type="hidden" name="action" value="verify_otp">
-
                         <input type="hidden" name="email" id="hiddenEmail">
 
                         <div id="otpStep" class="d-none">
                             <p class="small text-muted mb-3">Enter the 6-digit OTP sent to your email.</p>
 
-                            <div class="d-flex justify-content-between mb-3 gap-2">
-                                <input type="text" maxlength="1" class="form-control text-center otp-box"
+                            <div class="d-flex justify-content-between mb-3 gap-1">
+                                <input type="text" maxlength="1" class="form-control text-center otp-box bg-light"
                                     oninput="moveToNext(this, 0)">
-                                <input type="text" maxlength="1" class="form-control text-center otp-box"
+                                <input type="text" maxlength="1" class="form-control text-center otp-box bg-light"
                                     oninput="moveToNext(this, 1)">
-                                <input type="text" maxlength="1" class="form-control text-center otp-box"
+                                <input type="text" maxlength="1" class="form-control text-center otp-box bg-light"
                                     oninput="moveToNext(this, 2)">
-                                <input type="text" maxlength="1" class="form-control text-center otp-box"
+                                <input type="text" maxlength="1" class="form-control text-center otp-box bg-light"
                                     oninput="moveToNext(this, 3)">
-                                <input type="text" maxlength="1" class="form-control text-center otp-box"
+                                <input type="text" maxlength="1" class="form-control text-center otp-box bg-light"
                                     oninput="moveToNext(this, 4)">
-                                <input type="text" maxlength="1" class="form-control text-center otp-box"
+                                <input type="text" maxlength="1" class="form-control text-center otp-box bg-light"
                                     oninput="moveToNext(this, 5)">
-
                                 <input type="hidden" id="fullOtp" name="otp">
                             </div>
 
