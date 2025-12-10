@@ -1,3 +1,22 @@
+<?php
+// Include DB connection
+require "db.php";
+
+// Check if user is logged in
+if (!isset($_SESSION["user_id"])) {
+    header("Location: index.php");
+    exit();
+}
+// 1. Get ID (safely handle if missing)
+$id = $_SESSION['id'] ?? 0;
+
+// 2. Run Query (Standard MySQLi style)
+$query = $conn->prepare("SELECT user_id, email, role FROM users WHERE id = ?");
+$query->bind_param("i", $id);
+$query->execute();
+$u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -49,14 +68,12 @@
         <div class="mt-3 fw-bold text-secondary" style="letter-spacing: 1px;">LOADING...</div>
     </div>
 
-    <!-- GLOBAL SUCCESS MESSAGE -->
-    <div id="globalSuccessMsg" class="d-none align-items-center shadow-lg global-success-msg">
-        <i class="bi bi-check-circle-fill me-2 success-icon"></i>
-        <span class="fw-bold success-text">Submitted Successfully!</span>
-    </div>
+    <!-- Universal Messages -->
+    <?php include "universal_message.php" ?>
 
 
 
+    
     <!-- DASHBOARD SECTION -->
     <section id="dashboard-section" class="pb-5">
         <!-- HEADER / NAVIGATION BAR -->
@@ -80,22 +97,15 @@
                         </span>
                     </div>
                 </a>
+                <!-- Desktop Logout Button -->
+                <a href="logout.php" class="btn logout-btn d-none d-md-inline-block">
+                    <i class="ph-bold ph-sign-out me-1"></i> Log Out
+                </a>
 
-
-                <!-- Desktop Log Out Button -->
-                <button id="logoutBtn"
-                    class="btn btn-light border fw-bold rounded-pill px-3 py-1 shadow-sm d-none d-md-inline-block">
-                    Log Out
-                </button>
-
-                <!-- Mobile Log Out Icon -->
-                <button id="logoutIcon"
-                    class="btn btn-light border rounded-circle shadow-sm d-inline-flex d-md-none justify-content-center align-items-center p-2">
+                <!-- Mobile Logout Icon -->
+                <a href="logout.php" class="btn logout-icon d-inline-flex d-md-none">
                     <i class="ph-bold ph-sign-out fs-5"></i>
-                </button>
-
-
-
+                </a>
             </div>
         </nav>
 
@@ -204,6 +214,24 @@
             </div>
         </div>
     </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     <!-- ADD vechical form -->
@@ -1413,10 +1441,60 @@
                 </div>
             </div>
 
-
         </div>
     </div>
-    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     <!-- LEADS LIST MODAL -->
@@ -1429,34 +1507,58 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <!-- Responsive Grid: Two columns on medium/desktop, one column on mobile -->
-                    <div class="row g-3">
-                        <div class="col-12 col-md-6 lead-item">
-                            <div class="lead-card">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h5 class="fw-bold mb-1 fs-5">Suman Roy</h5>
-                                        <div class="text-secondary fw-semibold small">+91 90000 12345</div>
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        <button class="btn-icon delete delete-lead"><i
-                                                class="ph-bold ph-trash"></i></button>
+                    <div class="row g-3" id="leadsContainer">
+                        <?php
+                        $result = $conn->query("SELECT id, name, phone, bike_model, created_at FROM leads ORDER BY id DESC");
+                        if ($result->num_rows > 0):
+                            while ($lead = $result->fetch_assoc()):
+                                ?>
+                                <div class="col-md-6 col-lg-4 mb-4">
+                                    <div class="card bg-primary bg-gradient text-white border-0 shadow h-100">
+                                        <div class="card-body position-relative overflow-hidden">
+
+                                            <i class="ph-bold ph-motorcycle position-absolute text-white opacity-25"
+                                                style="font-size: 5rem; right: 20px; bottom: -18px;"></i>
+
+                                            <div class="d-flex justify-content-between align-items-start position-relative z-1">
+                                                <div>
+                                                    <h5 class="fw-bold mb-1"><?= htmlspecialchars($lead['name']) ?></h5>
+                                                    <div class="opacity-75 small mb-3">
+                                                        <i class="ph-bold ph-phone me-1"></i>
+                                                        <?= htmlspecialchars($lead['phone']) ?>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    class="btn btn-white bg-white text-danger btn-sm rounded-5 shadow-sm delete-lead"
+                                                    data-id="<?= $lead['id'] ?>">
+                                                    <i class="ph-bold ph-trash"></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="mt-2 position-relative z-1">
+                                                <span class="badge bg-white text-primary fw-bold me-2">
+                                                    <?= htmlspecialchars($lead['bike_model']) ?>
+                                                </span>
+                                                <small class="opacity-75">
+                                                    Added: <?= date('M d', strtotime($lead['created_at'])) ?>
+                                                </small>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="d-flex gap-2 mt-3 flex-wrap">
-                                    <span
-                                        class="badge-pill bg-primary-subtle text-primary border border-primary-subtle">Pulsar
-                                        150</span>
-                                    <span class="badge-pill bg-light text-dark border">1st Owner</span>
-                                </div>
+                                <?php
+                            endwhile;
+                        else:
+                            ?>
+                            <div class="col-12">
+                                <p class="text-center text-muted mb-0">No leads found.</p>
                             </div>
-                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 
     <!-- LEAD MODAL -->
     <!-- Add Leads -->
@@ -1465,134 +1567,99 @@
             <div class="modal-content">
 
                 <!-- Form Start -->
-                <form id="leadForm" class="app-form">
+                <form method="POST" class="app-form card p-4 shadow-sm bg-white rounded" action="update_forms_data.php">
+                    <h4 class="mb-3 fw-bold">Capture Lead</h4>
 
-                    <!-- Header -->
-                    <div class="modal-header border-0 pb-0">
-                        <h5 class="modal-title fw-bold ms-2 fs-5">Capture Lead</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <div class="mb-3">
+                        <label class="fw-bold">Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="Enter full name"
+                            pattern="^[A-Za-z\s]{2,50}$"
+                            title="Name must contain only letters and spaces, 2-50 characters long." required>
                     </div>
 
-                    <!-- Body -->
-                    <div class="modal-body p-4">
-                        <div class="card p-3 border-0 bg-white shadow-none">
-
-                            <!-- Name -->
-                            <div class="mb-3">
-                                <label class="fw-bold">Name</label>
-                                <input type="text" name="name" class="form-control" placeholder="Enter full name"
-                                    pattern="^[A-Za-z\s]{2,50}$"
-                                    title="Name must contain only letters and spaces, 2-50 characters long." required>
-                            </div>
-
-                            <!-- Phone -->
-                            <div class="mb-3">
-                                <label class="fw-bold">Phone</label>
-                                <input type="tel" name="phone" class="form-control" placeholder="Enter phone number"
-                                    pattern="^\d{10}$" title="Phone number must be exactly 10 digits." required>
-                            </div>
-
-                            <!-- Bike Model -->
-                            <div class="mb-3">
-                                <label class="fw-bold">Bike Model</label>
-                                <input type="text" name="bike_model" class="form-control" placeholder="e.g. Splendor"
-                                    pattern="^[A-Za-z0-9\s\-]{2,30}$"
-                                    title="Bike model can include letters, numbers, spaces, and hyphens (2-30 characters)."
-                                    required>
-                            </div>
-                        </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Phone</label>
+                        <input type="tel" name="phone" class="form-control" placeholder="Enter phone number"
+                            pattern="^\d{10}$" title="Phone number must be exactly 10 digits." required>
                     </div>
 
-                    <!-- Footer -->
-                    <div class="modal-footer border-0 pt-0">
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold shadow-sm">
-                            Save Lead
-                        </button>
+                    <div class="mb-3">
+                        <label class="fw-bold">Bike Model</label>
+                        <input type="text" name="bike_model" class="form-control" placeholder="e.g. Splendor"
+                            pattern="^[A-Za-z0-9\s\-]{2,30}$"
+                            title="Bike model can include letters, numbers, spaces, and hyphens (2-30 characters)."
+                            required>
                     </div>
 
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">Save Lead</button>
                 </form>
                 <!-- Form End -->
 
             </div>
         </div>
     </div>
-
-
 
     <!-- Profile Configuration Modal -->
     <div class="modal fade" id="profileConfigModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
 
-                <!-- Form Start -->
-                <form id="profileConfigForm" class="app-form">
+                        <h5 class="fw-bold mb-4">Edit Profile</h5>
 
-                    <!-- Body -->
-                    <div class="modal-body p-4">
+                        <form method="POST" action="update_forms_data.php">
+                            <input type="hidden" name="form_type" value="profile">
 
-                        <!-- Success Alert -->
-                        <div id="successAlert" class="alert alert-success d-none fw-bold" role="alert">
-                            Profile Configuration Saved Successfully!
-                        </div>
-
-                        <div class="card p-3 border-0 bg-white shadow-none">
-
-                            <!-- ROLE TYPE -->
                             <div class="mb-3">
-                                <label class="fw-bold">ROLE TYPE</label>
-                                <select class="form-control text-uppercase" name="role" required>
+                                <label class="fw-bold small text-muted">Role</label>
+                                <select class="form-select" name="role" required>
                                     <option value="">Select Role</option>
-                                    <option value="ADMIN">ADMIN</option>
+                                    <option value="admin" <?= ($u['role'] ?? '') == 'admin' ? 'selected' : '' ?>>ADMIN
+                                    </option>
+                                    <option value="user" <?= ($u['role'] ?? '') == 'user' ? 'selected' : '' ?>>USER
+                                    </option>
+                                    <option value="manager" <?= ($u['role'] ?? '') == 'manager' ? 'selected' : '' ?>>
+                                        MANAGER</option>
                                 </select>
                             </div>
 
-                            <!-- Username -->
                             <div class="mb-3">
-                                <label class="fw-bold">Username</label>
-                                <input type="text" name="username" id="username" class="form-control"
-                                    placeholder="Enter username" pattern="^[A-Za-z0-9_]{4,20}$"
-                                    title="Username must be 4-20 characters & contain only letters, numbers, underscores."
+                                <label class="fw-bold small text-muted">Email Address</label>
+                                <input type="email" name="email" class="form-control" value="<?= $u['email'] ?? '' ?>"
                                     required>
-                                <small id="usernameMsg" class="text-danger d-none">Username already taken</small>
                             </div>
 
-                            <!-- Password -->
                             <div class="mb-3">
-                                <label class="fw-bold">Password</label>
-                                <input type="password" id="password" name="password" class="form-control"
-                                    placeholder="Enter password" required
-                                    pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-                                    title="Password must contain uppercase, lowercase, number, special character, and be at least 8 characters long.">
+                                <label class="fw-bold small text-muted">Username / Login ID</label>
+                                <input type="text" name="user_id" class="form-control"
+                                    value="<?= $u['user_id'] ?? '' ?>" required>
+                                <small class="text-muted">Used for login.</small>
                             </div>
 
-                            <!-- Confirm Password -->
-                            <div class="mb-3">
-                                <label class="fw-bold">Confirm Password</label>
-                                <input type="password" id="confirmPassword" class="form-control"
-                                    placeholder="Re-enter password" required>
-                                <small id="passwordError" class="text-danger d-none">Passwords do not match</small>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="fw-bold small text-muted">New Password</label>
+                                    <input type="password" name="password" class="form-control" placeholder="Optional">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="fw-bold small text-muted">Confirm Password</label>
+                                    <input type="password" name="confirmPassword" class="form-control"
+                                        placeholder="Confirm">
+                                </div>
                             </div>
 
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">Save
+                                Changes</button>
+                        </form>
 
-                        </div>
                     </div>
-
-                    <!-- Footer -->
-                    <div class="modal-footer border-0 pt-0">
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold shadow-sm">
-                            Save Configuration
-                        </button>
-                    </div>
-
-                </form>
-
+                </div>
                 <!-- Form End -->
 
             </div>
         </div>
     </div>
-
-
 
 </body>
 

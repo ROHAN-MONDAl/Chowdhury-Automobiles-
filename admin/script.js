@@ -190,9 +190,17 @@ $(document).ready(function () {
     });
 
     // Delete Lead Action
-    $(document).on('click', '.delete-lead', function () {
-        if (confirm('Are you sure you want to delete this lead?')) {
-            $(this).closest('.lead-item').remove();
+    $('.delete-lead').on('click', function (e) {
+        e.preventDefault(); // Prevent default button behavior
+        var leadId = $(this).data('id');
+
+        if (confirm("Are you sure you want to delete this lead?")) {
+            $.post('delete_lead.php', { delete_lead_id: leadId }, function (response) {
+                // Remove the lead card from DOM
+                $('#lead-' + leadId).remove();
+            }).fail(function () {
+                alert('Failed to delete lead. Please try again.');
+            });
         }
     });
 
@@ -259,41 +267,9 @@ $(document).ready(function () {
         }
     });
 
-    // Universal form submit handler
-    $("form.app-form").on("submit", function (e) {
-        e.preventDefault(); // stop default action
-
-        let form = $(this);
-
-        // Show global success message
-        $("#globalSuccessMsg")
-            .removeClass("d-none")
-            .hide()
-            .fadeIn();
-
-        // Reset this form
-        form[0].reset();
-
-        // Hide after 3 seconds
-        setTimeout(function () {
-            $("#globalSuccessMsg").fadeOut();
-        }, 3000);
-    });
-
-
-    $("#profileConfigForm").submit(function (e) {
-        let pass = $("#password").val();
-        let confirm = $("#confirmPassword").val();
-
-        if (pass !== confirm) {
-            e.preventDefault(); // stop form submission
-            $("#passwordError").removeClass("d-none");
-            return false;
-        }
-
-        $("#passwordError").addClass("d-none");
-        $("#successAlert").removeClass("d-none");
-
-    });
+    // Fade out the success toast after 3 seconds
+    $(".global-success-msg, .global-error-msg, .global-info-msg, .global-warning-msg")
+        .delay(3000) // show for 3 seconds
+        .fadeOut(500);
 
 });

@@ -44,39 +44,68 @@ body {
     min-height: 100vh;
 }
 
-/* Global Success Toast Message */
-.global-success-msg {
+/* Universal notification messages */
+.global-msg,
+.global-success-msg,
+.global-info-msg,
+.global-warning-msg,
+.global-error-msg {
     position: fixed;
     top: 30px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
 
-    background: #198754;
-    color: #fff;
-
     padding: 12px 25px;
     border-radius: 50px;
-
     display: flex;
     align-items: center;
     gap: 8px;
-
     font-family: system-ui, -apple-system, sans-serif;
     letter-spacing: 0.5px;
-
-    animation: fadeSlide 0.4s ease-out;
+    min-width: 250px;
+    justify-content: center;
 }
 
+/* Colors */
+.global-success-msg {
+    background: #198754;
+    color: #fff;
+}
+
+.global-error-msg {
+    background: #dc3545;
+    color: #fff;
+}
+
+.global-info-msg {
+    background: #0d6efd;
+    color: #fff;
+}
+
+.global-warning-msg {
+    background: #ffc107;
+    color: #212529;
+}
+
+/* Icons */
 .success-icon {
     font-size: 1.2rem;
 }
 
-.success-text {
-    font-weight: 700;
+.error-icon {
+    font-size: 1.2rem;
 }
 
-/* Toast Animation */
+.info-icon {
+    font-size: 1.2rem;
+}
+
+.warning-icon {
+    font-size: 1.2rem;
+}
+
+/* Animation */
 @keyframes fadeSlide {
     from {
         opacity: 0;
@@ -87,6 +116,14 @@ body {
         opacity: 1;
         transform: translateX(-50%) translateY(0);
     }
+}
+
+.global-msg,
+.global-success-msg,
+.global-info-msg,
+.global-warning-msg,
+.global-error-msg {
+    animation: fadeSlide 0.4s ease-out;
 }
 
 
@@ -761,11 +798,15 @@ label {
 
 /* --- 1. Main Card Container --- */
 .inventory-card {
-    border: none; /* Removed border for a cleaner look */
-    border-radius: 16px; /* Softer corners */
+    border: none;
+    /* Removed border for a cleaner look */
+    border-radius: 16px;
+    /* Softer corners */
     background: #fff;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03); /* Very subtle initial shadow */
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy transition */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    /* Very subtle initial shadow */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* Bouncy transition */
     overflow: hidden;
 }
 
@@ -776,11 +817,14 @@ label {
 
 /* --- 2. Image Area --- */
 .hover-card {
-    height: 260px; /* Slightly taller */
+    height: 260px;
+    /* Slightly taller */
     position: relative;
-    border-radius: 16px; /* Matches container */
+    border-radius: 16px;
+    /* Matches container */
     overflow: hidden;
-    background: #f1f5f9; /* Skeleton placeholder color */
+    background: #f1f5f9;
+    /* Skeleton placeholder color */
 }
 
 /* Image scaling */
@@ -788,7 +832,8 @@ label {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.6s cubic-bezier(0.33, 1, 0.68, 1); /* Smooth slow-out */
+    transition: transform 0.6s cubic-bezier(0.33, 1, 0.68, 1);
+    /* Smooth slow-out */
 }
 
 /* On hover, scale image and slightly dim it to make text pop */
@@ -800,48 +845,52 @@ label {
 /* --- 3. The New "Floating Glass" Overlay --- */
 .info-overlay {
     position: absolute;
-    bottom: 12px; /* Floats above the bottom edge */
+    bottom: 12px;
+    /* Floats above the bottom edge */
     left: 12px;
     right: 12px;
-    
+
     /* The Glass Effect */
     background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    
+
     padding: 16px;
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    
+
     /* Text Colors (Must be dark now) */
-    color: #1e293b; 
+    color: #1e293b;
     z-index: 2;
-    
+
     /* Animation State */
-    transform: translateY(30px); /* Pushed down slightly */
+    transform: translateY(30px);
+    /* Pushed down slightly */
     opacity: 0.9;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Ensure text inside overlay is readable */
-.info-overlay h1, 
-.info-overlay h2, 
-.info-overlay h3, 
-.info-overlay h4, 
-.info-overlay h5, 
+.info-overlay h1,
+.info-overlay h2,
+.info-overlay h3,
+.info-overlay h4,
+.info-overlay h5,
 .info-overlay h6 {
-    color: #0f172a; /* Dark Slate */
+    color: #0f172a;
+    /* Dark Slate */
     margin-bottom: 4px;
 }
 
-.info-overlay p, 
+.info-overlay p,
 .info-overlay span {
-    color: #64748b; /* Muted Slate */
+    color: #64748b;
+    /* Muted Slate */
 }
 
 /* Secondary info elements inside the card */
-.info-overlay > *:not(:first-child) {
+.info-overlay>*:not(:first-child) {
     opacity: 0;
     height: 0;
     margin-top: 0;
@@ -858,7 +907,7 @@ label {
 }
 
 /* Reveal the hidden details */
-.hover-card:hover .info-overlay > *:not(:first-child) {
+.hover-card:hover .info-overlay>*:not(:first-child) {
     opacity: 1;
     height: auto;
     margin-top: 8px;
@@ -893,9 +942,12 @@ label {
 }
 
 .nav-pills .nav-link.active {
-    background-color: #eff6ff; /* Very light blue background */
-    color: #2563eb; /* Blue text */
-    box-shadow: 0 0 0 1px #bfdbfe; /* Subtle blue border ring */
+    background-color: #eff6ff;
+    /* Very light blue background */
+    color: #2563eb;
+    /* Blue text */
+    box-shadow: 0 0 0 1px #bfdbfe;
+    /* Subtle blue border ring */
 }
 
 /* --- 7. Upload Box (Interactive Feel) --- */
@@ -912,7 +964,8 @@ label {
 }
 
 .upload-box:hover {
-    border-color: #6366f1; /* Indigo */
+    border-color: #6366f1;
+    /* Indigo */
     background-color: #eef2ff;
     transform: translateY(-3px);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -934,7 +987,7 @@ label {
 .glass-header {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(0,0,0,0.06);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .modal-content {
