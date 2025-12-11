@@ -87,6 +87,7 @@ $(document).ready(function () {
         }
     });
 
+    // Form Submission
     $('#saveStepBtn').click(function () {
         let btn = $(this);
         let originalContent = btn.html();
@@ -98,11 +99,6 @@ $(document).ready(function () {
             btn.removeClass('btn-success text-white').addClass('btn-light text-primary');
         }, 1500);
     });
-
-    // $('#finishBtn').click(function () {
-    //     alert("Data Saved Successfully!");
-    //     bootstrap.Modal.getInstance(document.getElementById('dealModal')).hide();
-    // });
 
     $('.step-item').click(function () {
         let step = $(this).data('step');

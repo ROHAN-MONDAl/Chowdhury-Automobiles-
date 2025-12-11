@@ -1,3 +1,21 @@
+<?php
+// Include DB connection
+require "db.php";
+
+// Check if user is logged in
+if (!isset($_SESSION["user_id"])) {
+    header("Location: index.php");
+    exit();
+}
+// 1. Get ID (safely handle if missing)
+$id = $_SESSION['id'] ?? 0;
+
+// 2. Run Query (Standard MySQLi style)
+$query = $conn->prepare("SELECT user_id, email, role FROM users WHERE id = ?");
+$query->bind_param("i", $id);
+$query->execute();
+$u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
+?>
 <!-- Inventory Dashboard Page for Chowdhury Automobile Management System -->
 <!DOCTYPE html>
 <html lang="en">
@@ -229,56 +247,103 @@
         </div>
 
         <!-- Vehicle Data Grid - Displays inventory vehicles in a responsive card layout with availability status and action buttons -->
+        <?php
+        $sql = "SELECT id, name, vehicle_number, cash_price, owner_serial, register_date, photo1, sold_out 
+        FROM stock_vehicle_details ORDER BY id DESC";
+
+        $result = $conn->query($sql);
+        ?>
+
         <div class="position-relative" style="min-height: 400px;">
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                <div class="col">
-                    <div class="card border-0 inventory-card h-100">
 
-                        <div class="hover-card position-relative overflow-hidden">
-                            <img src="https://www.jawayezdimotorcycles.com/cdn/shop/files/JY_Walkthrough_video_Website_Thumbnail_1_Hero_IMG_Roadster_Desktop_1.png?v=1757934480&width=600"
-                                class="d-block w-100 h-100 object-fit-cover" loading="lazy" alt="Bike">
+                <?php while ($row = $result->fetch_assoc()): ?>
 
-                            <div class="position-absolute top-0 end-0 p-3 z-2 mt-2">
-                                <span
-                                    class="badge status-badge text-success fw-bold bg-white shadow-sm rounded-pill px-3 py-2"
-                                    style="font-size: 11px; letter-spacing: 0.5px;">
-                                    <i class="ph-fill ph-circle me-1"></i> AVAILABLE
-                                </span>
-                            </div>
+                    <?php
+                    // Image fallback
+                    $imgFile = !empty($row['photo1']) ? basename($row['photo1']) : "default.jpg";
+                    $imgPath = "../images/" . $imgFile;
 
-                            <div class="info-overlay d-flex flex-column gap-2">
-                                <div class="d-flex justify-content-between align-items-end">
-                                    <div>
-                                        <h6 class="fw-bold mb-1 text-dark fs-5">WB 20 AB 1234</h6>
-                                        <small class="text-muted">Hero Splendor Plus</small>
+
+                    // Status check
+                    $status = ($row['sold_out'] == 1) ? "SOLD OUT" : "AVAILABLE";
+                    $statusClass = ($row['sold_out'] == 1) ? "text-danger" : "text-success";
+                    ?>
+
+                    <div class="col">
+                        <div class="card border-0 inventory-card h-100">
+
+                            <div class="hover-card position-relative overflow-hidden">
+
+                                <!-- Vehicle Photo -->
+                                <img src="<?= $imgPath ?>" class="d-block w-100 h-100 object-fit-cover" loading="lazy"
+                                    alt="Bike">
+
+
+                                <!-- Status Badge -->
+                                <div class="position-absolute top-0 end-0 p-3 z-2 mt-2">
+                                    <span
+                                        class="badge status-badge <?= $statusClass ?> fw-bold bg-white shadow-sm rounded-pill px-3 py-2"
+                                        style="font-size: 11px; letter-spacing: 0.5px;">
+                                        <i class="ph-fill ph-circle me-1"></i> <?= $status ?>
+                                    </span>
+                                </div>
+
+                                <div class="info-overlay d-flex flex-column gap-2">
+
+                                    <div class="d-flex justify-content-between align-items-end">
+                                        <div>
+                                            <!-- Vehicle Number -->
+                                            <h6 class="fw-bold mb-1 text-dark fs-5">
+                                                <?= strtoupper($row['vehicle_number']) ?>
+                                            </h6>
+
+                                            <!-- Bike Name -->
+                                            <small class="text-muted"><?= $row['name'] ?></small>
+                                        </div>
+
+                                        <!-- Price -->
+                                        <div class="fw-bold text-primary fs-4">₹ <?= number_format($row['cash_price']) ?>
+                                        </div>
                                     </div>
-                                    <div class="fw-bold text-primary fs-4">₹ 75,000</div>
+
+                                    <!-- Year + Owner -->
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                        <span
+                                            class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
+                                            <?= date("Y", strtotime($row['register_date'])) ?>
+                                        </span>
+
+                                        <span
+                                            class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
+                                            <?= $row['owner_serial'] ?> Owner
+                                        </span>
+                                    </div>
+
+                                    <!-- Buttons -->
+                                    <div class="d-flex gap-2 mt-3">
+                                        <button class="btn btn-sm btn-dark fw-bold flex-grow-1 rounded-pill py-2"
+                                            onclick="openEditModal(<?= $row['id'] ?>)">
+                                            <i class="ph-bold ph-pencil-simple text-white me-1"></i> Edit
+                                        </button>
+
+                                        <button class="btn btn-sm btn-outline-dark fw-bold flex-grow-1 rounded-pill py-2"
+                                            onclick="openViewModal(<?= $row['id'] ?>)">
+                                            View Details
+                                        </button>
+                                    </div>
+
                                 </div>
 
-                                <div class="d-flex flex-wrap gap-2 mt-2">
-                                    <span
-                                        class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">2023</span>
-                                    <span
-                                        class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">1st
-                                        Owner</span>
-                                </div>
-
-                                <div class="d-flex gap-2 mt-3">
-                                    <button class="btn btn-sm btn-dark fw-bold flex-grow-1 rounded-pill py-2"
-                                        onclick="openModal('dealModal')">
-                                        <i class="ph-bold ph-pencil-simple text-white me-1"></i> Edit
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-dark fw-bold flex-grow-1 rounded-pill py-2"
-                                        data-bs-toggle="modal" data-bs-target="#viewDealModal">
-                                        View Details
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+
+                <?php endwhile; ?>
+
             </div>
         </div>
+
         <!-- END OF Vehicle Data Grid -->
 
 
@@ -1441,42 +1506,76 @@
 
                     </div>
 
+                    <?php
+                    // Check URL parameters to determine state
+                    $open_modal = isset($_GET['modal']) && $_GET['modal'] == 'open';
+                    $current_step = isset($_GET['step']) ? (int) $_GET['step'] : 1;
+                    $row_id = isset($_GET['id']) ? $_GET['id'] : '';
+                    ?>
 
-                    <!-- Same indicators, only improved responsive layout -->
                     <div class="wizard-nav d-flex justify-content-between flex-wrap gap-3 mt-3 px-2 text-center">
 
                         <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="1">
-                            <div class="step-circle d-flex align-items-center justify-content-center rounded-circle">
+                            <div class="step-circle d-flex align-items-center justify-content-center rounded-circle 
+            <?php echo $current_step >= 1 ? 'bg-primary text-white shadow-sm' : 'bg-light text-muted border'; ?>"
+                                style="width: 40px; height: 40px; transition: all 0.3s ease;">
                                 1
                             </div>
-                            <div class="step-label small mt-1">Vehicle</div>
+                            <div
+                                class="step-label small mt-1 <?php echo $current_step >= 1 ? 'text-primary fw-bold' : 'text-muted'; ?>">
+                                Vehicle
+                            </div>
                         </div>
 
                         <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="2">
-                            <div class="step-circle d-flex align-items-center justify-content-center rounded-circle">
+                            <div class="step-circle d-flex align-items-center justify-content-center rounded-circle 
+            <?php echo $current_step >= 2 ? 'bg-primary text-white shadow-sm' : 'bg-light text-muted border'; ?>"
+                                style="width: 40px; height: 40px; transition: all 0.3s ease;">
                                 2
                             </div>
-                            <div class="step-label small mt-1">Seller</div>
+                            <div
+                                class="step-label small mt-1 <?php echo $current_step >= 2 ? 'text-primary fw-bold' : 'text-muted'; ?>">
+                                Seller
+                            </div>
                         </div>
 
                         <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="3">
-                            <div class="step-circle d-flex align-items-center justify-content-center rounded-circle">
+                            <div class="step-circle d-flex align-items-center justify-content-center rounded-circle 
+            <?php echo $current_step >= 3 ? 'bg-primary text-white shadow-sm' : 'bg-light text-muted border'; ?>"
+                                style="width: 40px; height: 40px; transition: all 0.3s ease;">
                                 3
                             </div>
-                            <div class="step-label small mt-1">Purchaser</div>
+                            <div
+                                class="step-label small mt-1 <?php echo $current_step >= 3 ? 'text-primary fw-bold' : 'text-muted'; ?>">
+                                Purchaser
+                            </div>
                         </div>
 
                         <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="4">
-                            <div class="step-circle d-flex align-items-center justify-content-center rounded-circle">
+                            <div class="step-circle d-flex align-items-center justify-content-center rounded-circle 
+            <?php echo $current_step >= 4 ? 'bg-primary text-white shadow-sm' : 'bg-light text-muted border'; ?>"
+                                style="width: 40px; height: 40px; transition: all 0.3s ease;">
                                 4
                             </div>
-                            <div class="step-label small mt-1">Transfer</div>
+                            <div
+                                class="step-label small mt-1 <?php echo $current_step >= 4 ? 'text-primary fw-bold' : 'text-muted'; ?>">
+                                Transfer
+                            </div>
                         </div>
 
                     </div>
 
+
+
                     <div class="modal-body">
-                        <form action="welcome.php" id="dealForm" method="POST" class="app-form">
+
+
+                        <!-- Your form -->
+                        <form action="vehicle_update_form.php" id="dealForm" method="POST" class="app-form"
+                            enctype="multipart/form-data" novalidate>
+                            <input type="hidden" name="row_id" value="<?php echo $row_id; ?>">
+                            <input type="hidden" name="current_step" value="<?php echo $current_step; ?>">
+
 
                             <!-- STEP 1: VEHICLE -->
                             <div id="step-1" class="wizard-step">
@@ -1487,37 +1586,42 @@
                                     <div>
                                         <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Vehicle Details</h6>
                                         <label class="mb-2">Vehicle Photos</label>
-                                        <!-- Responsive Grid for Photos: 2 columns on mobile, 4 on desktop -->
                                         <div class="row g-3 mb-4">
                                             <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box"><i
-                                                        class="ph-bold ph-camera fs-3 text-secondary"></i><img
-                                                        src=""><input type="file" accept="image/*" hidden></div>
+                                                <div class="photo-upload-box">
+                                                    <i class="ph-bold ph-camera fs-3 text-secondary"></i>
+                                                    <img src="">
+                                                    <input type="file" name="photo1" accept="image/*" hidden>
+                                                </div>
                                             </div>
                                             <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box"><i
-                                                        class="ph-bold ph-camera fs-3 text-secondary"></i><img
-                                                        src=""><input type="file" accept="image/*" hidden></div>
+                                                <div class="photo-upload-box">
+                                                    <i class="ph-bold ph-camera fs-3 text-secondary"></i>
+                                                    <img src="">
+                                                    <input type="file" name="photo2" accept="image/*" hidden>
+                                                </div>
                                             </div>
                                             <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box"><i
-                                                        class="ph-bold ph-camera fs-3 text-secondary"></i><img
-                                                        src=""><input type="file" accept="image/*" hidden></div>
+                                                <div class="photo-upload-box">
+                                                    <i class="ph-bold ph-camera fs-3 text-secondary"></i>
+                                                    <img src="">
+                                                    <input type="file" name="photo3" accept="image/*" hidden>
+                                                </div>
                                             </div>
                                             <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box"><i
-                                                        class="ph-bold ph-camera fs-3 text-secondary"></i><img
-                                                        src=""><input type="file" accept="image/*" hidden></div>
+                                                <div class="photo-upload-box">
+                                                    <i class="ph-bold ph-camera fs-3 text-secondary"></i>
+                                                    <img src="">
+                                                    <input type="file" name="photo4" accept="image/*" hidden>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <!-- Responsive Form Fields: 6 columns on mobile, 4 on desktop -->
                                         <div class="row g-3 mb-3">
-
-                                            <!-- Vehicle Type Dropdown -->
                                             <div class="col-12 col-md-6">
                                                 <label for="vehicleType" class="form-label">Vehicle Type</label>
-                                                <select id="vehicleType" class="form-select fw-bold">
+                                                <select id="vehicleType" name="vehicle_type"
+                                                    class="form-select fw-bold">
                                                     <option selected disabled>Choose Vehicle Type</option>
                                                     <option>Scooters</option>
                                                     <option>Mopeds</option>
@@ -1534,108 +1638,114 @@
                                                     <option>Pocket Bikes / Mini Bikes</option>
                                                 </select>
                                             </div>
-
                                             <div class="col-12 col-md-6">
                                                 <label class="fw-bold">Name</label>
-                                                <input type="text" id="nameField" class="form-control"
+                                                <input type="text" id="nameField" name="name" class="form-control"
                                                     placeholder="Enter Name">
                                             </div>
-
-                                            <div class="col-12 col-md-6"><label>Vehicle Number</label>
-                                                <input type="text" class="form-control fw-bold text-uppercase"
+                                            <div class="col-12 col-md-6">
+                                                <label>Vehicle Number</label>
+                                                <input type="text" name="vehicle_number"
+                                                    class="form-control fw-bold text-uppercase"
                                                     placeholder="WB 00 AA 0000" value="WB ">
                                             </div>
-                                            <div class="col-12 col-md-6"><label>Register Date</label><input type="date"
-                                                    class="form-control" value="2025-11-26"></div>
-                                            <div class="col-12 col-md-4"><label>Owner Serial</label><select
-                                                    class="form-select">
+                                            <div class="col-12 col-md-6">
+                                                <label>Register Date</label>
+                                                <input type="date" name="register_date" class="form-control"
+                                                    value="2025-11-26">
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <label>Owner Serial</label>
+                                                <select name="owner_serial" class="form-select">
                                                     <option>1st</option>
                                                     <option>2nd</option>
                                                     <option>3rd</option>
                                                     <option>4th</option>
                                                     <option>5th</option>
-                                                </select></div>
-                                            <div class="col-12 col-md-4"><label>Chassis Number</label><input type="text"
-                                                    class="form-control text-uppercase"></div>
-                                            <div class="col-12 col-md-4"><label>Engine Number</label><input type="text"
-                                                    class="form-control text-uppercase"></div>
+                                                </select>
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <label>Chassis Number</label>
+                                                <input type="text" name="chassis_number"
+                                                    class="form-control text-uppercase">
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <label>Engine Number</label>
+                                                <input type="text" name="engine_number"
+                                                    class="form-control text-uppercase">
+                                            </div>
                                         </div>
 
                                         <div class="row g-3 mb-3">
                                             <div class="col-12 col-md-6">
                                                 <label class="fw-bold mb-2">Payment Type</label>
-
                                                 <div class="d-flex gap-2 mb-3">
-                                                    <!-- CASH -->
-                                                    <input type="radio" class="btn-check" name="s_pay" id="sp_cash"
-                                                        checked data-bs-toggle="collapse" data-bs-target="#cashBox"
-                                                        aria-controls="cashBox">
+                                                    <input type="radio" class="btn-check" name="payment_type"
+                                                        id="sp_cash" value="cash" checked data-bs-toggle="collapse"
+                                                        data-bs-target="#cashBox" aria-controls="cashBox">
                                                     <label class="btn btn-outline-success" for="sp_cash">Cash</label>
 
-                                                    <!-- ONLINE -->
-                                                    <input type="radio" class="btn-check" name="s_pay" id="sp_online"
-                                                        data-bs-toggle="collapse" data-bs-target="#onlineBox"
-                                                        aria-controls="onlineBox">
+                                                    <input type="radio" class="btn-check" name="payment_type"
+                                                        id="sp_online" value="online" data-bs-toggle="collapse"
+                                                        data-bs-target="#onlineBox" aria-controls="onlineBox">
                                                     <label class="btn btn-outline-primary"
                                                         for="sp_online">Online</label>
                                                 </div>
 
-                                                <!-- ACCORDION CONTAINER -->
                                                 <div id="payBoxes">
-
-                                                    <!-- CASH BOX -->
                                                     <div id="cashBox" class="collapse show" data-bs-parent="#payBoxes">
                                                         <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
                                                             <label class="fw-bold small mb-1">Bike Price</label>
-                                                            <input type="number"
+                                                            <input type="number" name="cash_price"
                                                                 class="form-control form-control-sm mb-3"
-                                                                placeholder="Enter Amount" required>
+                                                                placeholder="Enter Amount">
                                                         </div>
                                                     </div>
 
-                                                    <!-- ONLINE BOX -->
                                                     <div id="onlineBox" class="collapse" data-bs-parent="#payBoxes">
                                                         <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
                                                             <label class="fw-bold small mb-2">Select Online
                                                                 Method</label>
-
                                                             <div class="d-flex flex-wrap gap-3 mb-2">
                                                                 <div class="form-check">
                                                                     <input type="radio" class="form-check-input"
-                                                                        name="online_method" id="om_gpay">
+                                                                        name="online_method" id="om_gpay" value="gpay">
                                                                     <label class="form-check-label small fw-bold"
-                                                                        for="om_gpay">Google Pay</label>
+                                                                        for="om_gpay">Google
+                                                                        Pay</label>
                                                                 </div>
                                                                 <div class="form-check">
                                                                     <input type="radio" class="form-check-input"
-                                                                        name="online_method" id="om_paytm">
+                                                                        name="online_method" id="om_paytm"
+                                                                        value="paytm">
                                                                     <label class="form-check-label small fw-bold"
                                                                         for="om_paytm">Paytm</label>
                                                                 </div>
                                                                 <div class="form-check">
                                                                     <input type="radio" class="form-check-input"
-                                                                        name="online_method" id="om_phonepe">
+                                                                        name="online_method" id="om_phonepe"
+                                                                        value="phonepe">
                                                                     <label class="form-check-label small fw-bold"
                                                                         for="om_phonepe">PhonePe</label>
                                                                 </div>
                                                                 <div class="form-check">
                                                                     <input type="radio" class="form-check-input"
-                                                                        name="online_method" id="om_bharatpe">
+                                                                        name="online_method" id="om_bharatpe"
+                                                                        value="bharatpe">
                                                                     <label class="form-check-label small fw-bold"
                                                                         for="om_bharatpe">BharatPe</label>
                                                                 </div>
                                                             </div>
 
-                                                            <input type="text"
+                                                            <input type="text" name="upi_ref"
                                                                 class="form-control form-control-sm mb-3 text-uppercase"
                                                                 placeholder="Transaction / UPI Reference ID">
 
-                                                            <!-- PRICE SECTION (Visible only when Online is active) -->
                                                             <label class="fw-bold small mb-1">Bike Price</label>
                                                             <div class="input-group">
                                                                 <span
                                                                     class="input-group-text bg-white border-end-0">₹</span>
-                                                                <input type="number"
+                                                                <input type="number" name="online_price"
                                                                     class="form-control border-start-0 ps-0"
                                                                     placeholder="Enter Price" required>
                                                             </div>
@@ -1645,49 +1755,48 @@
                                             </div>
                                         </div>
 
-
                                         <div class="p-3 rounded-4 bg-light border">
                                             <label>Police Challan</label>
-
                                             <div class="d-flex gap-3 mb-2">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="p_chal"
-                                                        data-bs-toggle="collapse" data-bs-target="#challan-section"
-                                                        checked>
+                                                    <input class="form-check-input" type="radio" name="police_challan"
+                                                        value="no" checked data-bs-toggle="collapse"
+                                                        data-bs-target="#challan-section">
                                                     <label class="form-check-label fw-bold">No</label>
                                                 </div>
 
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="p_chal"
-                                                        data-bs-toggle="collapse" data-bs-target="#challan-section">
+                                                    <input class="form-check-input" type="radio" name="police_challan"
+                                                        value="yes" data-bs-toggle="collapse"
+                                                        data-bs-target="#challan-section">
                                                     <label class="form-check-label fw-bold">Yes</label>
                                                 </div>
                                             </div>
 
-                                            <!-- COLLAPSE SECTION -->
                                             <div class="collapse mt-3" id="challan-section">
-
-                                                <!-- CHALLAN 1 -->
+                                                <!-- Challan 1 -->
                                                 <div class="border rounded p-2 mb-2 bg-white">
                                                     <label class="fw-bold small">Challan 1</label>
                                                     <div class="row g-2">
                                                         <div class="col-md-4">
-                                                            <input type="text" class="form-control text-uppercase"
+                                                            <input type="text" name="challan1_number"
+                                                                class="form-control text-uppercase"
                                                                 placeholder="Challan Number">
                                                         </div>
                                                         <div class="col-md-4">
-                                                            <input type="number" class="form-control"
-                                                                placeholder="Amount">
+                                                            <input type="number" name="challan1_amount"
+                                                                class="form-control" placeholder="Amount">
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="btn-group w-100 btn-group-sm">
-                                                                <input type="radio" class="btn-check" name="status1"
-                                                                    id="pen1" checked>
+                                                                <input type="radio" class="btn-check"
+                                                                    name="challan1_status" id="pen1" value="pending"
+                                                                    checked>
                                                                 <label class="btn btn-outline-danger"
                                                                     for="pen1">Pending</label>
 
-                                                                <input type="radio" class="btn-check" name="status1"
-                                                                    id="paid1">
+                                                                <input type="radio" class="btn-check"
+                                                                    name="challan1_status" id="paid1" value="paid">
                                                                 <label class="btn btn-outline-success"
                                                                     for="paid1">Paid</label>
                                                             </div>
@@ -1695,27 +1804,29 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- CHALLAN 2 -->
+                                                <!-- Challan 2 -->
                                                 <div class="border rounded p-2 mb-2 bg-white">
                                                     <label class="fw-bold small">Challan 2</label>
                                                     <div class="row g-2">
                                                         <div class="col-md-4">
-                                                            <input type="text" class="form-control text-uppercase"
+                                                            <input type="text" name="challan2_number"
+                                                                class="form-control text-uppercase"
                                                                 placeholder="Challan Number">
                                                         </div>
                                                         <div class="col-md-4">
-                                                            <input type="number" class="form-control"
-                                                                placeholder="Amount">
+                                                            <input type="number" name="challan2_amount"
+                                                                class="form-control" placeholder="Amount">
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="btn-group w-100 btn-group-sm">
-                                                                <input type="radio" class="btn-check" name="status2"
-                                                                    id="pen2" checked>
+                                                                <input type="radio" class="btn-check"
+                                                                    name="challan2_status" id="pen2" value="pending"
+                                                                    checked>
                                                                 <label class="btn btn-outline-danger"
                                                                     for="pen2">Pending</label>
 
-                                                                <input type="radio" class="btn-check" name="status2"
-                                                                    id="paid2">
+                                                                <input type="radio" class="btn-check"
+                                                                    name="challan2_status" id="paid2" value="paid">
                                                                 <label class="btn btn-outline-success"
                                                                     for="paid2">Paid</label>
                                                             </div>
@@ -1723,27 +1834,29 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- CHALLAN 3 -->
+                                                <!-- Challan 3 -->
                                                 <div class="border rounded p-2 mb-2 bg-white">
                                                     <label class="fw-bold small">Challan 3</label>
                                                     <div class="row g-2">
                                                         <div class="col-md-4">
-                                                            <input type="text" class="form-control text-uppercase"
+                                                            <input type="text" name="challan3_number"
+                                                                class="form-control text-uppercase"
                                                                 placeholder="Challan Number">
                                                         </div>
                                                         <div class="col-md-4">
-                                                            <input type="number" class="form-control"
-                                                                placeholder="Amount">
+                                                            <input type="number" name="challan3_amount"
+                                                                class="form-control" placeholder="Amount">
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="btn-group w-100 btn-group-sm">
-                                                                <input type="radio" class="btn-check" name="status3"
-                                                                    id="pen3" checked>
+                                                                <input type="radio" class="btn-check"
+                                                                    name="challan3_status" id="pen3" value="pending"
+                                                                    checked>
                                                                 <label class="btn btn-outline-danger"
                                                                     for="pen3">Pending</label>
 
-                                                                <input type="radio" class="btn-check" name="status3"
-                                                                    id="paid3">
+                                                                <input type="radio" class="btn-check"
+                                                                    name="challan3_status" id="paid3" value="paid">
                                                                 <label class="btn btn-outline-success"
                                                                     for="paid3">Paid</label>
                                                             </div>
@@ -1762,7 +1875,7 @@
                                             Sold Out</label>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" id="soldToggle"
-                                                style="width: 3em; height: 1.5em;">
+                                                name="sold_out" style="width: 3em; height: 1.5em;">
                                         </div>
                                     </div>
                                 </div>
@@ -1777,83 +1890,85 @@
                                     <div class="row g-3 mb-3">
                                         <div class="col-12 col-md-4">
                                             <label>Date</label>
-                                            <input type="date" class="form-control">
+                                            <input type="date" name="seller_date" class="form-control">
                                         </div>
 
                                         <div class="col-12 col-md-4">
                                             <label>Vehicle No</label>
-                                            <input type="text" class="form-control fw-bold text-uppercase"
-                                                placeholder="WB 00 AA 0000" value="WB ">
+                                            <input type="text" name="seller_vehicle_number"
+                                                class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000"
+                                                value="WB ">
                                         </div>
 
                                         <div class="col-12 col-md-4">
                                             <label>Bike Name</label>
-                                            <input type="text" class="form-control text-uppercase">
+                                            <input type="text" name="bike_name" class="form-control text-uppercase">
                                         </div>
 
                                         <div class="col-12 col-md-6">
                                             <label>Chassis No</label>
-                                            <input type="text" class="form-control text-uppercase">
+                                            <input type="text" name="chassis_number"
+                                                class="form-control text-uppercase">
                                         </div>
 
                                         <div class="col-12 col-md-6">
                                             <label>Engine No</label>
-                                            <input type="text" class="form-control text-uppercase">
+                                            <input type="text" name="engine_number" class="form-control text-uppercase">
                                         </div>
 
                                         <div class="col-12">
                                             <label>Seller Name</label>
-                                            <input type="text" class="form-control text-uppercase">
+                                            <input type="text" name="seller_name" class="form-control text-uppercase">
                                         </div>
 
                                         <div class="col-12">
                                             <label>Address</label>
-                                            <textarea class="form-control text-uppercase" rows="2"></textarea>
+                                            <textarea name="seller_address" class="form-control text-uppercase"
+                                                rows="2"></textarea>
                                         </div>
                                     </div>
 
                                     <!-- MOBILE NUMBERS -->
                                     <label class="mb-2">Mobile Numbers</label>
                                     <div class="row g-2 mb-3">
-                                        <div class="col-12"><input type="tel" class="form-control" placeholder="Mob 1">
-                                        </div>
-                                        <div class="col-12"><input type="tel" class="form-control" placeholder="Mob 2">
-                                        </div>
-                                        <div class="col-12"><input type="tel" class="form-control" placeholder="Mob 3">
-                                        </div>
+                                        <div class="col-12"><input type="tel" name="mobile1" class="form-control"
+                                                placeholder="Mob 1"></div>
+                                        <div class="col-12"><input type="tel" name="mobile2" class="form-control"
+                                                placeholder="Mob 2"></div>
+                                        <div class="col-12"><input type="tel" name="mobile3" class="form-control"
+                                                placeholder="Mob 3"></div>
                                     </div>
 
-                                    <!-- Responsive Document Uploads: 2 columns on mobile, 4 on desktop -->
+                                    <!-- DOCUMENT UPLOADS -->
                                     <div class="mb-3">
                                         <label class="mb-2">Purchaser Documents</label>
-
                                         <div class="row g-2">
                                             <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box"><span
-                                                        class="small text-muted fw-bold">Aadhar
-                                                        Front</span><img src=""><input type="file" accept="image/*"
-                                                        hidden>
+                                                <div class="photo-upload-box">
+                                                    <span class="small text-muted fw-bold">Aadhar Front</span>
+                                                    <img src="">
+                                                    <input type="file" name="aadhar_front" accept="image/*" hidden>
                                                 </div>
                                             </div>
                                             <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box"><span
-                                                        class="small text-muted fw-bold">Aadhar
-                                                        Back</span><img src=""><input type="file" accept="image/*"
-                                                        hidden>
+                                                <div class="photo-upload-box">
+                                                    <span class="small text-muted fw-bold">Aadhar Back</span>
+                                                    <img src="">
+                                                    <input type="file" name="aadhar_back" accept="image/*" hidden>
                                                 </div>
                                             </div>
                                             <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box"><span
-                                                        class="small text-muted fw-bold">Voter
-                                                        Front</span><img src=""><input type="file" accept="image/*"
-                                                        hidden>
+                                                <div class="photo-upload-box">
+                                                    <span class="small text-muted fw-bold">Voter Front</span>
+                                                    <img src="">
+                                                    <input type="file" name="voter_front" accept="image/*" hidden>
                                                 </div>
                                             </div>
                                             <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box"><span
-                                                        class="small text-muted fw-bold">Voter
-                                                        Back</span><img src=""><input type="file" accept="image/*"
-                                                        hidden>
+                                                <div class="photo-upload-box">
+                                                    <span class="small text-muted fw-bold">Voter Back</span>
+                                                    <img src="">
+                                                    <input type="file" name="voter_back" accept="image/*" hidden>
                                                 </div>
                                             </div>
                                         </div>
@@ -1862,90 +1977,69 @@
                                     <!-- PAPERS RECEIVED -->
                                     <div class="bg-light p-3 rounded-4 border mb-3">
                                         <label class="mb-2 fw-bold">Papers Received</label>
-
                                         <div class="d-flex flex-wrap gap-3">
-
-                                            <!-- RC -->
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="pr_rc"
-                                                    data-bs-toggle="collapse" data-bs-target="#rcUploadBox">
+                                                <input type="checkbox" name="papers_rc" class="form-check-input"
+                                                    id="pr_rc" data-bs-toggle="collapse" data-bs-target="#rcUploadBox">
                                                 <label class="fw-bold" for="pr_rc">RC</label>
                                             </div>
-
-                                            <!-- TAX -->
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="pr_tax">
+                                                <input type="checkbox" name="papers_tax" class="form-check-input"
+                                                    id="pr_tax">
                                                 <label class="fw-bold" for="pr_tax">Tax Token</label>
                                             </div>
-
-                                            <!-- INSURANCE -->
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="pr_ins">
+                                                <input type="checkbox" name="papers_insurance" class="form-check-input"
+                                                    id="pr_ins">
                                                 <label class="fw-bold" for="pr_ins">Insurance</label>
                                             </div>
-
-                                            <!-- PUCC -->
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="pr_puc">
+                                                <input type="checkbox" name="papers_pucc" class="form-check-input"
+                                                    id="pr_puc">
                                                 <label class="fw-bold" for="pr_puc">PUCC</label>
                                             </div>
-
-                                            <!-- NOC -->
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="pr_noc"
-                                                    data-bs-toggle="collapse" data-bs-target="#nocUploadBox">
+                                                <input type="checkbox" name="papers_noc" class="form-check-input"
+                                                    id="pr_noc" data-bs-toggle="collapse"
+                                                    data-bs-target="#nocUploadBox">
                                                 <label class="fw-bold" for="pr_noc">NOC</label>
                                             </div>
-
                                         </div>
 
-                                        <!-- RC UPLOAD PREVIEW BOX -->
+                                        <!-- RC UPLOAD -->
                                         <div class="collapse mt-3" id="rcUploadBox">
                                             <label class="fw-bold small">RC Upload</label>
-
                                             <div class="row g-2">
-
-                                                <!-- RC FRONT -->
                                                 <div class="col-6">
                                                     <div class="border rounded p-2 text-center bg-white">
-
                                                         <small class="fw-bold d-block mb-1" style="font-size:10px">RC
                                                             FRONT</small>
-                                                        <!-- Upload Input -->
-                                                        <input type="file" class="form-control form-control-sm mt-1">
-
+                                                        <input type="file" name="rc_front"
+                                                            class="form-control form-control-sm mt-1">
                                                     </div>
                                                 </div>
-
-                                                <!-- RC BACK -->
                                                 <div class="col-6">
                                                     <div class="border rounded p-2 text-center bg-white">
-
                                                         <small class="fw-bold d-block mb-1" style="font-size:10px">RC
                                                             BACK</small>
-                                                        <!-- Upload Input -->
-                                                        <input type="file" class="form-control form-control-sm mt-1">
-
+                                                        <input type="file" name="rc_back"
+                                                            class="form-control form-control-sm mt-1">
                                                     </div>
                                                 </div>
-
                                             </div>
                                         </div>
 
-
-
-                                        <!-- EXISTING NOC UPLOAD BOX BELOW (UNCHANGED) -->
+                                        <!-- NOC UPLOAD -->
                                         <div class="collapse mt-3" id="nocUploadBox">
                                             <label class="fw-bold small">NOC Status</label>
-
                                             <div class="d-flex justify-content-center">
                                                 <div class="btn-group w-75 btn-group-sm mb-3 mx-auto" role="group">
-                                                    <input type="radio" class="btn-check" name="noc_payment"
-                                                        id="noc_paid" checked>
+                                                    <input type="radio" name="noc_payment" class="btn-check"
+                                                        id="noc_paid" value="paid" checked>
                                                     <label class="btn btn-outline-success" for="noc_paid">Paid</label>
 
-                                                    <input type="radio" class="btn-check" name="noc_payment"
-                                                        id="noc_due">
+                                                    <input type="radio" name="noc_payment" class="btn-check"
+                                                        id="noc_due" value="due">
                                                     <label class="btn btn-outline-danger" for="noc_due">Due</label>
                                                 </div>
                                             </div>
@@ -1954,130 +2048,105 @@
                                                 <div class="col-6">
                                                     <div class="border rounded small-box text-center p-2">
                                                         <span class="small text-muted fw-bold">NOC Front</span>
-                                                        <input type="file" class="form-control form-control-sm mt-1">
+                                                        <input type="file" name="noc_front"
+                                                            class="form-control form-control-sm mt-1">
                                                     </div>
                                                 </div>
-
                                                 <div class="col-6">
                                                     <div class="border rounded small-box text-center p-2">
                                                         <span class="small text-muted fw-bold">NOC Back</span>
-                                                        <input type="file" class="form-control form-control-sm mt-1">
+                                                        <input type="file" name="noc_back"
+                                                            class="form-control form-control-sm mt-1">
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-
                                     </div>
-
-
 
                                     <!-- PAYMENT SECTION -->
                                     <div class="row g-3 mb-3">
                                         <div class="col-12 col-md-6">
-
                                             <label class="fw-bold mb-2">Payment Type</label>
-
                                             <div class="d-flex gap-2 mb-3">
-                                                <!-- CASH -->
-                                                <input type="radio" class="btn-check" name="pay_type" id="pay_cash"
-                                                    checked data-bs-toggle="collapse" data-bs-target="#cashBox">
+                                                <input type="radio" name="pay_type" class="btn-check" id="pay_cash"
+                                                    value="cash" checked data-bs-toggle="collapse"
+                                                    data-bs-target="#cashBox">
                                                 <label class="btn btn-outline-success" for="pay_cash">Cash</label>
 
-                                                <!-- ONLINE -->
-                                                <input type="radio" class="btn-check" name="pay_type" id="pay_online"
-                                                    data-bs-toggle="collapse" data-bs-target="#onlineBox">
+                                                <input type="radio" name="pay_type" class="btn-check" id="pay_online"
+                                                    value="online" data-bs-toggle="collapse"
+                                                    data-bs-target="#onlineBox">
                                                 <label class="btn btn-outline-primary" for="pay_online">Online</label>
                                             </div>
 
-                                            <!-- ACCORDION GROUP -->
                                             <div id="payAccordion">
-
-                                                <!-- CASH SECTION -->
                                                 <div id="cashBox" class="collapse show" data-bs-parent="#payAccordion">
                                                     <div class="p-3 bg-white border rounded shadow-sm">
-
-                                                        <!-- <label class="fw-bold small mb-1">Cash Amount</label>
-                                                    <input type="number" class="form-control form-control-sm mb-3"
-                                                        placeholder="Enter Cash Amount"> -->
-
-                                                        <!-- SINGLE PRICE FIELD -->
                                                         <label class="fw-bold small mb-1">Price</label>
                                                         <div class="input-group">
                                                             <span
                                                                 class="input-group-text bg-white border-end-0">₹</span>
-                                                            <input type="number"
+                                                            <input type="number" name="cash_price"
                                                                 class="form-control border-start-0 ps-0"
                                                                 placeholder="Enter Price">
                                                         </div>
-
                                                     </div>
                                                 </div>
 
-                                                <!-- ONLINE SECTION -->
                                                 <div id="onlineBox" class="collapse" data-bs-parent="#payAccordion">
                                                     <div class="p-3 bg-white border rounded shadow-sm">
-
                                                         <label class="fw-bold small mb-2">Online Method</label>
-
                                                         <div class="d-flex flex-wrap gap-3 mb-3">
                                                             <label class="form-check">
-                                                                <input type="radio" class="form-check-input"
-                                                                    name="online_method">
-                                                                <span class="form-check-label fw-bold">Google
-                                                                    Pay</span>
+                                                                <input type="radio" name="online_method"
+                                                                    class="form-check-input" value="gpay">
+                                                                <span class="form-check-label fw-bold">Google Pay</span>
                                                             </label>
-
                                                             <label class="form-check">
-                                                                <input type="radio" class="form-check-input"
-                                                                    name="online_method">
+                                                                <input type="radio" name="online_method"
+                                                                    class="form-check-input" value="paytm">
                                                                 <span class="form-check-label fw-bold">Paytm</span>
                                                             </label>
-
                                                             <label class="form-check">
-                                                                <input type="radio" class="form-check-input"
-                                                                    name="online_method">
+                                                                <input type="radio" name="online_method"
+                                                                    class="form-check-input" value="phonepe">
                                                                 <span class="form-check-label fw-bold">PhonePe</span>
                                                             </label>
-
                                                             <label class="form-check">
-                                                                <input type="radio" class="form-check-input"
-                                                                    name="online_method">
+                                                                <input type="radio" name="online_method"
+                                                                    class="form-check-input" value="bharatpe">
                                                                 <span class="form-check-label fw-bold">BharatPe</span>
                                                             </label>
                                                         </div>
 
-                                                        <input type="text"
+                                                        <input type="text" name="upi_ref"
                                                             class="form-control form-control-sm mb-3 text-uppercase"
                                                             placeholder="Transaction / UPI Reference ID">
 
-                                                        <!-- SAME SINGLE PRICE FIELD -->
                                                         <label class="fw-bold small mb-1">Price</label>
                                                         <div class="input-group">
                                                             <span
                                                                 class="input-group-text bg-white border-end-0">₹</span>
-                                                            <input type="number"
+                                                            <input type="number" name="online_price"
                                                                 class="form-control border-start-0 ps-0"
                                                                 placeholder="Enter Price">
                                                         </div>
                                                     </div>
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
-
 
                                     <!-- OTHER FIELDS -->
                                     <div class="row g-3 mb-3">
                                         <div class="col-12 col-md-6">
                                             <label>Exchange Showroom Name</label>
-                                            <input type="text" class="form-control text-uppercase"
+                                            <input type="text" name="showroom_name" class="form-control text-uppercase"
                                                 placeholder="Showroom Name">
                                         </div>
-
                                         <div class="col-12 col-md-6">
                                             <label>Staff Name</label>
-                                            <input type="text" class="form-control text-uppercase"
+                                            <input type="text" name="staff_name" class="form-control text-uppercase"
                                                 placeholder="Staff Name">
                                         </div>
                                     </div>
@@ -2085,30 +2154,21 @@
                                     <!-- PAYMENT CALCULATION -->
                                     <div class="bg-light p-3 rounded-4 border">
                                         <label class="text-primary">Payment Calculation</label>
-
                                         <div class="row g-2">
-                                            <div class="col-12">
-                                                <input type="number" class="form-control" placeholder="Total"
-                                                    id="s_total">
-                                            </div>
-
-                                            <div class="col-12">
-                                                <input type="number" class="form-control" placeholder="Paid"
-                                                    id="s_paid">
-                                            </div>
-
-                                            <div class="col-12">
-                                                <input type="number" class="form-control bg-white fw-bold text-danger"
-                                                    placeholder="Due" id="s_due" readonly>
-                                            </div>
-
-                                            <div class="col-12">
-                                                <input type="text" class="form-control d-none mt-1" id="s_due_reason"
-                                                    placeholder="Reason for due amount...">
-                                            </div>
+                                            <div class="col-12"><input type="number" name="total_amount"
+                                                    class="form-control" placeholder="Total" id="s_total"></div>
+                                            <div class="col-12"><input type="number" name="paid_amount"
+                                                    class="form-control" placeholder="Paid" id="s_paid"></div>
+                                            <div class="col-12"><input type="number" name="due_amount"
+                                                    class="form-control bg-white fw-bold text-danger" placeholder="Due"
+                                                    id="s_due" readonly></div>
+                                            <div class="col-12"><input type="text" name="due_reason"
+                                                    class="form-control d-none mt-1" id="s_due_reason"
+                                                    placeholder="Reason for due amount..."></div>
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
 
 
@@ -2116,49 +2176,58 @@
                             <div id="step-3" class="wizard-step d-none">
                                 <div class="card steps-id border-0 p-4 shadow-sm rounded-4">
                                     <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Purchaser Details</h6>
-                                    <!-- Responsive Form Fields: 6 columns on desktop, 12 on mobile -->
+
+                                    <!-- Purchaser Basic Info -->
                                     <div class="row g-3 mb-3">
-                                        <div class="col-12 col-md-6"><label>Date</label><input type="date"
-                                                class="form-control" value="2025-11-26">
+                                        <div class="col-12 col-md-6">
+                                            <label>Date</label>
+                                            <input type="date" name="purchaser_date" class="form-control"
+                                                value="2025-11-26">
                                         </div>
-                                        <div class="col-12 col-md-6"><label>Purchaser Name</label><input type="text"
-                                                class="form-control text-uppercase"></div>
-                                        <div class="col-12"><label>Address</label><textarea
-                                                class="form-control text-uppercase" rows="2"></textarea></div>
-                                        <div class="col-12 col-md-6"><label>Bike Name</label><input type="text"
-                                                class="form-control text-uppercase"></div>
-                                        <div class="col-12 col-md-6"><label>Vehicle No</label><input type="text"
+                                        <div class="col-12 col-md-6">
+                                            <label>Purchaser Name</label>
+                                            <input type="text" name="purchaser_name"
+                                                class="form-control text-uppercase">
+                                        </div>
+                                        <div class="col-12">
+                                            <label>Address</label>
+                                            <textarea name="purchaser_address" class="form-control text-uppercase"
+                                                rows="2"></textarea>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label>Bike Name</label>
+                                            <input type="text" name="purchaser_bike_name"
+                                                class="form-control text-uppercase">
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label>Vehicle No</label>
+                                            <input type="text" name="purchaser_vehicle_no"
                                                 class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000"
-                                                value="WB "></div>
+                                                value="WB ">
+                                        </div>
                                     </div>
 
-                                    <!-- Buyer Name -->
-                                    <!-- <div class="row g-3 mb-4">
-                                    <div class="col-12 col-md-6">
-                                        <label>Buyer Name</label>
-                                        <input type="text" class="form-control text-uppercase" placeholder="Buyer Name">
-                                    </div>
-                                </div> -->
-
-                                    <!-- Purchaser Paper Payment Fees Section -->
+                                    <!-- Purchaser Paper Payment Fees -->
                                     <div class="bg-light p-3 rounded-4 border mb-4">
-                                        <label class="text-dark mb-3 d-block"> Purchaser Paper Payment Fees </label>
+                                        <label class="text-dark mb-3 d-block">Purchaser Paper Payment Fees</label>
 
-                                        <!-- Name Transfer Payment (3 cols on desktop/md, 12 on mobile but input-group helps) -->
+                                        <!-- Name Transfer -->
                                         <div class="row g-2 align-items-end mb-3">
                                             <div class="col-12 col-md-4">
                                                 <label>Transfer Amount</label>
-                                                <input type="number" class="form-control" placeholder="Amount">
+                                                <input type="number" name="transfer_amount" class="form-control"
+                                                    placeholder="Amount">
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Date</label>
-                                                <input type="date" class="form-control" value="2025-11-26">
+                                                <input type="date" name="transfer_date" class="form-control"
+                                                    value="2025-11-26">
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Status</label>
-                                                <select class="form-select">
-                                                    <option>Paid</option>
-                                                    <option>Due</option>
+                                                <select name="transfer_status" class="form-select">
+                                                    <option value="paid">Paid</option>
+                                                    <option value="due">Due</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -2167,17 +2236,19 @@
                                         <div class="row g-2 align-items-end mb-3">
                                             <div class="col-12 col-md-4">
                                                 <label>HPA</label>
-                                                <input type="number" class="form-control" placeholder="Amount">
+                                                <input type="number" name="hpa_amount" class="form-control"
+                                                    placeholder="Amount">
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Date</label>
-                                                <input type="date" class="form-control" value="2025-11-26">
+                                                <input type="date" name="hpa_date" class="form-control"
+                                                    value="2025-11-26">
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Status</label>
-                                                <select class="form-select">
-                                                    <option>Paid</option>
-                                                    <option>Due</option>
+                                                <select name="hpa_status" class="form-select">
+                                                    <option value="paid">Paid</option>
+                                                    <option value="due">Due</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -2186,33 +2257,31 @@
                                         <div class="row g-2 align-items-end mb-3">
                                             <div class="col-12 col-md-4">
                                                 <label>HP</label>
-                                                <input type="number" class="form-control" placeholder="Amount">
+                                                <input type="number" name="hp_amount" class="form-control"
+                                                    placeholder="Amount">
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Date</label>
-                                                <input type="date" class="form-control" value="2025-11-26">
+                                                <input type="date" name="hp_date" class="form-control"
+                                                    value="2025-11-26">
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Status</label>
-                                                <select class="form-select">
-                                                    <option>Paid</option>
-                                                    <option>Due</option>
+                                                <select name="hp_status" class="form-select">
+                                                    <option value="paid">Paid</option>
+                                                    <option value="due">Due</option>
                                                 </select>
                                             </div>
                                         </div>
 
-                                        <!-- Insurance Column Added -->
+                                        <!-- Insurance -->
                                         <div class="row g-3 mb-3">
-
-                                            <!-- Insurance Name -->
                                             <div class="col-md-3">
                                                 <label class="fw-bold">Insurance Name</label>
-                                                <select class="form-control text-uppercase" required>
+                                                <select name="insurance_name" class="form-control text-uppercase"
+                                                    required>
                                                     <option value="">-- Select Insurance --</option>
-
-                                                    <!-- Your priority company ON TOP -->
                                                     <option value="Tata AIG Insurance">Tata AIG Insurance</option>
-                                                    <!-- Rest of the list -->
                                                     <option value="Bharti AXA">Bharti AXA</option>
                                                     <option value="Bajaj Allianz">Bajaj Allianz</option>
                                                     <option value="ICICI Lombard">ICICI Lombard</option>
@@ -2231,8 +2300,8 @@
                                                     <option value="HDFC ERGO">HDFC ERGO</option>
                                                     <option value="ECGC">ECGC</option>
                                                     <option value="Agriculture Insurance Company of India (AIC)">
-                                                        Agriculture Insurance Company of India (AIC)
-                                                    </option>
+                                                        Agriculture
+                                                        Insurance Company of India (AIC)</option>
                                                     <option value="Star Health Insurance">Star Health Insurance</option>
                                                     <option value="Future Generali">Future Generali</option>
                                                     <option value="Universal Sompo">Universal Sompo</option>
@@ -2251,164 +2320,217 @@
                                                     <option value="Manipal Cigna">Manipal Cigna</option>
                                                     <option value="Kotak General Insurance">Kotak General Insurance
                                                     </option>
-                                                    <option value="Aditya Birla Capital Health Insurance">
-                                                        Aditya Birla Capital Health Insurance
-                                                    </option>
+                                                    <option value="Aditya Birla Capital Health Insurance">Aditya Birla
+                                                        Capital Health Insurance</option>
                                                     <option value="Digit Insurance">Digit Insurance</option>
                                                 </select>
                                             </div>
 
-
-                                            <!-- Payment Status -->
                                             <div class="col-md-3">
                                                 <label class="fw-bold">Payment Status</label>
-                                                <select class="form-control" required>
+                                                <select name="insurance_status" class="form-control" required>
                                                     <option value="">-- Select Status --</option>
                                                     <option value="paid">Paid</option>
                                                     <option value="due">Due</option>
                                                 </select>
                                             </div>
 
-                                            <!-- Amount -->
                                             <div class="col-md-3">
                                                 <label class="fw-bold">Amount</label>
-                                                <input type="number" class="form-control" placeholder="Enter Amount"
-                                                    required>
+                                                <input type="number" name="insurance_amount" class="form-control"
+                                                    placeholder="Enter Amount" required>
                                             </div>
 
-                                            <!-- Issue Date -->
                                             <div class="col-md-3">
                                                 <label class="fw-bold">Issue Date</label>
-                                                <input type="date" class="form-control" id="issueDate"
+                                                <input type="date" name="insurance_issue_date" class="form-control"
                                                     value="2025-11-26" required>
                                             </div>
 
-                                            <!-- Expiry Date -->
                                             <div class="col-md-3">
                                                 <label class="fw-bold">Expiry Date</label>
-                                                <input type="date" class="form-control" id="expiryDate" readonly
-                                                    required>
+                                                <input type="date" name="insurance_expiry_date" class="form-control"
+                                                    readonly required>
                                             </div>
 
-                                            <!-- Validity text -->
-                                            <span class="fw-bold text-primary">Validity:<span id="expiryText">
-                                                    --</span></span>
-
+                                            <span class="fw-bold text-primary">Validity:<span
+                                                    id="expiryText">--</span></span>
                                         </div>
                                     </div>
 
+                                    <!-- Price Breakdown -->
                                     <div class="bg-light p-3 rounded-4 border mb-3">
                                         <label class="mb-2">Price Breakdown</label>
-                                        <!-- Responsive Price Breakdown: 3 columns on all screens -->
                                         <div class="row g-2 mb-3">
-                                            <div class="col-12"><input type="number" id="p_total" class="form-control"
-                                                    placeholder="Total"></div>
-                                            <div class="col-12"><input type="number" id="p_paid" class="form-control"
-                                                    placeholder="Paid"></div>
-                                            <div class="col-12"><input type="number" id="p_due"
-                                                    class="form-control bg-white" placeholder="Due" readonly></div>
+                                            <div class="col-12">
+                                                <input type="number" name="total_price" id="p_total"
+                                                    class="form-control" placeholder="Total">
+                                            </div>
+                                            <div class="col-12">
+                                                <input type="number" name="paid_price" id="p_paid" class="form-control"
+                                                    placeholder="Paid">
+                                            </div>
+                                            <div class="col-12">
+                                                <input type="number" name="due_price" id="p_due"
+                                                    class="form-control bg-white" placeholder="Due" readonly>
+                                            </div>
                                         </div>
+
                                         <div class="d-flex gap-3 mb-2">
-                                            <div class="form-check"><input class="form-check-input" type="radio"
-                                                    name="p_mode" id="pm_cash" checked><label class="fw-bold"
-                                                    for="pm_cash">Cash</label></div>
-                                            <div class="form-check"><input class="form-check-input" type="radio"
-                                                    name="p_mode" id="pm_fin"><label class="fw-bold"
-                                                    for="pm_fin">Finance</label></div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="payment_mode"
+                                                    id="rad_cash" value="cash" checked>
+                                                <label class="fw-bold" for="rad_cash" data-bs-toggle="collapse"
+                                                    data-bs-target="#sec_cash" role="button">
+                                                    Cash
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="payment_mode"
+                                                    id="rad_fin" value="finance">
+                                                <label class="fw-bold" for="rad_fin" data-bs-toggle="collapse"
+                                                    data-bs-target="#sec_finance" role="button">
+                                                    Finance
+                                                </label>
+                                            </div>
                                         </div>
-                                        <div id="hpa_sec" class="d-none border-top pt-2 mt-2">
-                                            <div class="row g-2">
-                                                <div class="col-12"><label>HPA With</label><input type="text"
-                                                        class="form-control text-uppercase"
-                                                        placeholder="Finance Company">
-                                                </div>
-                                                <div class="col-12"><label>Disburse Amount</label>
-                                                    <div class="input-group">
-                                                        <input type="number" class="form-control" placeholder="Amt">
-                                                        <select class="form-select" style="max-width:100px;">
-                                                            <option>Paid</option>
-                                                            <option>Due</option>
-                                                        </select>
+
+                                        <div id="payment_details_group">
+                                            <div id="sec_cash" class="collapse show border-top pt-2 mt-2"
+                                                data-bs-parent="#payment_details_group">
+                                                <div class="row g-2">
+                                                    <div class="col-12">
+                                                        <label>Amount</label>
+                                                        <input type="number" name="cash_amount" class="form-control"
+                                                            placeholder="Enter Amount">
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label>Mobile Number 1</label>
+                                                        <input type="tel" name="cash_mobile1" class="form-control"
+                                                            placeholder="Enter Mobile Number">
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label>Mobile Number 2</label>
+                                                        <input type="tel" name="cash_mobile2" class="form-control"
+                                                            placeholder="Enter Mobile Number">
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label>Mobile Number 3</label>
+                                                        <input type="tel" name="cash_mobile3" class="form-control"
+                                                            placeholder="Enter Mobile Number">
                                                     </div>
                                                 </div>
-                                                <div class="col-12"><label>Mobile Number 1</label><input type="tel"
-                                                        class="form-control" placeholder="Mobile 1"></div>
-                                                <div class="col-12"><label>Mobile Number 2</label><input type="tel"
-                                                        class="form-control" placeholder="Mobile 2"></div>
-                                                <div class="col-12"><label>Mobile Number 3</label><input type="tel"
-                                                        class="form-control" placeholder="Mobile 3"></div>
+                                            </div>
+
+                                            <div id="sec_finance" class="collapse border-top pt-2 mt-2"
+                                                data-bs-parent="#payment_details_group">
+                                                <div class="row g-2">
+                                                    <div class="col-12">
+                                                        <label>HPA With</label>
+                                                        <input type="text" name="finance_company"
+                                                            class="form-control text-uppercase"
+                                                            placeholder="Finance Company">
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label>Disburse Amount</label>
+                                                        <div class="input-group">
+                                                            <input type="number" name="finance_disburse_amount"
+                                                                class="form-control" placeholder="Amt">
+                                                            <select name="finance_disburse_status" class="form-select"
+                                                                style="max-width:100px;">
+                                                                <option value="paid">Paid</option>
+                                                                <option value="due">Due</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label>Mobile Number 1</label>
+                                                        <input type="tel" name="finance_mobile1" class="form-control"
+                                                            placeholder="Mobile 1">
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label>Mobile Number 2</label>
+                                                        <input type="tel" name="finance_mobile2" class="form-control"
+                                                            placeholder="Mobile 2">
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label>Mobile Number 3</label>
+                                                        <input type="tel" name="finance_mobile3" class="form-control"
+                                                            placeholder="Mobile 3">
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
+                                    <!-- Purchaser Documents -->
                                     <div class="mb-3">
                                         <label class="mb-2">Purchaser Documents</label>
-                                        <!-- Responsive Document Uploads: 2 columns on mobile, 4 on desktop -->
                                         <div class="row g-2">
                                             <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box"><span
-                                                        class="small text-muted fw-bold">Aadhar
-                                                        Front</span><img src=""><input type="file" accept="image/*"
-                                                        hidden>
+                                                <div class="photo-upload-box">
+                                                    <span class="small text-muted fw-bold">Aadhar Front</span>
+                                                    <img src="">
+                                                    <input type="file" name="doc_aadhar_front" accept="image/*" hidden>
                                                 </div>
                                             </div>
                                             <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box"><span
-                                                        class="small text-muted fw-bold">Aadhar
-                                                        Back</span><img src=""><input type="file" accept="image/*"
-                                                        hidden>
+                                                <div class="photo-upload-box">
+                                                    <span class="small text-muted fw-bold">Aadhar Back</span>
+                                                    <img src="">
+                                                    <input type="file" name="doc_aadhar_back" accept="image/*" hidden>
                                                 </div>
                                             </div>
                                             <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box"><span
-                                                        class="small text-muted fw-bold">Voter
-                                                        Front</span><img src=""><input type="file" accept="image/*"
-                                                        hidden>
+                                                <div class="photo-upload-box">
+                                                    <span class="small text-muted fw-bold">Voter Front</span>
+                                                    <img src="">
+                                                    <input type="file" name="doc_voter_front" accept="image/*" hidden>
                                                 </div>
                                             </div>
                                             <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box"><span
-                                                        class="small text-muted fw-bold">Voter
-                                                        Back</span><img src=""><input type="file" accept="image/*"
-                                                        hidden>
+                                                <div class="photo-upload-box">
+                                                    <span class="small text-muted fw-bold">Voter Back</span>
+                                                    <img src="">
+                                                    <input type="file" name="doc_voter_back" accept="image/*" hidden>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="all_paid">
+                                        <input class="form-check-input" type="checkbox" name="all_paid" id="all_paid">
                                         <label class="form-check-label fw-bold text-success" for="all_paid">Payment All
                                             Paid</label>
                                     </div>
                                 </div>
+
                             </div>
 
                             <!-- STEP 4: TRANSFER -->
                             <div id="step-4" class="wizard-step d-none">
-                                <div class="card steps-id border-0  shadow-sm rounded-4">
+                                <div class="card steps-id border-0 shadow-sm rounded-4">
                                     <h6 class="fw-bold text-primary m-4 mb-3 text-uppercase ls-1">Ownership Transfer
                                     </h6>
 
                                     <div class="p-3 border rounded-4 mb-4">
                                         <!-- Name Transfer -->
-                                        <!-- Responsive Transfer Details: 12 columns on mobile, 4 on desktop -->
                                         <div class="row g-3 mb-3">
                                             <div class="col-12 col-md-4">
                                                 <label>Name Transfer</label>
                                                 <input type="text" class="form-control text-uppercase"
-                                                    placeholder="Enter Name">
+                                                    placeholder="Enter Name" name="ot_name_transfer">
                                             </div>
 
                                             <div class="col-12 col-md-4">
                                                 <label>Vehicle Number</label>
                                                 <input type="text" class="form-control fw-bold text-uppercase"
-                                                    placeholder="WB 00 AA 0000" value="WB ">
+                                                    placeholder="WB 00 AA 0000" value="WB " name="ot_vehicle_number">
                                             </div>
 
                                             <div class="col-12 col-md-4">
                                                 <label>RTO Name</label>
-                                                <select class="form-select">
+                                                <select class="form-select" name="ot_rto_name">
                                                     <option>Bankura</option>
                                                     <option>Bishnupur</option>
                                                     <option>Durgapur</option>
@@ -2425,7 +2547,7 @@
                                             <div class="col-12 col-md-6">
                                                 <label>Vendor Name</label>
                                                 <input type="text" class="form-control text-uppercase"
-                                                    placeholder="Vendor Name">
+                                                    placeholder="Vendor Name" name="ot_vendor_name">
                                             </div>
                                         </div>
 
@@ -2433,19 +2555,21 @@
                                         <div class="bg-light p-3 rounded-4 border mb-4">
                                             <label class="text-dark mb-3 d-block">Vendor Payment</label>
 
-                                            <!-- Name Transfer Payment (3 cols on desktop/md, 12 on mobile but input-group helps) -->
+                                            <!-- Transfer Payment -->
                                             <div class="row g-2 align-items-end mb-3">
                                                 <div class="col-12 col-md-4">
                                                     <label>Transfer Amount</label>
-                                                    <input type="number" class="form-control" placeholder="Amount">
+                                                    <input type="number" class="form-control" placeholder="Amount"
+                                                        name="ot_transfer_amount">
                                                 </div>
                                                 <div class="col-12 col-md-4">
                                                     <label>Date</label>
-                                                    <input type="date" class="form-control" value="2025-11-26">
+                                                    <input type="date" class="form-control" value="2025-11-26"
+                                                        name="ot_transfer_date">
                                                 </div>
                                                 <div class="col-12 col-md-4">
                                                     <label>Status</label>
-                                                    <select class="form-select">
+                                                    <select class="form-select" name="ot_transfer_status">
                                                         <option>Paid</option>
                                                         <option>Due</option>
                                                     </select>
@@ -2456,15 +2580,17 @@
                                             <div class="row g-2 align-items-end mb-3">
                                                 <div class="col-12 col-md-4">
                                                     <label>HPA</label>
-                                                    <input type="number" class="form-control" placeholder="Amount">
+                                                    <input type="number" class="form-control" placeholder="Amount"
+                                                        name="ot_hpa_amount">
                                                 </div>
                                                 <div class="col-12 col-md-4">
                                                     <label>Date</label>
-                                                    <input type="date" class="form-control" value="2025-11-26">
+                                                    <input type="date" class="form-control" value="2025-11-26"
+                                                        name="ot_hpa_date">
                                                 </div>
                                                 <div class="col-12 col-md-4">
                                                     <label>Status</label>
-                                                    <select class="form-select">
+                                                    <select class="form-select" name="ot_hpa_status">
                                                         <option>Paid</option>
                                                         <option>Due</option>
                                                     </select>
@@ -2475,33 +2601,31 @@
                                             <div class="row g-2 align-items-end mb-3">
                                                 <div class="col-12 col-md-4">
                                                     <label>HP</label>
-                                                    <input type="number" class="form-control" placeholder="Amount">
+                                                    <input type="number" class="form-control" placeholder="Amount"
+                                                        name="ot_hp_amount">
                                                 </div>
                                                 <div class="col-12 col-md-4">
                                                     <label>Date</label>
-                                                    <input type="date" class="form-control" value="2025-11-26">
+                                                    <input type="date" class="form-control" value="2025-11-26"
+                                                        name="ot_hp_date">
                                                 </div>
                                                 <div class="col-12 col-md-4">
                                                     <label>Status</label>
-                                                    <select class="form-select">
+                                                    <select class="form-select" name="ot_hp_status">
                                                         <option>Paid</option>
                                                         <option>Due</option>
                                                     </select>
                                                 </div>
                                             </div>
 
-
+                                            <!-- Insurance -->
                                             <div class="row g-3 mb-3">
-
-                                                <!-- Insurance Name -->
                                                 <div class="col-md-3">
                                                     <label class="fw-bold">Insurance Name</label>
-                                                    <select class="form-control text-uppercase" required>
+                                                    <select class="form-control text-uppercase" required
+                                                        name="ot_insurance_name">
                                                         <option value="">-- Select Insurance --</option>
-
-                                                        <!-- Your priority company ON TOP -->
                                                         <option value="Tata AIG Insurance">Tata AIG Insurance</option>
-                                                        <!-- Rest of the list -->
                                                         <option value="Bharti AXA">Bharti AXA</option>
                                                         <option value="Bajaj Allianz">Bajaj Allianz</option>
                                                         <option value="ICICI Lombard">ICICI Lombard</option>
@@ -2512,8 +2636,7 @@
                                                         <option value="United India Insurance">United India Insurance
                                                         </option>
                                                         <option value="Reliance General Insurance">Reliance General
-                                                            Insurance
-                                                        </option>
+                                                            Insurance</option>
                                                         <option value="Royal Sundaram Insurance">Royal Sundaram
                                                             Insurance
                                                         </option>
@@ -2521,8 +2644,7 @@
                                                         <option value="HDFC ERGO">HDFC ERGO</option>
                                                         <option value="ECGC">ECGC</option>
                                                         <option value="Agriculture Insurance Company of India (AIC)">
-                                                            Agriculture Insurance Company of India (AIC)
-                                                        </option>
+                                                            Agriculture Insurance Company of India (AIC)</option>
                                                         <option value="Star Health Insurance">Star Health Insurance
                                                         </option>
                                                         <option value="Future Generali">Future Generali</option>
@@ -2534,8 +2656,7 @@
                                                         <option value="SBI General Insurance">SBI General Insurance
                                                         </option>
                                                         <option value="Niva Bupa Health Insurance">Niva Bupa Health
-                                                            Insurance
-                                                        </option>
+                                                            Insurance</option>
                                                         <option value="L&T Insurance">L&T Insurance</option>
                                                         <option value="Care Health Insurance">Care Health Insurance
                                                         </option>
@@ -2546,72 +2667,63 @@
                                                         <option value="Manipal Cigna">Manipal Cigna</option>
                                                         <option value="Kotak General Insurance">Kotak General Insurance
                                                         </option>
-                                                        <option value="Aditya Birla Capital Health Insurance">
-                                                            Aditya Birla Capital Health Insurance
-                                                        </option>
+                                                        <option value="Aditya Birla Capital Health Insurance">Aditya
+                                                            Birla
+                                                            Capital Health Insurance</option>
                                                         <option value="Digit Insurance">Digit Insurance</option>
                                                     </select>
                                                 </div>
 
-
-                                                <!-- Payment Status -->
                                                 <div class="col-md-3">
                                                     <label class="fw-bold">Payment Status</label>
-                                                    <select class="form-control" required>
+                                                    <select class="form-control" required
+                                                        name="ot_insurance_payment_status">
                                                         <option value="">-- Select Status --</option>
                                                         <option value="paid">Paid</option>
                                                         <option value="due">Due</option>
                                                     </select>
                                                 </div>
 
-                                                <!-- Amount -->
                                                 <div class="col-md-3">
                                                     <label class="fw-bold">Amount</label>
                                                     <input type="number" class="form-control" placeholder="Enter Amount"
-                                                        required>
+                                                        required name="ot_insurance_amount">
                                                 </div>
 
-                                                <!-- Start Date -->
                                                 <div class="col-md-3">
                                                     <label class="fw-bold">Start Date</label>
                                                     <input type="date" class="form-control" id="startDate"
-                                                        value="2025-11-26" required>
+                                                        value="2025-11-26" required name="ot_insurance_start_date">
                                                 </div>
 
-                                                <!-- End Date -->
                                                 <div class="col-md-3">
                                                     <label class="fw-bold">End Date</label>
                                                     <input type="date" class="form-control" id="endDate" readonly
-                                                        required>
+                                                        required name="ot_insurance_end_date">
                                                 </div>
 
-                                                <!-- Validity Text -->
-                                                <span class="fw-bold text-primary">Duration:<span id="durationText">
-                                                        --</span></span>
-
+                                                <span class="fw-bold text-primary">Duration:<span
+                                                        id="durationText">--</span></span>
                                             </div>
-
                                         </div>
 
                                         <!-- Purchaser & Seller Sign -->
                                         <div class="row g-4">
-
                                             <div class="col-12 col-md-6">
                                                 <div class="border rounded-3">
                                                     <label class="form-label fw-bold">Purchaser Sign</label>
-
                                                     <div class="row g-3">
                                                         <div class="col-6">
                                                             <label class="form-label small">Status</label>
-                                                            <select class="form-select">
+                                                            <select class="form-select" name="ot_purchaser_sign_status">
                                                                 <option>Yes</option>
                                                                 <option>No</option>
                                                             </select>
                                                         </div>
-
                                                         <div class="col-6">
                                                             <label class="form-label small">Date</label>
-                                                            <input type="date" class="form-control" value="2025-11-26">
+                                                            <input type="date" class="form-control" value="2025-11-26"
+                                                                name="ot_purchaser_sign_date">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -2620,41 +2732,58 @@
                                             <div class="col-12 col-md-6">
                                                 <div class="border rounded-3">
                                                     <label class="form-label fw-bold">Seller Sign</label>
-
                                                     <div class="row g-3">
                                                         <div class="col-6">
                                                             <label class="form-label small">Status</label>
-                                                            <select class="form-select">
+                                                            <select class="form-select" name="ot_seller_sign_status">
                                                                 <option>Yes</option>
                                                                 <option>No</option>
                                                             </select>
                                                         </div>
-
                                                         <div class="col-6">
                                                             <label class="form-label small">Date</label>
-                                                            <input type="date" class="form-control" value="2025-11-26">
+                                                            <input type="date" class="form-control" value="2025-11-26"
+                                                                name="ot_seller_sign_date">
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-
                                         </div>
-
                                     </div>
-
-
                                 </div>
                             </div>
 
+
+                            <!-- your form fields go here -->
                             <div class="modal-footer d-flex align-items-center">
-                                <button type="submit" class="btn btn-light border fw-bold shadow-sm text-primary"
-                                    id="saveStepBtn"><i class="ph-bold ph-floppy-disk me-1"></i> Save</button>
-
-                                <button type="submit" class="btn btn-success px-4 ms-auto text-white shadow-lg"
-                                    id="finishBtn" style="display:none;">Finish</button>
+                                <?php if ($current_step < 4): ?>
+                                    <button type="submit" class="btn btn-primary fw-bold shadow-sm px-4 ms-auto">
+                                        <i class="ph-bold ph-floppy-disk me-1"></i> Save & Next Step
+                                    </button>
+                                <?php else: ?>
+                                    <button type="submit" class="btn btn-success px-4 ms-auto text-white shadow-lg">
+                                        Finish <i class="ph-bold ph-check-circle ms-1"></i>
+                                    </button>
+                                <?php endif; ?>
                             </div>
-
                         </form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     </div>
 
                     <div class="modal-footer d-flex align-items-center">
@@ -2663,6 +2792,7 @@
                         <button type="button" class="btn btn-primary px-4 ms-auto shadow-lg" id="nextBtn">Next</button>
                     </div>
                 </div>
+
             </div>
         </div>
 
