@@ -28,7 +28,8 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
     <!-- Page Title -->
     <title>Chowdhury Automobile | Manager</title>
-
+    <!-- Favicon Icon -->
+    <link rel="icon" type="image/png" class="border-5 rounded-5" href="../images/logo.jpeg">
     <!-- ==================== Stylesheets ==================== -->
 
     <!-- Bootstrap 5 CSS -->
@@ -73,7 +74,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
 
 
-    
+
     <!-- DASHBOARD SECTION -->
     <section id="dashboard-section" class="pb-5">
         <!-- HEADER / NAVIGATION BAR -->
@@ -229,11 +230,6 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
 
 
-
-
-
-
-
     <!-- ADD vechical form -->
     <div class="modal fade" id="dealModal" data-bs-backdrop="static" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
@@ -297,6 +293,15 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                 </div>
 
                 <div class="modal-body">
+
+
+
+
+
+
+
+
+                
                     <form action="welcome.php" id="dealForm" method="POST" class="app-form">
 
                         <!-- STEP 1: VEHICLE -->
@@ -931,14 +936,6 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                             value="WB "></div>
                                 </div>
 
-                                <!-- Buyer Name -->
-                                <!-- <div class="row g-3 mb-4">
-                                    <div class="col-12 col-md-6">
-                                        <label>Buyer Name</label>
-                                        <input type="text" class="form-control text-uppercase" placeholder="Buyer Name">
-                                    </div>
-                                </div> -->
-
                                 <!-- Purchaser Paper Payment Fees Section -->
                                 <div class="bg-light p-3 rounded-4 border mb-4">
                                     <label class="text-dark mb-3 d-block"> Purchaser Paper Payment Fees </label>
@@ -1093,7 +1090,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
                                 <div class="bg-light p-3 rounded-4 border mb-3">
                                     <label class="mb-2">Price Breakdown</label>
-                                    <!-- Responsive Price Breakdown: 3 columns on all screens -->
+
                                     <div class="row g-2 mb-3">
                                         <div class="col-12"><input type="number" id="p_total" class="form-control"
                                                 placeholder="Total"></div>
@@ -1102,35 +1099,80 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                         <div class="col-12"><input type="number" id="p_due"
                                                 class="form-control bg-white" placeholder="Due" readonly></div>
                                     </div>
+
                                     <div class="d-flex gap-3 mb-2">
-                                        <div class="form-check"><input class="form-check-input" type="radio"
-                                                name="p_mode" id="pm_cash" checked><label class="fw-bold"
-                                                for="pm_cash">Cash</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio"
-                                                name="p_mode" id="pm_fin"><label class="fw-bold"
-                                                for="pm_fin">Finance</label></div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="p_mode" id="rad_cash"
+                                                checked>
+                                            <label class="fw-bold" for="rad_cash" data-bs-toggle="collapse"
+                                                data-bs-target="#sec_cash" role="button">
+                                                Cash
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="p_mode" id="rad_fin">
+                                            <label class="fw-bold" for="rad_fin" data-bs-toggle="collapse"
+                                                data-bs-target="#sec_finance" role="button">
+                                                Finance
+                                            </label>
+                                        </div>
                                     </div>
-                                    <div id="hpa_sec" class="d-none border-top pt-2 mt-2">
-                                        <div class="row g-2">
-                                            <div class="col-12"><label>HPA With</label><input type="text"
-                                                    class="form-control text-uppercase" placeholder="Finance Company">
-                                            </div>
-                                            <div class="col-12"><label>Disburse Amount</label>
-                                                <div class="input-group">
-                                                    <input type="number" class="form-control" placeholder="Amt">
-                                                    <select class="form-select" style="max-width:100px;">
-                                                        <option>Paid</option>
-                                                        <option>Due</option>
-                                                    </select>
+
+                                    <div id="payment_details_group">
+
+                                        <div id="sec_cash" class="collapse show border-top pt-2 mt-2"
+                                            data-bs-parent="#payment_details_group">
+                                            <div class="row g-2">
+                                                <div class="col-12">
+                                                    <label>Amount</label>
+                                                    <input type="number" class="form-control"
+                                                        placeholder="Enter Amount">
+                                                </div>
+                                                <div class="col-12">
+                                                    <label>Mobile Number 1</label>
+                                                    <input type="tel" class="form-control"
+                                                        placeholder="Enter Mobile Number">
+                                                </div>
+                                                <div class="col-12">
+                                                    <label>Mobile Number 2</label>
+                                                    <input type="tel" class="form-control"
+                                                        placeholder="Enter Mobile Number">
+                                                </div>
+                                                <div class="col-12">
+                                                    <label>Mobile Number 3</label>
+                                                    <input type="tel" class="form-control"
+                                                        placeholder="Enter Mobile Number">
                                                 </div>
                                             </div>
-                                            <div class="col-12"><label>Mobile Number 1</label><input type="tel"
-                                                    class="form-control" placeholder="Mobile 1"></div>
-                                            <div class="col-12"><label>Mobile Number 2</label><input type="tel"
-                                                    class="form-control" placeholder="Mobile 2"></div>
-                                            <div class="col-12"><label>Mobile Number 3</label><input type="tel"
-                                                    class="form-control" placeholder="Mobile 3"></div>
                                         </div>
+
+                                        <div id="sec_finance" class="collapse border-top pt-2 mt-2"
+                                            data-bs-parent="#payment_details_group">
+                                            <div class="row g-2">
+                                                <div class="col-12">
+                                                    <label>HPA With</label>
+                                                    <input type="text" class="form-control text-uppercase"
+                                                        placeholder="Finance Company">
+                                                </div>
+                                                <div class="col-12">
+                                                    <label>Disburse Amount</label>
+                                                    <div class="input-group">
+                                                        <input type="number" class="form-control" placeholder="Amt">
+                                                        <select class="form-select" style="max-width:100px;">
+                                                            <option>Paid</option>
+                                                            <option>Due</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12"><label>Mobile Number 1</label><input type="tel"
+                                                        class="form-control" placeholder="Mobile 1"></div>
+                                                <div class="col-12"><label>Mobile Number 2</label><input type="tel"
+                                                        class="form-control" placeholder="Mobile 2"></div>
+                                                <div class="col-12"><label>Mobile Number 3</label><input type="tel"
+                                                        class="form-control" placeholder="Mobile 3"></div>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
 
@@ -1423,6 +1465,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                             </div>
                         </div>
 
+
                         <div class="modal-footer d-flex align-items-center">
                             <button type="submit" class="btn btn-light border fw-bold shadow-sm text-primary"
                                 id="saveStepBtn"><i class="ph-bold ph-floppy-disk me-1"></i> Save</button>
@@ -1430,8 +1473,24 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                             <button type="submit" class="btn btn-success px-4 ms-auto text-white shadow-lg"
                                 id="finishBtn" style="display:none;">Finish</button>
                         </div>
-
                     </form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 </div>
 
                 <div class="modal-footer d-flex align-items-center">

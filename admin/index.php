@@ -9,7 +9,8 @@
 
     <!-- Page Title -->
     <title>Chowdhury Automobile | Manager</title>
-
+    <!-- Favicon Icon -->
+    <link rel="icon" type="image/png" class="border-5 rounded-5" href="../images/logo.jpeg">
     <!-- ==================== Stylesheets ==================== -->
 
     <!-- Bootstrap 5 CSS -->
