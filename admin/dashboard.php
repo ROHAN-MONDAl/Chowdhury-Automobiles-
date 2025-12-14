@@ -282,7 +282,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
                         <input type="hidden" name="current_step" value="<?php echo $current_step; ?>">
 
-                        
+
                         <!-- STEP 1: VEHICLE -->
                         <div id="step-1" class="wizard-step">
                             <div class="card steps-id p-4 border-0 shadow-sm position-relative sold-wrapper rounded-4">
@@ -344,18 +344,15 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label class="fw-bold">Name</label>
-                                            <input type="text" id="nameField" name="name" class="form-control"
-                                                placeholder="Enter Name">
+                                            <input type="text" id="nameField" name="name" class="form-control" placeholder="Enter Name">
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label>Vehicle Number</label>
-                                            <input type="text" name="vehicle_number"
-                                                class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000" value="WB ">
+                                            <input type="text" name="vehicle_number" class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000" value="WB ">
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label>Register Date</label>
-                                            <input type="date" name="register_date" class="form-control"
-                                                value="2025-11-26">
+                                            <input type="date" name="register_date" class="form-control" value="2025-11-26">
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label>Owner Serial</label>
@@ -369,8 +366,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label>Chassis Number</label>
-                                            <input type="text" name="chassis_number"
-                                                class="form-control text-uppercase">
+                                            <input type="text" name="chassis_number" class="form-control text-uppercase">
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label>Engine Number</label>
@@ -382,14 +378,10 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                         <div class="col-12 col-md-6">
                                             <label class="fw-bold mb-2">Payment Type</label>
                                             <div class="d-flex gap-2 mb-3">
-                                                <input type="radio" class="btn-check" name="payment_type" id="sp_cash"
-                                                    value="cash" checked data-bs-toggle="collapse"
-                                                    data-bs-target="#cashBox" aria-controls="cashBox">
+                                                <input type="radio" class="btn-check" name="payment_type" id="sp_cash" value="Cash" checked data-bs-toggle="collapse" data-bs-target="#cashBox" aria-controls="cashBox">
                                                 <label class="btn btn-outline-success" for="sp_cash">Cash</label>
 
-                                                <input type="radio" class="btn-check" name="payment_type" id="sp_online"
-                                                    value="online" data-bs-toggle="collapse" data-bs-target="#onlineBox"
-                                                    aria-controls="onlineBox">
+                                                <input type="radio" class="btn-check" name="payment_type" id="sp_online" value="Online" data-bs-toggle="collapse" data-bs-target="#onlineBox" aria-controls="onlineBox">
                                                 <label class="btn btn-outline-primary" for="sp_online">Online</label>
                                             </div>
 
@@ -397,9 +389,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                 <div id="cashBox" class="collapse show" data-bs-parent="#payBoxes">
                                                     <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
                                                         <label class="fw-bold small mb-1">Bike Price</label>
-                                                        <input type="number" name="cash_price"
-                                                            class="form-control form-control-sm mb-3"
-                                                            placeholder="Enter Amount">
+                                                        <input type="number" name="cash_price" class="form-control form-control-sm mb-3" placeholder="Enter Amount">
                                                     </div>
                                                 </div>
 
@@ -408,45 +398,29 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                         <label class="fw-bold small mb-2">Select Online Method</label>
                                                         <div class="d-flex flex-wrap gap-3 mb-2">
                                                             <div class="form-check">
-                                                                <input type="radio" class="form-check-input"
-                                                                    name="online_method" id="om_gpay" value="gpay">
-                                                                <label class="form-check-label small fw-bold"
-                                                                    for="om_gpay">Google
-                                                                    Pay</label>
+                                                                <input type="radio" class="form-check-input" name="online_method" id="om_gpay" value="Google Pay">
+                                                                <label class="form-check-label small fw-bold" for="om_gpay">Google Pay</label>
                                                             </div>
                                                             <div class="form-check">
-                                                                <input type="radio" class="form-check-input"
-                                                                    name="online_method" id="om_paytm" value="paytm">
-                                                                <label class="form-check-label small fw-bold"
-                                                                    for="om_paytm">Paytm</label>
+                                                                <input type="radio" class="form-check-input" name="online_method" id="om_paytm" value="Paytm">
+                                                                <label class="form-check-label small fw-bold" for="om_paytm">Paytm</label>
                                                             </div>
                                                             <div class="form-check">
-                                                                <input type="radio" class="form-check-input"
-                                                                    name="online_method" id="om_phonepe"
-                                                                    value="phonepe">
-                                                                <label class="form-check-label small fw-bold"
-                                                                    for="om_phonepe">PhonePe</label>
+                                                                <input type="radio" class="form-check-input" name="online_method" id="om_phonepe" value="PhonePe">
+                                                                <label class="form-check-label small fw-bold" for="om_phonepe">PhonePe</label>
                                                             </div>
                                                             <div class="form-check">
-                                                                <input type="radio" class="form-check-input"
-                                                                    name="online_method" id="om_bharatpe"
-                                                                    value="bharatpe">
-                                                                <label class="form-check-label small fw-bold"
-                                                                    for="om_bharatpe">BharatPe</label>
+                                                                <input type="radio" class="form-check-input" name="online_method" id="om_bharatpe" value="BharatPe">
+                                                                <label class="form-check-label small fw-bold" for="om_bharatpe">BharatPe</label>
                                                             </div>
                                                         </div>
 
-                                                        <input type="text" name="upi_ref"
-                                                            class="form-control form-control-sm mb-3 text-uppercase"
-                                                            placeholder="Transaction / UPI Reference ID">
+                                                        <input type="text" name="online_transaction_id" class="form-control form-control-sm mb-3 text-uppercase" placeholder="Transaction / UPI Reference ID">
 
                                                         <label class="fw-bold small mb-1">Bike Price</label>
                                                         <div class="input-group">
-                                                            <span
-                                                                class="input-group-text bg-white border-end-0">₹</span>
-                                                            <input type="number" name="online_price"
-                                                                class="form-control border-start-0 ps-0"
-                                                                placeholder="Enter Price" required>
+                                                            <span class="input-group-text bg-white border-end-0">₹</span>
+                                                            <input type="number" name="online_price" class="form-control border-start-0 ps-0" placeholder="Enter Price" required>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -458,119 +432,87 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                         <label>Police Challan</label>
                                         <div class="d-flex gap-3 mb-2">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="police_challan"
-                                                    value="no" checked data-bs-toggle="collapse"
-                                                    data-bs-target="#challan-section">
+                                                <input class="form-check-input" type="radio" name="police_challan" value="No" checked data-bs-toggle="collapse" data-bs-target="#challan-section">
                                                 <label class="form-check-label fw-bold">No</label>
                                             </div>
 
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="police_challan"
-                                                    value="yes" data-bs-toggle="collapse"
-                                                    data-bs-target="#challan-section">
+                                                <input class="form-check-input" type="radio" name="police_challan" value="Yes" data-bs-toggle="collapse" data-bs-target="#challan-section">
                                                 <label class="form-check-label fw-bold">Yes</label>
                                             </div>
                                         </div>
 
                                         <div class="collapse mt-3" id="challan-section">
-                                            <!-- Challan 1 -->
                                             <div class="border rounded p-2 mb-2 bg-white">
                                                 <label class="fw-bold small">Challan 1</label>
                                                 <div class="row g-2">
                                                     <div class="col-md-4">
-                                                        <input type="text" name="challan1_number"
-                                                            class="form-control text-uppercase"
-                                                            placeholder="Challan Number">
+                                                        <input type="text" name="challan1_number" class="form-control text-uppercase" placeholder="Challan Number">
                                                     </div>
                                                     <div class="col-md-4">
-                                                        <input type="number" name="challan1_amount" class="form-control"
-                                                            placeholder="Amount">
+                                                        <input type="number" name="challan1_amount" class="form-control" placeholder="Amount">
                                                     </div>
                                                     <div class="col-md-4">
                                                         <div class="btn-group w-100 btn-group-sm">
-                                                            <input type="radio" class="btn-check" name="challan1_status"
-                                                                id="pen1" value="pending" checked>
-                                                            <label class="btn btn-outline-danger"
-                                                                for="pen1">Pending</label>
+                                                            <input type="radio" class="btn-check" name="challan1_status" id="pen1" value="Pending" checked>
+                                                            <label class="btn btn-outline-danger" for="pen1">Pending</label>
 
-                                                            <input type="radio" class="btn-check" name="challan1_status"
-                                                                id="paid1" value="paid">
-                                                            <label class="btn btn-outline-success"
-                                                                for="paid1">Paid</label>
+                                                            <input type="radio" class="btn-check" name="challan1_status" id="paid1" value="Paid">
+                                                            <label class="btn btn-outline-success" for="paid1">Paid</label>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <!-- Challan 2 -->
                                             <div class="border rounded p-2 mb-2 bg-white">
                                                 <label class="fw-bold small">Challan 2</label>
                                                 <div class="row g-2">
                                                     <div class="col-md-4">
-                                                        <input type="text" name="challan2_number"
-                                                            class="form-control text-uppercase"
-                                                            placeholder="Challan Number">
+                                                        <input type="text" name="challan2_number" class="form-control text-uppercase" placeholder="Challan Number">
                                                     </div>
                                                     <div class="col-md-4">
-                                                        <input type="number" name="challan2_amount" class="form-control"
-                                                            placeholder="Amount">
+                                                        <input type="number" name="challan2_amount" class="form-control" placeholder="Amount">
                                                     </div>
                                                     <div class="col-md-4">
                                                         <div class="btn-group w-100 btn-group-sm">
-                                                            <input type="radio" class="btn-check" name="challan2_status"
-                                                                id="pen2" value="pending" checked>
-                                                            <label class="btn btn-outline-danger"
-                                                                for="pen2">Pending</label>
+                                                            <input type="radio" class="btn-check" name="challan2_status" id="pen2" value="Pending" checked>
+                                                            <label class="btn btn-outline-danger" for="pen2">Pending</label>
 
-                                                            <input type="radio" class="btn-check" name="challan2_status"
-                                                                id="paid2" value="paid">
-                                                            <label class="btn btn-outline-success"
-                                                                for="paid2">Paid</label>
+                                                            <input type="radio" class="btn-check" name="challan2_status" id="paid2" value="Paid">
+                                                            <label class="btn btn-outline-success" for="paid2">Paid</label>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <!-- Challan 3 -->
                                             <div class="border rounded p-2 mb-2 bg-white">
                                                 <label class="fw-bold small">Challan 3</label>
                                                 <div class="row g-2">
                                                     <div class="col-md-4">
-                                                        <input type="text" name="challan3_number"
-                                                            class="form-control text-uppercase"
-                                                            placeholder="Challan Number">
+                                                        <input type="text" name="challan3_number" class="form-control text-uppercase" placeholder="Challan Number">
                                                     </div>
                                                     <div class="col-md-4">
-                                                        <input type="number" name="challan3_amount" class="form-control"
-                                                            placeholder="Amount">
+                                                        <input type="number" name="challan3_amount" class="form-control" placeholder="Amount">
                                                     </div>
                                                     <div class="col-md-4">
                                                         <div class="btn-group w-100 btn-group-sm">
-                                                            <input type="radio" class="btn-check" name="challan3_status"
-                                                                id="pen3" value="pending" checked>
-                                                            <label class="btn btn-outline-danger"
-                                                                for="pen3">Pending</label>
+                                                            <input type="radio" class="btn-check" name="challan3_status" id="pen3" value="Pending" checked>
+                                                            <label class="btn btn-outline-danger" for="pen3">Pending</label>
 
-                                                            <input type="radio" class="btn-check" name="challan3_status"
-                                                                id="paid3" value="paid">
-                                                            <label class="btn btn-outline-success"
-                                                                for="paid3">Paid</label>
+                                                            <input type="radio" class="btn-check" name="challan3_status" id="paid3" value="Paid">
+                                                            <label class="btn btn-outline-success" for="paid3">Paid</label>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-
                                         </div>
                                     </div>
 
-                                </div>
-
-                                <div class="mt-4 pt-3 border-top d-flex align-items-center justify-content-between">
-                                    <label class="form-check-label fw-bold text-danger mb-0" for="soldToggle">Mark as
-                                        Sold Out</label>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="soldToggle" name="sold_out"
-                                            style="width: 3em; height: 1.5em;">
+                                    <div class="mt-4 pt-3 border-top d-flex align-items-center justify-content-between">
+                                        <label class="form-check-label fw-bold text-danger mb-0" for="soldToggle">Mark as Sold Out</label>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="soldToggle" name="sold_out" value="1" style="width: 3em; height: 1.5em;">
+                                        </div>
                                     </div>
                                 </div>
                             </div>

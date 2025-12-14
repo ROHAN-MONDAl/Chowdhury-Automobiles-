@@ -118,7 +118,7 @@ $data_map = [
     'pr_rc'             => isset($_POST['pr_rc']) ? 1 : 0, // FIXED
     'pr_tax'            => isset($_POST['pr_tax']) ? 1 : 0, // FIXED
     'pr_insurance'      => isset($_POST['pr_insurance']) ? 1 : 0, // FIXED
-    'pr_pucct'          => isset($_POST['pr_pucct']) ? 1 : 0, // FIXED (Note: DB col is likely pr_pucct based on Schema)
+    'pr_pucc'          => isset($_POST['pr_pucc']) ? 1 : 0, // FIXED (Note: DB col is likely pr_pucct based on Schema)
     'pr_noc'            => isset($_POST['pr_noc']) ? 1 : 0, // FIXED
     
     'noc_status'        => getPost('noc_status'), // FIXED

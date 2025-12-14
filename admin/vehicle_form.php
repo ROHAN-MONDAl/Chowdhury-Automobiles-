@@ -78,11 +78,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 2. Data Mapping
     // We map ALL vehicle number columns to $final_vehicle_number
+// 2. Data Mapping (CORRECTED)
     $data_map = [
         // --- Step 1: Vehicle ---
         'vehicle_type' => getPost('vehicle_type'),
         'name' => getPost('name'),
-        'vehicle_number' => $final_vehicle_number, // <--- SYNCED
+        'vehicle_number' => $final_vehicle_number, 
         'register_date' => getPost('register_date'),
         'owner_serial' => getPost('owner_serial'),
         'chassis_number' => getPost('chassis_number'),
@@ -90,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'payment_type' => getPost('payment_type'),
         'cash_price' => getPost('cash_price'),
         'online_method' => getPost('online_method'),
-        'online_transaction_id' => getPost('upi_ref'),
+        'online_transaction_id' => getPost('online_transaction_id'), // Fixed: matches HTML
         'online_price' => getPost('online_price'),
         'police_challan' => getPost('police_challan'),
 
@@ -107,27 +108,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // --- Step 2: Seller ---
         'seller_date' => getPost('seller_date'),
-        'seller_vehicle_number' => $final_vehicle_number, // <--- SYNCED
-        'seller_bike_name' => getPost('bike_name'),
-        'seller_chassis_no' => getPost('chassis_number'),
-        'seller_engine_no' => getPost('engine_number'),
+        'seller_vehicle_number' => $final_vehicle_number,
+        'seller_bike_name' => getPost('seller_bike_name'), // Fixed
+        'seller_chassis_no' => getPost('seller_chassis_no'), // Fixed
+        'seller_engine_no' => getPost('seller_engine_no'), // Fixed
         'seller_name' => getPost('seller_name'),
         'seller_address' => getPost('seller_address'),
-        'seller_mobile1' => getPost('mobile1'),
-        'seller_mobile2' => getPost('mobile2'),
-        'seller_mobile3' => getPost('mobile3'),
-        'pr_rc' => isset($_POST['papers_rc']) ? 1 : 0,
-        'pr_tax' => isset($_POST['papers_tax']) ? 1 : 0,
-        'pr_insurance' => isset($_POST['papers_insurance']) ? 1 : 0,
-        'pr_pucc' => isset($_POST['papers_pucc']) ? 1 : 0,
-        'pr_noc' => isset($_POST['papers_noc']) ? 1 : 0,
-        'noc_status' => getPost('noc_payment'),
-        'seller_payment_type' => getPost('pay_type'),
-        'seller_cash_price' => getPost('cash_price'),
-        'seller_online_method' => getPost('online_method'),
-        'seller_online_transaction_id' => getPost('upi_ref'),
-        'seller_online_price' => getPost('online_price'),
-        'exchange_showroom_name' => getPost('showroom_name'),
+        'seller_mobile1' => getPost('seller_mobile1'), // Fixed
+        'seller_mobile2' => getPost('seller_mobile2'), // Fixed
+        'seller_mobile3' => getPost('seller_mobile3'), // Fixed
+        
+        // Fixed Checkboxes (matching name="pr_rc" etc.)
+        'pr_rc' => isset($_POST['pr_rc']) ? 1 : 0,
+        'pr_tax' => isset($_POST['pr_tax']) ? 1 : 0,
+        'pr_insurance' => isset($_POST['pr_insurance']) ? 1 : 0,
+        'pr_pucc' => isset($_POST['pr_pucc']) ? 1 : 0,
+        'pr_noc' => isset($_POST['pr_noc']) ? 1 : 0,
+        
+        'noc_status' => getPost('noc_status'), // Fixed
+        'seller_payment_type' => getPost('seller_payment_type'), // Fixed
+        'seller_cash_price' => getPost('seller_cash_price'), // Fixed
+        'seller_online_method' => getPost('seller_online_method'), // Fixed
+        'seller_online_transaction_id' => getPost('seller_online_transaction_id'), // Fixed
+        'seller_online_price' => getPost('seller_online_price'), // Fixed
+        'exchange_showroom_name' => getPost('exchange_showroom_name'), // Fixed
         'staff_name' => getPost('staff_name'),
         'total_amount' => getPost('total_amount'),
         'paid_amount' => getPost('paid_amount'),
@@ -139,40 +143,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'purchaser_name' => getPost('purchaser_name'),
         'purchaser_address' => getPost('purchaser_address'),
         'purchaser_bike_name' => getPost('purchaser_bike_name'),
-        'purchaser_vehicle_no' => $final_vehicle_number, // <--- SYNCED
-        'purchaser_transfer_amount' => getPost('transfer_amount'),
-        'purchaser_transfer_date' => getPost('transfer_date'),
-        'purchaser_transfer_status' => getPost('transfer_status'),
-        'purchaser_hpa_amount' => getPost('hpa_amount'),
-        'purchaser_hpa_date' => getPost('hpa_date'),
-        'purchaser_hpa_status' => getPost('hpa_status'),
-        'purchaser_hp_amount' => getPost('hp_amount'),
-        'purchaser_hp_date' => getPost('hp_date'),
-        'purchaser_hp_status' => getPost('hp_status'),
-        'purchaser_insurance_name' => getPost('insurance_name'),
-        'purchaser_insurance_payment_status' => getPost('insurance_status'),
-        'purchaser_insurance_amount' => getPost('insurance_amount'),
-        'purchaser_insurance_issue_date' => getPost('insurance_issue_date'),
-        'purchaser_insurance_expiry_date' => getPost('insurance_expiry_date'),
-        'purchaser_total' => getPost('total_price'),
-        'purchaser_paid' => getPost('paid_price'),
-        'purchaser_due' => getPost('due_price'),
-        'purchaser_payment_mode' => getPost('payment_mode'),
-        'purchaser_cash_amount' => getPost('cash_amount'),
-        'purchaser_cash_mobile1' => getPost('cash_mobile1'),
-        'purchaser_cash_mobile2' => getPost('cash_mobile2'),
-        'purchaser_cash_mobile3' => getPost('cash_mobile3'),
-        'purchaser_fin_hpa_with' => getPost('finance_company'),
-        'purchaser_fin_disburse_amount' => getPost('finance_disburse_amount'),
-        'purchaser_fin_disburse_status' => getPost('finance_disburse_status'),
-        'purchaser_fin_mobile1' => getPost('finance_mobile1'),
-        'purchaser_fin_mobile2' => getPost('finance_mobile2'),
-        'purchaser_fin_mobile3' => getPost('finance_mobile3'),
-        'purchaser_payment_all_paid' => isset($_POST['all_paid']) ? 1 : 0,
+        'purchaser_vehicle_no' => $final_vehicle_number,
+        
+        // Fixed Purchaser Fees (matching specific names)
+        'purchaser_transfer_amount' => getPost('purchaser_transfer_amount'),
+        'purchaser_transfer_date' => getPost('purchaser_transfer_date'),
+        'purchaser_transfer_status' => getPost('purchaser_transfer_status'),
+        'purchaser_hpa_amount' => getPost('purchaser_hpa_amount'),
+        'purchaser_hpa_date' => getPost('purchaser_hpa_date'),
+        'purchaser_hpa_status' => getPost('purchaser_hpa_status'),
+        'purchaser_hp_amount' => getPost('purchaser_hp_amount'),
+        'purchaser_hp_date' => getPost('purchaser_hp_date'),
+        'purchaser_hp_status' => getPost('purchaser_hp_status'),
+        
+        'purchaser_insurance_name' => getPost('purchaser_insurance_name'),
+        'purchaser_insurance_payment_status' => getPost('purchaser_insurance_payment_status'),
+        'purchaser_insurance_amount' => getPost('purchaser_insurance_amount'),
+        'purchaser_insurance_issue_date' => getPost('purchaser_insurance_issue_date'),
+        'purchaser_insurance_expiry_date' => getPost('purchaser_insurance_expiry_date'),
+        
+        'purchaser_total' => getPost('purchaser_total'), // Fixed
+        'purchaser_paid' => getPost('purchaser_paid'), // Fixed
+        'purchaser_due' => getPost('purchaser_due'), // Fixed
+        'purchaser_payment_mode' => getPost('purchaser_payment_mode'), // Fixed
+        
+        'purchaser_cash_amount' => getPost('purchaser_cash_amount'),
+        'purchaser_cash_mobile1' => getPost('purchaser_cash_mobile1'), // Fixed
+        'purchaser_cash_mobile2' => getPost('purchaser_cash_mobile2'), // Fixed
+        'purchaser_cash_mobile3' => getPost('purchaser_cash_mobile3'), // Fixed
+        
+        'purchaser_fin_hpa_with' => getPost('purchaser_fin_hpa_with'), // Fixed
+        'purchaser_fin_disburse_amount' => getPost('purchaser_fin_disburse_amount'), // Fixed
+        'purchaser_fin_disburse_status' => getPost('purchaser_fin_disburse_status'), // Fixed
+        'purchaser_fin_mobile1' => getPost('purchaser_fin_mobile1'), // Fixed
+        'purchaser_fin_mobile2' => getPost('purchaser_fin_mobile2'), // Fixed
+        'purchaser_fin_mobile3' => getPost('purchaser_fin_mobile3'), // Fixed
+        'purchaser_payment_all_paid' => isset($_POST['purchaser_payment_all_paid']) ? 1 : 0,
 
         // --- Step 4: Ownership Transfer ---
         'ot_name_transfer' => getPost('ot_name_transfer'),
-        'ot_vehicle_number' => $final_vehicle_number, // <--- SYNCED
+        'ot_vehicle_number' => $final_vehicle_number,
         'ot_rto_name' => getPost('ot_rto_name'),
         'ot_vendor_name' => getPost('ot_vendor_name'),
         'ot_transfer_amount' => getPost('ot_transfer_amount'),
