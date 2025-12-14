@@ -215,18 +215,6 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
     <!-- ADD vechical form -->
     <div class="modal fade" id="dealModal" data-bs-backdrop="static" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
@@ -256,76 +244,45 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                 </div>
 
                 <?php
-                // Check URL parameters to determine state
+                // 1. GET PARAMETERS (Keep variable as integer)
                 $open_modal = isset($_GET['modal']) && $_GET['modal'] == 'open';
                 $current_step = isset($_GET['step']) ? (int) $_GET['step'] : 1;
                 $row_id = isset($_GET['id']) ? $_GET['id'] : '';
+
+                // 2. DEFINE STEPS (Rename variable to $wizard_steps)
+                $wizard_steps = [
+                    1 => 'Vehicle',
+                    2 => 'Seller',
+                    3 => 'Purchaser',
+                    4 => 'Transfer'
+                ];
                 ?>
 
                 <div class="wizard-nav d-flex justify-content-between flex-wrap gap-3 mt-3 px-2 text-center">
+                    <?php foreach ($wizard_steps as $step_key => $label): ?>
+                        <div class="step-item d-flex flex-column align-items-center flex-fill <?= ($step_key == $current_step) ? 'active' : '' ?> <?= ($step_key < $current_step) ? 'completed' : '' ?>"
+                            data-step="<?= $step_key ?>">
 
-                    <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="1">
-                        <div class="step-circle d-flex align-items-center justify-content-center rounded-circle 
-            <?php echo $current_step >= 1 ? 'bg-primary text-white shadow-sm' : 'bg-light text-muted border'; ?>"
-                            style="width: 40px; height: 40px; transition: all 0.3s ease;">
-                            1
+                            <div class="step-circle d-flex align-items-center justify-content-center rounded-circle"
+                                style="width: 40px; height: 40px; transition: all 0.3s ease;">
+                                <?= $step_key ?>
+                            </div>
+                            <div class="step-label small mt-1">
+                                <?= $label ?>
+                            </div>
                         </div>
-                        <div
-                            class="step-label small mt-1 <?php echo $current_step >= 1 ? 'text-primary fw-bold' : 'text-muted'; ?>">
-                            Vehicle
-                        </div>
-                    </div>
-
-                    <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="2">
-                        <div class="step-circle d-flex align-items-center justify-content-center rounded-circle 
-            <?php echo $current_step >= 2 ? 'bg-primary text-white shadow-sm' : 'bg-light text-muted border'; ?>"
-                            style="width: 40px; height: 40px; transition: all 0.3s ease;">
-                            2
-                        </div>
-                        <div
-                            class="step-label small mt-1 <?php echo $current_step >= 2 ? 'text-primary fw-bold' : 'text-muted'; ?>">
-                            Seller
-                        </div>
-                    </div>
-
-                    <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="3">
-                        <div class="step-circle d-flex align-items-center justify-content-center rounded-circle 
-            <?php echo $current_step >= 3 ? 'bg-primary text-white shadow-sm' : 'bg-light text-muted border'; ?>"
-                            style="width: 40px; height: 40px; transition: all 0.3s ease;">
-                            3
-                        </div>
-                        <div
-                            class="step-label small mt-1 <?php echo $current_step >= 3 ? 'text-primary fw-bold' : 'text-muted'; ?>">
-                            Purchaser
-                        </div>
-                    </div>
-
-                    <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="4">
-                        <div class="step-circle d-flex align-items-center justify-content-center rounded-circle 
-            <?php echo $current_step >= 4 ? 'bg-primary text-white shadow-sm' : 'bg-light text-muted border'; ?>"
-                            style="width: 40px; height: 40px; transition: all 0.3s ease;">
-                            4
-                        </div>
-                        <div
-                            class="step-label small mt-1 <?php echo $current_step >= 4 ? 'text-primary fw-bold' : 'text-muted'; ?>">
-                            Transfer
-                        </div>
-                    </div>
-
+                    <?php endforeach; ?>
                 </div>
 
-
-
                 <div class="modal-body">
-
-
-                    <!-- Your form -->
                     <form action="vehicle_form.php" id="dealForm" method="POST" class="app-form"
                         enctype="multipart/form-data" novalidate>
+
                         <input type="hidden" name="row_id" value="<?php echo $row_id; ?>">
+
                         <input type="hidden" name="current_step" value="<?php echo $current_step; ?>">
 
-
+                        
                         <!-- STEP 1: VEHICLE -->
                         <div id="step-1" class="wizard-step">
                             <div class="card steps-id p-4 border-0 shadow-sm position-relative sold-wrapper rounded-4">
@@ -1469,37 +1426,18 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                             </div>
                         </div>
 
-
-                        <!-- your form fields go here -->
                         <div class="modal-footer d-flex align-items-center">
                             <?php if ($current_step < 4): ?>
-                                <button type="submit" class="btn btn-primary fw-bold shadow-sm px-4 ms-auto">
+                                <button type="submit" name="action" value="save_next" class="btn btn-primary fw-bold shadow-sm px-4 ms-auto">
                                     <i class="ph-bold ph-floppy-disk me-1"></i> Save & Next Step
                                 </button>
                             <?php else: ?>
-                                <button type="submit" class="btn btn-success px-4 ms-auto text-white shadow-lg">
+                                <button type="submit" name="action" value="finish" class="btn btn-success px-4 ms-auto text-white shadow-lg">
                                     Finish <i class="ph-bold ph-check-circle ms-1"></i>
                                 </button>
                             <?php endif; ?>
                         </div>
                     </form>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 </div>
 
                 <div class="modal-footer d-flex align-items-center">
@@ -1511,57 +1449,6 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
         </div>
     </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1580,7 +1467,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                         $result = $conn->query("SELECT id, name, phone, bike_model, created_at FROM leads ORDER BY id DESC");
                         if ($result->num_rows > 0):
                             while ($lead = $result->fetch_assoc()):
-                                ?>
+                        ?>
                                 <div class="col-md-6 col-lg-4 mb-4">
                                     <div class="card bg-primary bg-gradient text-white border-0 shadow h-100">
                                         <div class="card-body position-relative overflow-hidden">
@@ -1614,7 +1501,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                         </div>
                                     </div>
                                 </div>
-                                <?php
+                            <?php
                             endwhile;
                         else:
                             ?>

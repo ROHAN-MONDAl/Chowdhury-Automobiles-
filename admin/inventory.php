@@ -29,7 +29,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
     <!-- Page Title -->
     <title>Chowdhury Automobile | Manager</title>
     <!-- Favicon Icon -->
-    <link rel="icon" type="image/png" class="border-5 rounded-5" href="../images/logo.jpeg">
+    <link rel="icon" type="image/png" href="../images/logo.jpeg">
     <!-- ==================== Stylesheets ==================== -->
 
     <!-- Bootstrap 5 CSS -->
@@ -56,7 +56,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom JS -->
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
 </head>
 
 
@@ -104,8 +104,6 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                     class="btn btn-light border rounded-circle shadow-sm d-inline-flex d-md-none justify-content-center align-items-center p-2">
                     <i class="ph-bold ph-sign-out fs-5"></i>
                 </button>
-
-
 
             </div>
         </nav>
@@ -247,506 +245,480 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
         </div>
 
         <!-- Vehicle Data Grid - Displays inventory vehicles in a responsive card layout with availability status and action buttons -->
-        <?php
-        $sql = "SELECT id, name, vehicle_number, cash_price, owner_serial, register_date, photo1, sold_out 
-        FROM stock_vehicle_details ORDER BY id DESC";
-
-        $result = $conn->query($sql);
-        ?>
-
         <div class="position-relative" style="min-height: 400px;">
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                <?php
+                $sql = "SELECT * FROM stock_vehicle_details ORDER BY id DESC";
+                $result = $conn->query($sql);
 
-                <?php while ($row = $result->fetch_assoc()): ?>
+                while ($row = $result->fetch_assoc()):
 
-                    <?php
-                    // Image fallback
-                    $imgFile = !empty($row['photo1']) ? basename($row['photo1']) : "default.jpg";
-                    $imgPath = "../images/" . $imgFile;
+                    // Check photo1 — if empty use default
+                    $image = (!empty($row['photo1'])) ? $row['photo1'] : '../images/default.jpg';
 
-
-                    // Status check
-                    $status = ($row['sold_out'] == 1) ? "SOLD OUT" : "AVAILABLE";
-                    $statusClass = ($row['sold_out'] == 1) ? "text-danger" : "text-success";
-                    ?>
+                    // Determine badge text and color based on sold_out
+                    if ($row['sold_out'] == 0) {
+                        $statusText = "AVAILABLE";
+                        $statusClass = "text-success";
+                    } else {
+                        $statusText = "SOLD OUT";
+                        $statusClass = "text-danger";
+                    }
+                ?>
 
                     <div class="col">
                         <div class="card border-0 inventory-card h-100">
 
                             <div class="hover-card position-relative overflow-hidden">
 
-                                <!-- Vehicle Photo -->
-                                <img src="<?= $imgPath ?>" class="d-block w-100 h-100 object-fit-cover" loading="lazy"
-                                    alt="Bike">
+                                <!-- image -->
+                                <img src="<?= $image; ?>"
+                                    class="d-block w-100 h-100 object-fit-cover"
+                                    loading="lazy" alt="Bike">
 
 
-                                <!-- Status Badge -->
                                 <div class="position-absolute top-0 end-0 p-3 z-2 mt-2">
-                                    <span
-                                        class="badge status-badge <?= $statusClass ?> fw-bold bg-white shadow-sm rounded-pill px-3 py-2"
+                                    <span class="badge status-badge fw-bold bg-white shadow-sm rounded-pill px-3 py-2 <?= $statusClass ?>"
                                         style="font-size: 11px; letter-spacing: 0.5px;">
-                                        <i class="ph-fill ph-circle me-1"></i> <?= $status ?>
+                                        <i class="ph-fill ph-circle me-1"></i> <?= $statusText ?>
                                     </span>
                                 </div>
 
                                 <div class="info-overlay d-flex flex-column gap-2">
-
                                     <div class="d-flex justify-content-between align-items-end">
                                         <div>
-                                            <!-- Vehicle Number -->
-                                            <h6 class="fw-bold mb-1 text-dark fs-5">
-                                                <?= strtoupper($row['vehicle_number']) ?>
-                                            </h6>
-
-                                            <!-- Bike Name -->
-                                            <small class="text-muted"><?= $row['name'] ?></small>
+                                            <h6 class="fw-bold mb-1 text-dark fs-5"><?= $row['vehicle_number']; ?></h6>
+                                            <small class="text-muted"><?= $row['name']; ?></small>
                                         </div>
-
-                                        <!-- Price -->
-                                        <div class="fw-bold text-primary fs-4">₹ <?= number_format($row['cash_price']) ?>
-                                        </div>
+                                        <div class="fw-bold text-primary fs-4">₹ <?= number_format($row['cash_price']); ?></div>
                                     </div>
 
-                                    <!-- Year + Owner -->
                                     <div class="d-flex flex-wrap gap-2 mt-2">
-                                        <span
-                                            class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
-                                            <?= date("Y", strtotime($row['register_date'])) ?>
+                                        <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
+                                            <?= date('Y', strtotime($row['register_date'])); ?>
                                         </span>
-
-                                        <span
-                                            class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
-                                            <?= $row['owner_serial'] ?> Owner
+                                        <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
+                                            <?= $row['owner_serial']; ?> Owner
                                         </span>
                                     </div>
 
-                                    <!-- Buttons -->
                                     <div class="d-flex gap-2 mt-3">
-                                        <button class="btn btn-sm btn-dark fw-bold flex-grow-1 rounded-pill py-2"
-                                            onclick="openEditModal(<?= $row['id'] ?>)">
+                                        <a href="edit_inventory.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-dark fw-bold flex-grow-1 rounded-pill py-2">
                                             <i class="ph-bold ph-pencil-simple text-white me-1"></i> Edit
-                                        </button>
+                                        </a>
 
                                         <button class="btn btn-sm btn-outline-dark fw-bold flex-grow-1 rounded-pill py-2"
-                                            onclick="openViewModal(<?= $row['id'] ?>)">
+                                            data-bs-toggle="modal" data-bs-target="#viewDealModal">
                                             View Details
                                         </button>
                                     </div>
-
                                 </div>
-
                             </div>
                         </div>
                     </div>
 
-                <?php endwhile; ?>
-
-            </div>
-        </div>
-
-        <!-- END OF Vehicle Data Grid -->
 
 
-        <!-- View Vehicle Modal -->
-        <div class="modal fade" id="viewDealModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen">
-                <div class="modal-content rounded-5 border-0 shadow-lg overflow-hidden">
-                    <!-- Header -->
-                    <div class="modal-header border-bottom bg-white px-4 py-3 sticky-top z-3">
-                        <div class="d-flex align-items-center gap-3 w-100">
-                            <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm border"
-                                style="width: 45px; height: 45px; overflow: hidden; padding: 2px;">
-                                <img src="../images/logo.jpeg" alt="Chowdhury Automobile" class="rounded-circle"
-                                    style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
-                            <div class="lh-1">
-                                <h5 class="modal-title fw-bold text-dark mb-1">WB 12 AB 9999</h5>
-                                <div class="d-flex align-items-center gap-2 small text-muted">
-                                    <span class="fw-bold text-uppercase">Royal Enfield Classic 350</span>
-                                    <i class="ph-fill ph-dot text-muted" style="font-size: 8px;"></i>
-                                    <span
-                                        class="badge bg-danger text-white border border-danger-subtle rounded-pill">Sold
-                                        Out</span>
-                                </div>
-                            </div>
-                            <button type="button" class="btn-close ms-auto bg-light rounded-circle p-2"
-                                data-bs-dismiss="modal"></button>
-                        </div>
-                    </div>
-
-                    <div class="modal-body p-0 bg-light">
-                        <div class="accordion accordion-flush p-3" id="dealDetailsAccordion">
-
-                            <!-- ==========================
-                             STEP 1: VEHICLE DETAILS
-                             ========================== -->
-                            <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button fw-bold text-uppercase text-dark py-3" type="button"
-                                        data-bs-toggle="collapse" data-bs-target="#collapseVehicle">
-                                        <i class="ph-bold ph-moped me-2 text-primary fs-5"></i> Vehicle Details
-                                    </button>
-                                </h2>
-                                <div id="collapseVehicle" class="accordion-collapse collapse show"
-                                    data-bs-parent="#dealDetailsAccordion">
-                                    <div class="accordion-body bg-white p-4 border-top">
-
-                                        <!-- Photos -->
-                                        <h6 class="fw-bold text-muted small text-uppercase mb-3">Vehicle Photos
-                                        </h6>
-                                        <div class="row g-3 mb-4">
-                                            <div class="col-6 col-md-3">
-                                                <div
-                                                    class="ratio ratio-1x1 rounded-4 overflow-hidden border mb-2 bg-light">
-                                                    <img src="https://images.carandbike.com/cms/articles/3201199/Royal_Enfield_Hunter_350_1_2022_08_05_T03_41_40_503_Z_6ab6dc0960.png"
-                                                        class="object-fit-cover">
-                                                </div>
-                                                <button class="btn btn-sm btn-dark rounded-pill w-100 fw-bold py-1"
-                                                    style="font-size: 11px;">Download</button>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div
-                                                    class="ratio ratio-1x1 rounded-4 overflow-hidden border mb-2 bg-light">
-                                                    <img src="https://images.carandbike.com/cms/articles/3201199/Royal_Enfield_Hunter_350_1_2022_08_05_T03_41_40_503_Z_6ab6dc0960.png"
-                                                        class="object-fit-cover">
-                                                </div>
-                                                <button class="btn btn-sm btn-dark rounded-pill w-100 fw-bold py-1"
-                                                    style="font-size: 11px;">Download</button>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div
-                                                    class="ratio ratio-1x1 rounded-4 overflow-hidden border mb-2 bg-light">
-                                                    <img src="https://images.carandbike.com/cms/articles/3201199/Royal_Enfield_Hunter_350_1_2022_08_05_T03_41_40_503_Z_6ab6dc0960.png"
-                                                        class="object-fit-cover">
-                                                </div>
-                                                <button class="btn btn-sm btn-dark rounded-pill w-100 fw-bold py-1"
-                                                    style="font-size: 11px;">Download</button>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div
-                                                    class="ratio ratio-1x1 rounded-4 overflow-hidden border mb-2 bg-light">
-                                                    <img src="https://images.carandbike.com/cms/articles/3201199/Royal_Enfield_Hunter_350_1_2022_08_05_T03_41_40_503_Z_6ab6dc0960.png"
-                                                        class="object-fit-cover">
-                                                </div>
-                                                <button class="btn btn-sm btn-dark rounded-pill w-100 fw-bold py-1"
-                                                    style="font-size: 11px;">Download</button>
+                    <!-- View Vehicle Modal -->
+                    <div class="modal fade" id="viewDealModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen">
+                            <div class="modal-content rounded-5 border-0 shadow-lg overflow-hidden">
+                                <!-- Header -->
+                                <div class="modal-header border-bottom bg-white px-4 py-3 sticky-top z-3">
+                                    <div class="d-flex align-items-center gap-3 w-100">
+                                        <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm border"
+                                            style="width: 45px; height: 45px; overflow: hidden; padding: 2px;">
+                                            <img src="../images/logo.jpeg" alt="Chowdhury Automobile" class="rounded-circle"
+                                                style="width: 100%; height: 100%; object-fit: cover;">
+                                        </div>
+                                        <div class="lh-1">
+                                            <h5 class="modal-title fw-bold text-dark mb-1">WB 12 AB 9999</h5>
+                                            <div class="d-flex align-items-center gap-2 small text-muted">
+                                                <span class="fw-bold text-uppercase">Royal Enfield Classic 350</span>
+                                                <i class="ph-fill ph-dot text-muted" style="font-size: 8px;"></i>
+                                                <span
+                                                    class="badge bg-danger text-white border border-danger-subtle rounded-pill">Sold
+                                                    Out</span>
                                             </div>
                                         </div>
-
-                                        <!-- Basic Info -->
-                                        <div class="p-3 bg-light rounded-4 border mb-3">
-                                            <div class="row g-3">
-                                                <div class="col-6 col-md-4">
-                                                    <small class="text-muted text-uppercase fw-bold"
-                                                        style="font-size: 10px;">Register Date</small>
-                                                    <div class="fw-bold text-dark">2023-05-15</div>
-                                                </div>
-                                                <div class="col-6 col-md-4">
-                                                    <small class="text-muted text-uppercase fw-bold"
-                                                        style="font-size: 10px;">Vehicle Type</small>
-                                                    <div class="fw-bold text-dark">Motorcycle</div>
-                                                </div>
-
-                                                <div class="col-6 col-md-4">
-                                                    <small class="text-muted text-uppercase fw-bold"
-                                                        style="font-size: 10px;">Owner Serial</small>
-                                                    <div class="fw-bold text-dark">1st Owner</div>
-                                                </div>
-                                                <div class="col-12 col-md-12">
-                                                    <small class="text-muted text-uppercase fw-bold"
-                                                        style="font-size: 10px;">Bike Name</small>
-                                                    <div class="fw-bold text-dark">Pulsar 125</div>
-                                                </div>
-                                                <div class="col-12 col-md-12">
-                                                    <small class="text-muted text-uppercase fw-bold"
-                                                        style="font-size: 10px;">Vehicle Number</small>
-                                                    <div class="fw-bold text-dark">WB 12 AB 9999</div>
-                                                </div>
-                                                <div class="col-12 col-md-12">
-                                                    <small class="text-muted text-uppercase fw-bold"
-                                                        style="font-size: 10px;">Chassis Number</small>
-                                                    <div class="fw-bold text-dark font-monospace">
-                                                        ME3J5F5F9LC01234
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-12">
-                                                    <small class="text-muted text-uppercase fw-bold"
-                                                        style="font-size: 10px;">Engine Number</small>
-                                                    <div class="fw-bold text-dark font-monospace">J5F5F9LC09988
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Price & Payment Mode -->
-                                        <div class="d-flex justify-content-between align-items-center mb-4">
-                                            <div>
-                                                <small class="text-muted text-uppercase fw-bold">Payment
-                                                    Mode</small>
-                                                <div class="fw-bold text-primary"><i
-                                                        class="ph-bold ph-google-logo me-1"></i> Google Pay
-                                                </div>
-                                            </div>
-                                            <div class="text-end">
-                                                <small class="text-muted text-uppercase fw-bold">Price</small>
-                                                <div class="fs-4 fw-bold text-dark">₹ 1,85,000</div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Transaction ID / UPI ID -->
-                                        <div class="d-flex justify-content-between align-items-center mb-4">
-                                            <div>
-                                                <small class="text-muted text-uppercase fw-bold">Transaction
-                                                    ID</small>
-                                                <div class="fw-bold text-primary">TXN123456789</div>
-                                            </div>
-                                            <div class="text-end">
-                                                <small class="text-muted text-uppercase fw-bold">UPI ID</small>
-                                                <div class="fw-bold text-dark">dummy@upi</div>
-                                            </div>
-                                        </div>
-
-
-                                        <!-- Police Challan Table -->
-                                        <div class="border rounded-4 overflow-scroll">
-                                            <div
-                                                class="bg-light px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
-                                                <h6 class="fw-bold text-danger mb-0 small text-uppercase">Police
-                                                    Challan Details</h6>
-                                                <span class="badge bg-danger">Yes</span>
-                                            </div>
-                                            <table class="table table-sm align-middle mb-0 text-center">
-                                                <thead>
-                                                    <tr class="text-muted small">
-                                                        <th class="py-2">#</th>
-                                                        <th class="py-2">Challan No</th>
-                                                        <th class="py-2">Amt</th>
-                                                        <th class="py-2">Status</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr class="border-bottom">
-                                                        <td>1</td>
-                                                        <td class="font-monospace small">WB/KOL/2023/11</td>
-                                                        <td class="fw-bold">₹500</td>
-                                                        <td><span
-                                                                class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="border-bottom">
-                                                        <td>2</td>
-                                                        <td class="font-monospace small">WB/HOW/2023/45</td>
-                                                        <td class="fw-bold">₹1000</td>
-                                                        <td><span
-                                                                class="badge bg-danger-subtle text-danger border border-danger-subtle">Pending</span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>3</td>
-                                                        <td class="font-monospace small">--</td>
-                                                        <td class="fw-bold">--</td>
-                                                        <td>--</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-
+                                        <button type="button" class="btn-close ms-auto bg-light rounded-circle p-2"
+                                            data-bs-dismiss="modal"></button>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- ==========================
+                                <div class="modal-body p-0 bg-light">
+                                    <div class="accordion accordion-flush p-3" id="dealDetailsAccordion">
+
+                                        <!-- ==========================
+                             STEP 1: VEHICLE DETAILS
+                             ========================== -->
+                                        <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button fw-bold text-uppercase text-dark py-3" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#collapseVehicle">
+                                                    <i class="ph-bold ph-moped me-2 text-primary fs-5"></i> Vehicle Details
+                                                </button>
+                                            </h2>
+                                            <div id="collapseVehicle" class="accordion-collapse collapse show"
+                                                data-bs-parent="#dealDetailsAccordion">
+                                                <div class="accordion-body bg-white p-4 border-top">
+
+                                                    <!-- Photos -->
+                                                    <h6 class="fw-bold text-muted small text-uppercase mb-3">Vehicle Photos
+                                                    </h6>
+                                                    <div class="row g-3 mb-4">
+                                                        <div class="col-6 col-md-3">
+                                                            <div
+                                                                class="ratio ratio-1x1 rounded-4 overflow-hidden border mb-2 bg-light">
+                                                                <img src="https://images.carandbike.com/cms/articles/3201199/Royal_Enfield_Hunter_350_1_2022_08_05_T03_41_40_503_Z_6ab6dc0960.png"
+                                                                    class="object-fit-cover">
+                                                            </div>
+                                                            <button class="btn btn-sm btn-dark rounded-pill w-100 fw-bold py-1"
+                                                                style="font-size: 11px;">Download</button>
+                                                        </div>
+                                                        <div class="col-6 col-md-3">
+                                                            <div
+                                                                class="ratio ratio-1x1 rounded-4 overflow-hidden border mb-2 bg-light">
+                                                                <img src="https://images.carandbike.com/cms/articles/3201199/Royal_Enfield_Hunter_350_1_2022_08_05_T03_41_40_503_Z_6ab6dc0960.png"
+                                                                    class="object-fit-cover">
+                                                            </div>
+                                                            <button class="btn btn-sm btn-dark rounded-pill w-100 fw-bold py-1"
+                                                                style="font-size: 11px;">Download</button>
+                                                        </div>
+                                                        <div class="col-6 col-md-3">
+                                                            <div
+                                                                class="ratio ratio-1x1 rounded-4 overflow-hidden border mb-2 bg-light">
+                                                                <img src="https://images.carandbike.com/cms/articles/3201199/Royal_Enfield_Hunter_350_1_2022_08_05_T03_41_40_503_Z_6ab6dc0960.png"
+                                                                    class="object-fit-cover">
+                                                            </div>
+                                                            <button class="btn btn-sm btn-dark rounded-pill w-100 fw-bold py-1"
+                                                                style="font-size: 11px;">Download</button>
+                                                        </div>
+                                                        <div class="col-6 col-md-3">
+                                                            <div
+                                                                class="ratio ratio-1x1 rounded-4 overflow-hidden border mb-2 bg-light">
+                                                                <img src="https://images.carandbike.com/cms/articles/3201199/Royal_Enfield_Hunter_350_1_2022_08_05_T03_41_40_503_Z_6ab6dc0960.png"
+                                                                    class="object-fit-cover">
+                                                            </div>
+                                                            <button class="btn btn-sm btn-dark rounded-pill w-100 fw-bold py-1"
+                                                                style="font-size: 11px;">Download</button>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Basic Info -->
+                                                    <div class="p-3 bg-light rounded-4 border mb-3">
+                                                        <div class="row g-3">
+                                                            <div class="col-6 col-md-4">
+                                                                <small class="text-muted text-uppercase fw-bold"
+                                                                    style="font-size: 10px;">Register Date</small>
+                                                                <div class="fw-bold text-dark">2023-05-15</div>
+                                                            </div>
+                                                            <div class="col-6 col-md-4">
+                                                                <small class="text-muted text-uppercase fw-bold"
+                                                                    style="font-size: 10px;">Vehicle Type</small>
+                                                                <div class="fw-bold text-dark">Motorcycle</div>
+                                                            </div>
+
+                                                            <div class="col-6 col-md-4">
+                                                                <small class="text-muted text-uppercase fw-bold"
+                                                                    style="font-size: 10px;">Owner Serial</small>
+                                                                <div class="fw-bold text-dark">1st Owner</div>
+                                                            </div>
+                                                            <div class="col-12 col-md-12">
+                                                                <small class="text-muted text-uppercase fw-bold"
+                                                                    style="font-size: 10px;">Bike Name</small>
+                                                                <div class="fw-bold text-dark">Pulsar 125</div>
+                                                            </div>
+                                                            <div class="col-12 col-md-12">
+                                                                <small class="text-muted text-uppercase fw-bold"
+                                                                    style="font-size: 10px;">Vehicle Number</small>
+                                                                <div class="fw-bold text-dark">WB 12 AB 9999</div>
+                                                            </div>
+                                                            <div class="col-12 col-md-12">
+                                                                <small class="text-muted text-uppercase fw-bold"
+                                                                    style="font-size: 10px;">Chassis Number</small>
+                                                                <div class="fw-bold text-dark font-monospace">
+                                                                    ME3J5F5F9LC01234
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-12 col-md-12">
+                                                                <small class="text-muted text-uppercase fw-bold"
+                                                                    style="font-size: 10px;">Engine Number</small>
+                                                                <div class="fw-bold text-dark font-monospace">J5F5F9LC09988
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Price & Payment Mode -->
+                                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                                        <div>
+                                                            <small class="text-muted text-uppercase fw-bold">Payment
+                                                                Mode</small>
+                                                            <div class="fw-bold text-primary"><i
+                                                                    class="ph-bold ph-google-logo me-1"></i> Google Pay
+                                                            </div>
+                                                        </div>
+                                                        <div class="text-end">
+                                                            <small class="text-muted text-uppercase fw-bold">Price</small>
+                                                            <div class="fs-4 fw-bold text-dark">₹ 1,85,000</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Transaction ID / UPI ID -->
+                                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                                        <div>
+                                                            <small class="text-muted text-uppercase fw-bold">Transaction
+                                                                ID</small>
+                                                            <div class="fw-bold text-primary">TXN123456789</div>
+                                                        </div>
+                                                        <div class="text-end">
+                                                            <small class="text-muted text-uppercase fw-bold">UPI ID</small>
+                                                            <div class="fw-bold text-dark">dummy@upi</div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <!-- Police Challan Table -->
+                                                    <div class="border rounded-4 overflow-scroll">
+                                                        <div
+                                                            class="bg-light px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
+                                                            <h6 class="fw-bold text-danger mb-0 small text-uppercase">Police
+                                                                Challan Details</h6>
+                                                            <span class="badge bg-danger">Yes</span>
+                                                        </div>
+                                                        <table class="table table-sm align-middle mb-0 text-center">
+                                                            <thead>
+                                                                <tr class="text-muted small">
+                                                                    <th class="py-2">#</th>
+                                                                    <th class="py-2">Challan No</th>
+                                                                    <th class="py-2">Amt</th>
+                                                                    <th class="py-2">Status</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr class="border-bottom">
+                                                                    <td>1</td>
+                                                                    <td class="font-monospace small">WB/KOL/2023/11</td>
+                                                                    <td class="fw-bold">₹500</td>
+                                                                    <td><span
+                                                                            class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr class="border-bottom">
+                                                                    <td>2</td>
+                                                                    <td class="font-monospace small">WB/HOW/2023/45</td>
+                                                                    <td class="fw-bold">₹1000</td>
+                                                                    <td><span
+                                                                            class="badge bg-danger-subtle text-danger border border-danger-subtle">Pending</span>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>3</td>
+                                                                    <td class="font-monospace small">--</td>
+                                                                    <td class="fw-bold">--</td>
+                                                                    <td>--</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- ==========================
                              STEP 2: SELLER DETAILS
                              ========================== -->
-                            <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed fw-bold text-uppercase text-dark py-3"
-                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeller">
-                                        <i class="ph-bold ph-user-circle me-2 text-primary fs-5"></i> Seller
-                                        Details
-                                    </button>
-                                </h2>
-                                <div id="collapseSeller" class="accordion-collapse collapse"
-                                    data-bs-parent="#dealDetailsAccordion">
-                                    <div class="accordion-body bg-white p-4 border-top">
+                                        <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button collapsed fw-bold text-uppercase text-dark py-3"
+                                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeller">
+                                                    <i class="ph-bold ph-user-circle me-2 text-primary fs-5"></i> Seller
+                                                    Details
+                                                </button>
+                                            </h2>
+                                            <div id="collapseSeller" class="accordion-collapse collapse"
+                                                data-bs-parent="#dealDetailsAccordion">
+                                                <div class="accordion-body bg-white p-4 border-top">
 
-                                        <div class="d-flex justify-content-between mb-3">
-                                            <div>
-                                                <small class="text-muted text-uppercase fw-bold">Seller
-                                                    Name</small>
-                                                <div class="fs-5 fw-bold text-dark">Rahul Roy</div>
-                                            </div>
-                                            <div class="text-end">
-                                                <small class="text-muted text-uppercase fw-bold">Date</small>
-                                                <div class="fw-bold text-dark">2025-11-26</div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Vehicle Info -->
-                                        <div class="row g-2 mb-3">
-                                            <div class="col-12">
-                                                <small class="text-muted fw-bold" style="font-size:10px;">VEHICLE
-                                                    NO</small>
-                                                <div class="fw-bold text-dark small">WB 02 AD 5555</div>
-                                            </div>
-                                            <div class="col-12">
-                                                <small class="text-muted fw-bold" style="font-size:10px;">BIKE
-                                                    NAME</small>
-                                                <div class="fw-bold text-dark small">Pulsar 150</div>
-                                            </div>
-                                            <div class="col-12">
-                                                <small class="text-muted fw-bold" style="font-size:10px;">CHASSIS
-                                                    NO</small>
-                                                <div class="fw-bold text-dark font-monospace small">MD2A123...
-                                                </div>
-                                            </div>
-                                            <div class="col-12">
-                                                <small class="text-muted fw-bold" style="font-size:10px;">ENGINE
-                                                    NO</small>
-                                                <div class="fw-bold text-dark font-monospace small">DHK88...
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Contact -->
-                                        <div class="bg-light p-3 rounded-3 mb-3 border">
-                                            <small class="text-muted fw-bold">Address</small>
-                                            <div class="mb-2">123, G.T. Road, Howrah - 711101</div>
-                                            <div class="d-flex gap-3 flex-wrap">
-                                                <a href="tel:9876543210"
-                                                    class="badge bg-white text-dark border text-decoration-none">
-                                                    <i class="ph-fill ph-phone"></i> 9876543210
-                                                </a>
-                                                <a href="tel:8765432109"
-                                                    class="badge bg-white text-dark border text-decoration-none">
-                                                    <i class="ph-fill ph-phone"></i> 8765432109
-                                                </a>
-                                                <span class="badge bg-white text-dark border text-muted opacity-50">
-                                                    <i class="ph-fill ph-phone"></i> --
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <!-- Documents -->
-                                        <h6 class="fw-bold text-muted small text-uppercase mb-3">Purchaser
-                                            Documents
-                                        </h6>
-
-                                        <div class="row g-2">
-
-                                            <!-- AADHAR FRONT -->
-                                            <div class="col-6 col-md-3" style="object-fit: cover;">
-                                                <div class="border rounded p-2 text-center bg-white">
-                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">AADHAR
-                                                        FRONT</small>
-
-                                                    <!-- Square Preview -->
-                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                        <img src="your-image-path/aadhar-front.jpg"
-                                                            class="w-100 h-100 object-fit-cover">
+                                                    <div class="d-flex justify-content-between mb-3">
+                                                        <div>
+                                                            <small class="text-muted text-uppercase fw-bold">Seller
+                                                                Name</small>
+                                                            <div class="fs-5 fw-bold text-dark">Rahul Roy</div>
+                                                        </div>
+                                                        <div class="text-end">
+                                                            <small class="text-muted text-uppercase fw-bold">Date</small>
+                                                            <div class="fw-bold text-dark">2025-11-26</div>
+                                                        </div>
                                                     </div>
 
-                                                    <!-- View (opens image in new tab) -->
-                                                    <a href="your-image-path/aadhar-front.jpg" target="_blank"
-                                                        class="btn btn-dark btn-sm w-100 py-0" style="font-size:10px">
-                                                        View
-                                                    </a>
-
-                                                    <!-- Download -->
-                                                    <a href="your-image-path/aadhar-front.jpg" download
-                                                        class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                        style="font-size:10px">
-                                                        Download
-                                                    </a>
-                                                </div>
-                                            </div>
-
-                                            <!-- AADHAR BACK -->
-                                            <div class="col-6 col-md-3">
-                                                <div class="border rounded p-2 text-center bg-white">
-                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">AADHAR
-                                                        BACK</small>
-
-                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                        <img src="your-image-path/aadhar-back.jpg"
-                                                            class="w-100 h-100 object-fit-cover">
+                                                    <!-- Vehicle Info -->
+                                                    <div class="row g-2 mb-3">
+                                                        <div class="col-12">
+                                                            <small class="text-muted fw-bold" style="font-size:10px;">VEHICLE
+                                                                NO</small>
+                                                            <div class="fw-bold text-dark small">WB 02 AD 5555</div>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <small class="text-muted fw-bold" style="font-size:10px;">BIKE
+                                                                NAME</small>
+                                                            <div class="fw-bold text-dark small">Pulsar 150</div>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <small class="text-muted fw-bold" style="font-size:10px;">CHASSIS
+                                                                NO</small>
+                                                            <div class="fw-bold text-dark font-monospace small">MD2A123...
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <small class="text-muted fw-bold" style="font-size:10px;">ENGINE
+                                                                NO</small>
+                                                            <div class="fw-bold text-dark font-monospace small">DHK88...
+                                                            </div>
+                                                        </div>
                                                     </div>
 
-                                                    <a href="your-image-path/aadhar-back.jpg" target="_blank"
-                                                        class="btn btn-dark btn-sm w-100 py-0"
-                                                        style="font-size:10px">View</a>
-
-                                                    <a href="your-image-path/aadhar-back.jpg" download
-                                                        class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                        style="font-size:10px">Download</a>
-                                                </div>
-                                            </div>
-
-                                            <!-- VOTER FRONT -->
-                                            <div class="col-6 col-md-3">
-                                                <div class="border rounded p-2 text-center bg-white">
-                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
-                                                        FRONT</small>
-
-                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                        <img src="your-image-path/voter-front.jpg"
-                                                            class="w-100 h-100 object-fit-cover">
+                                                    <!-- Contact -->
+                                                    <div class="bg-light p-3 rounded-3 mb-3 border">
+                                                        <small class="text-muted fw-bold">Address</small>
+                                                        <div class="mb-2">123, G.T. Road, Howrah - 711101</div>
+                                                        <div class="d-flex gap-3 flex-wrap">
+                                                            <a href="tel:9876543210"
+                                                                class="badge bg-white text-dark border text-decoration-none">
+                                                                <i class="ph-fill ph-phone"></i> 9876543210
+                                                            </a>
+                                                            <a href="tel:8765432109"
+                                                                class="badge bg-white text-dark border text-decoration-none">
+                                                                <i class="ph-fill ph-phone"></i> 8765432109
+                                                            </a>
+                                                            <span class="badge bg-white text-dark border text-muted opacity-50">
+                                                                <i class="ph-fill ph-phone"></i> --
+                                                            </span>
+                                                        </div>
                                                     </div>
 
-                                                    <a href="your-image-path/voter-front.jpg" target="_blank"
-                                                        class="btn btn-dark btn-sm w-100 py-0"
-                                                        style="font-size:10px">View</a>
+                                                    <!-- Documents -->
+                                                    <h6 class="fw-bold text-muted small text-uppercase mb-3">Purchaser
+                                                        Documents
+                                                    </h6>
 
-                                                    <a href="your-image-path/voter-front.jpg" download
-                                                        class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                        style="font-size:10px">Download</a>
-                                                </div>
-                                            </div>
+                                                    <div class="row g-2">
 
-                                            <!-- VOTER BACK -->
-                                            <div class="col-6 col-md-3">
-                                                <div class="border rounded p-2 text-center bg-white">
-                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
-                                                        BACK</small>
+                                                        <!-- AADHAR FRONT -->
+                                                        <div class="col-6 col-md-3" style="object-fit: cover;">
+                                                            <div class="border rounded p-2 text-center bg-white">
+                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">AADHAR
+                                                                    FRONT</small>
 
-                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                        <img src="your-image-path/voter-back.jpg"
-                                                            class="w-100 h-100 object-fit-cover">
+                                                                <!-- Square Preview -->
+                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                                    <img src="your-image-path/aadhar-front.jpg"
+                                                                        class="w-100 h-100 object-fit-cover">
+                                                                </div>
+
+                                                                <!-- View (opens image in new tab) -->
+                                                                <a href="your-image-path/aadhar-front.jpg" target="_blank"
+                                                                    class="btn btn-dark btn-sm w-100 py-0" style="font-size:10px">
+                                                                    View
+                                                                </a>
+
+                                                                <!-- Download -->
+                                                                <a href="your-image-path/aadhar-front.jpg" download
+                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                                    style="font-size:10px">
+                                                                    Download
+                                                                </a>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- AADHAR BACK -->
+                                                        <div class="col-6 col-md-3">
+                                                            <div class="border rounded p-2 text-center bg-white">
+                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">AADHAR
+                                                                    BACK</small>
+
+                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                                    <img src="your-image-path/aadhar-back.jpg"
+                                                                        class="w-100 h-100 object-fit-cover">
+                                                                </div>
+
+                                                                <a href="your-image-path/aadhar-back.jpg" target="_blank"
+                                                                    class="btn btn-dark btn-sm w-100 py-0"
+                                                                    style="font-size:10px">View</a>
+
+                                                                <a href="your-image-path/aadhar-back.jpg" download
+                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                                    style="font-size:10px">Download</a>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- VOTER FRONT -->
+                                                        <div class="col-6 col-md-3">
+                                                            <div class="border rounded p-2 text-center bg-white">
+                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
+                                                                    FRONT</small>
+
+                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                                    <img src="your-image-path/voter-front.jpg"
+                                                                        class="w-100 h-100 object-fit-cover">
+                                                                </div>
+
+                                                                <a href="your-image-path/voter-front.jpg" target="_blank"
+                                                                    class="btn btn-dark btn-sm w-100 py-0"
+                                                                    style="font-size:10px">View</a>
+
+                                                                <a href="your-image-path/voter-front.jpg" download
+                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                                    style="font-size:10px">Download</a>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- VOTER BACK -->
+                                                        <div class="col-6 col-md-3">
+                                                            <div class="border rounded p-2 text-center bg-white">
+                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
+                                                                    BACK</small>
+
+                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                                    <img src="your-image-path/voter-back.jpg"
+                                                                        class="w-100 h-100 object-fit-cover">
+                                                                </div>
+
+                                                                <a href="your-image-path/voter-back.jpg" target="_blank"
+                                                                    class="btn btn-dark btn-sm w-100 py-0"
+                                                                    style="font-size:10px">View</a>
+
+                                                                <a href="your-image-path/voter-back.jpg" download
+                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                                    style="font-size:10px">Download</a>
+                                                            </div>
+                                                        </div>
+
                                                     </div>
 
-                                                    <a href="your-image-path/voter-back.jpg" target="_blank"
-                                                        class="btn btn-dark btn-sm w-100 py-0"
-                                                        style="font-size:10px">View</a>
 
-                                                    <a href="your-image-path/voter-back.jpg" download
-                                                        class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                        style="font-size:10px">Download</a>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-
-                                        <!-- Papers & Challan -->
-                                        <div class="row g-3 mb-3">
-                                            <div class="col-12">
-                                                <label class="small text-muted fw-bold mb-1">PAPERS
-                                                    RECEIVED</label>
-                                                <div class="d-flex flex-wrap gap-2">
-                                                    <span
-                                                        class="badge bg-primary-subtle text-primary border border-primary-subtle">RC</span>
-                                                    <span
-                                                        class="badge bg-primary-subtle text-primary border border-primary-subtle">Tax
-                                                        Token</span>
-                                                    <span
-                                                        class="badge bg-light text-muted border text-decoration-line-through">Insurance</span>
-                                                    <span
-                                                        class="badge bg-primary-subtle text-primary border border-primary-subtle">PUCC</span>
-                                                    <span
-                                                        class="badge bg-primary-subtle text-primary border border-primary-subtle">NOC</span>
-                                                </div>
-                                            </div>
-                                            <!-- <div class="col-12">
+                                                    <!-- Papers & Challan -->
+                                                    <div class="row g-3 mb-3">
+                                                        <div class="col-12">
+                                                            <label class="small text-muted fw-bold mb-1">PAPERS
+                                                                RECEIVED</label>
+                                                            <div class="d-flex flex-wrap gap-2">
+                                                                <span
+                                                                    class="badge bg-primary-subtle text-primary border border-primary-subtle">RC</span>
+                                                                <span
+                                                                    class="badge bg-primary-subtle text-primary border border-primary-subtle">Tax
+                                                                    Token</span>
+                                                                <span
+                                                                    class="badge bg-light text-muted border text-decoration-line-through">Insurance</span>
+                                                                <span
+                                                                    class="badge bg-primary-subtle text-primary border border-primary-subtle">PUCC</span>
+                                                                <span
+                                                                    class="badge bg-primary-subtle text-primary border border-primary-subtle">NOC</span>
+                                                            </div>
+                                                        </div>
+                                                        <!-- <div class="col-12">
                                                     <div
                                                         class="p-2 border rounded bg-warning-subtle text-warning-emphasis">
                                                         <div class="d-flex justify-content-between align-items-center">
@@ -759,2043 +731,737 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                         </div>
                                                     </div>
                                                 </div> -->
-                                        </div>
+                                                    </div>
 
-                                        <!-- NOC -->
-                                        <div class="border rounded-4 p-3 mb-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <small class="fw-bold text-uppercase text-muted">NOC
-                                                    Details</small>
-                                                <span class="badge bg-success">Paid</span>
-                                            </div>
-
-                                            <div class="row g-2">
-
-                                                <!-- NOC FRONT -->
-                                                <div class="col-6">
-                                                    <div class="border rounded p-2 text-center bg-white">
-
-                                                        <small class="fw-bold d-block mb-1" style="font-size:10px">NOC
-                                                            FRONT</small>
-
-                                                        <!-- Small square preview -->
-                                                        <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
-                                                            style="width:50px; height:50px; margin:auto;">
-                                                            <img src="your-image-path/noc-front.jpg" class="w-100 h-100"
-                                                                style="object-fit:cover;">
+                                                    <!-- NOC -->
+                                                    <div class="border rounded-4 p-3 mb-3">
+                                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                                            <small class="fw-bold text-uppercase text-muted">NOC
+                                                                Details</small>
+                                                            <span class="badge bg-success">Paid</span>
                                                         </div>
 
-                                                        <!-- View -->
-                                                        <a href="your-image-path/noc-front.jpg" target="_blank"
-                                                            class="btn btn-outline-dark btn-sm w-100 py-0"
-                                                            style="font-size:10px">
-                                                            View
-                                                        </a>
+                                                        <div class="row g-2">
 
-                                                        <!-- Download -->
-                                                        <a href="your-image-path/noc-front.jpg" download
-                                                            class="btn btn-dark btn-sm w-100 mt-1 py-0"
-                                                            style="font-size:10px">
-                                                            Download
-                                                        </a>
+                                                            <!-- NOC FRONT -->
+                                                            <div class="col-6">
+                                                                <div class="border rounded p-2 text-center bg-white">
+
+                                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">NOC
+                                                                        FRONT</small>
+
+                                                                    <!-- Small square preview -->
+                                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
+                                                                        style="width:50px; height:50px; margin:auto;">
+                                                                        <img src="your-image-path/noc-front.jpg" class="w-100 h-100"
+                                                                            style="object-fit:cover;">
+                                                                    </div>
+
+                                                                    <!-- View -->
+                                                                    <a href="your-image-path/noc-front.jpg" target="_blank"
+                                                                        class="btn btn-outline-dark btn-sm w-100 py-0"
+                                                                        style="font-size:10px">
+                                                                        View
+                                                                    </a>
+
+                                                                    <!-- Download -->
+                                                                    <a href="your-image-path/noc-front.jpg" download
+                                                                        class="btn btn-dark btn-sm w-100 mt-1 py-0"
+                                                                        style="font-size:10px">
+                                                                        Download
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- NOC BACK -->
+                                                            <div class="col-6">
+                                                                <div class="border rounded p-2 text-center bg-white">
+
+                                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">NOC
+                                                                        BACK</small>
+
+                                                                    <!-- Small square preview -->
+                                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
+                                                                        style="width:50px; height:50px; margin:auto;">
+                                                                        <img src="your-image-path/noc-back.jpg" class="w-100 h-100"
+                                                                            style="object-fit:cover;">
+                                                                    </div>
+
+                                                                    <!-- View -->
+                                                                    <a href="your-image-path/noc-back.jpg" target="_blank"
+                                                                        class="btn btn-outline-dark btn-sm w-100 py-0"
+                                                                        style="font-size:10px">
+                                                                        View
+                                                                    </a>
+
+                                                                    <!-- Download -->
+                                                                    <a href="your-image-path/noc-back.jpg" download
+                                                                        class="btn btn-dark btn-sm w-100 mt-1 py-0"
+                                                                        style="font-size:10px">
+                                                                        Download
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
                                                     </div>
-                                                </div>
 
-                                                <!-- NOC BACK -->
-                                                <div class="col-6">
-                                                    <div class="border rounded p-2 text-center bg-white">
-
-                                                        <small class="fw-bold d-block mb-1" style="font-size:10px">NOC
-                                                            BACK</small>
-
-                                                        <!-- Small square preview -->
-                                                        <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
-                                                            style="width:50px; height:50px; margin:auto;">
-                                                            <img src="your-image-path/noc-back.jpg" class="w-100 h-100"
-                                                                style="object-fit:cover;">
+                                                    <!-- RC -->
+                                                    <div class="border rounded-4 p-3 mb-3">
+                                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                                            <small class="fw-bold text-uppercase text-muted">RC
+                                                                Details</small>
+                                                            <!-- <span class="badge bg-success">Paid</span> -->
                                                         </div>
 
-                                                        <!-- View -->
-                                                        <a href="your-image-path/noc-back.jpg" target="_blank"
-                                                            class="btn btn-outline-dark btn-sm w-100 py-0"
-                                                            style="font-size:10px">
-                                                            View
-                                                        </a>
+                                                        <div class="row g-2">
 
-                                                        <!-- Download -->
-                                                        <a href="your-image-path/noc-back.jpg" download
-                                                            class="btn btn-dark btn-sm w-100 mt-1 py-0"
-                                                            style="font-size:10px">
-                                                            Download
-                                                        </a>
+                                                            <!-- RC FRONT -->
+                                                            <div class="col-6">
+                                                                <div class="border rounded p-2 text-center bg-white">
+
+                                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">RC
+                                                                        FRONT</small>
+
+                                                                    <!-- Small square preview -->
+                                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
+                                                                        style="width:50px; height:50px; margin:auto;">
+                                                                        <img src="your-image-path/rc-front.jpg" class="w-100 h-100"
+                                                                            style="object-fit:cover;">
+                                                                    </div>
+
+                                                                    <!-- View -->
+                                                                    <a href="your-image-path/rc-front.jpg" target="_blank"
+                                                                        class="btn btn-outline-dark btn-sm w-100 py-0"
+                                                                        style="font-size:10px">
+                                                                        View
+                                                                    </a>
+
+                                                                    <!-- Download -->
+                                                                    <a href="your-image-path/rc-front.jpg" download
+                                                                        class="btn btn-dark btn-sm w-100 mt-1 py-0"
+                                                                        style="font-size:10px">
+                                                                        Download
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- RC BACK -->
+                                                            <div class="col-6">
+                                                                <div class="border rounded p-2 text-center bg-white">
+
+                                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">RC
+                                                                        BACK</small>
+
+                                                                    <!-- Small square preview -->
+                                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
+                                                                        style="width:50px; height:50px; margin:auto;">
+                                                                        <img src="your-image-path/rc-back.jpg" class="w-100 h-100"
+                                                                            style="object-fit:cover;">
+                                                                    </div>
+
+                                                                    <!-- View -->
+                                                                    <a href="your-image-path/rc-back.jpg" target="_blank"
+                                                                        class="btn btn-outline-dark btn-sm w-100 py-0"
+                                                                        style="font-size:10px">
+                                                                        View
+                                                                    </a>
+
+                                                                    <!-- Download -->
+                                                                    <a href="your-image-path/rc-back.jpg" download
+                                                                        class="btn btn-dark btn-sm w-100 mt-1 py-0"
+                                                                        style="font-size:10px">
+                                                                        Download
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
                                                     </div>
-                                                </div>
 
-                                            </div>
-                                        </div>
 
-                                        <!-- RC -->
-                                        <div class="border rounded-4 p-3 mb-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <small class="fw-bold text-uppercase text-muted">RC
-                                                    Details</small>
-                                                <!-- <span class="badge bg-success">Paid</span> -->
-                                            </div>
 
-                                            <div class="row g-2">
-
-                                                <!-- RC FRONT -->
-                                                <div class="col-6">
-                                                    <div class="border rounded p-2 text-center bg-white">
-
-                                                        <small class="fw-bold d-block mb-1" style="font-size:10px">RC
-                                                            FRONT</small>
-
-                                                        <!-- Small square preview -->
-                                                        <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
-                                                            style="width:50px; height:50px; margin:auto;">
-                                                            <img src="your-image-path/rc-front.jpg" class="w-100 h-100"
-                                                                style="object-fit:cover;">
+                                                    <!-- Payment Info -->
+                                                    <div class="bg-light border rounded-4 p-3 mb-3">
+                                                        <h6 class="fw-bold small mb-2">Payment Details</h6>
+                                                        <div class="d-flex justify-content-between mb-1">
+                                                            <span class="small text-muted">Type:</span>
+                                                            <span class="fw-bold text-dark">Online (PhonePe)</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between mb-3">
+                                                            <span class="small text-muted">Txn ID:</span>
+                                                            <span class="fw-bold font-monospace small">T230515123456</span>
                                                         </div>
 
-                                                        <!-- View -->
-                                                        <a href="your-image-path/rc-front.jpg" target="_blank"
-                                                            class="btn btn-outline-dark btn-sm w-100 py-0"
-                                                            style="font-size:10px">
-                                                            View
-                                                        </a>
-
-                                                        <!-- Download -->
-                                                        <a href="your-image-path/rc-front.jpg" download
-                                                            class="btn btn-dark btn-sm w-100 mt-1 py-0"
-                                                            style="font-size:10px">
-                                                            Download
-                                                        </a>
-                                                    </div>
-                                                </div>
-
-                                                <!-- RC BACK -->
-                                                <div class="col-6">
-                                                    <div class="border rounded p-2 text-center bg-white">
-
-                                                        <small class="fw-bold d-block mb-1" style="font-size:10px">RC
-                                                            BACK</small>
-
-                                                        <!-- Small square preview -->
-                                                        <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
-                                                            style="width:50px; height:50px; margin:auto;">
-                                                            <img src="your-image-path/rc-back.jpg" class="w-100 h-100"
-                                                                style="object-fit:cover;">
+                                                        <div class="d-flex text-center border rounded overflow-hidden bg-white">
+                                                            <div class="flex-fill p-2 border-end">
+                                                                <div class="small text-muted fw-bold" style="font-size:10px">
+                                                                    TOTAL</div>
+                                                                <div class="fw-bold">₹50,000</div>
+                                                            </div>
+                                                            <div class="flex-fill p-2 border-end bg-success-subtle text-success">
+                                                                <div class="small fw-bold" style="font-size:10px">PAID</div>
+                                                                <div class="fw-bold">₹30,000</div>
+                                                            </div>
+                                                            <div class="flex-fill p-2 bg-danger-subtle text-danger">
+                                                                <div class="small fw-bold" style="font-size:10px">DUE</div>
+                                                                <div class="fw-bold">₹20,000</div>
+                                                            </div>
                                                         </div>
-
-                                                        <!-- View -->
-                                                        <a href="your-image-path/rc-back.jpg" target="_blank"
-                                                            class="btn btn-outline-dark btn-sm w-100 py-0"
-                                                            style="font-size:10px">
-                                                            View
-                                                        </a>
-
-                                                        <!-- Download -->
-                                                        <a href="your-image-path/rc-back.jpg" download
-                                                            class="btn btn-dark btn-sm w-100 mt-1 py-0"
-                                                            style="font-size:10px">
-                                                            Download
-                                                        </a>
+                                                        <div class="small text-danger mt-2 fst-italic"><i
+                                                                class="ph-bold ph-info me-1"></i> Pending RC transfer</div>
                                                     </div>
-                                                </div>
 
+                                                    <div class="row g-2">
+                                                        <div class="col-6">
+                                                            <small class="text-muted fw-bold"
+                                                                style="font-size:10px">SHOWROOM</small>
+                                                            <div class="fw-bold small">Speedy Wheels</div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <small class="text-muted fw-bold" style="font-size:10px">STAFF</small>
+                                                            <div class="fw-bold small">Amit Das</div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
                                             </div>
                                         </div>
 
-
-
-                                        <!-- Payment Info -->
-                                        <div class="bg-light border rounded-4 p-3 mb-3">
-                                            <h6 class="fw-bold small mb-2">Payment Details</h6>
-                                            <div class="d-flex justify-content-between mb-1">
-                                                <span class="small text-muted">Type:</span>
-                                                <span class="fw-bold text-dark">Online (PhonePe)</span>
-                                            </div>
-                                            <div class="d-flex justify-content-between mb-3">
-                                                <span class="small text-muted">Txn ID:</span>
-                                                <span class="fw-bold font-monospace small">T230515123456</span>
-                                            </div>
-
-                                            <div class="d-flex text-center border rounded overflow-hidden bg-white">
-                                                <div class="flex-fill p-2 border-end">
-                                                    <div class="small text-muted fw-bold" style="font-size:10px">
-                                                        TOTAL</div>
-                                                    <div class="fw-bold">₹50,000</div>
-                                                </div>
-                                                <div class="flex-fill p-2 border-end bg-success-subtle text-success">
-                                                    <div class="small fw-bold" style="font-size:10px">PAID</div>
-                                                    <div class="fw-bold">₹30,000</div>
-                                                </div>
-                                                <div class="flex-fill p-2 bg-danger-subtle text-danger">
-                                                    <div class="small fw-bold" style="font-size:10px">DUE</div>
-                                                    <div class="fw-bold">₹20,000</div>
-                                                </div>
-                                            </div>
-                                            <div class="small text-danger mt-2 fst-italic"><i
-                                                    class="ph-bold ph-info me-1"></i> Pending RC transfer</div>
-                                        </div>
-
-                                        <div class="row g-2">
-                                            <div class="col-6">
-                                                <small class="text-muted fw-bold"
-                                                    style="font-size:10px">SHOWROOM</small>
-                                                <div class="fw-bold small">Speedy Wheels</div>
-                                            </div>
-                                            <div class="col-6">
-                                                <small class="text-muted fw-bold" style="font-size:10px">STAFF</small>
-                                                <div class="fw-bold small">Amit Das</div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- ==========================
+                                        <!-- ==========================
                              STEP 3: PURCHASER DETAILS
                              ========================== -->
-                            <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed fw-bold text-uppercase text-dark py-3"
-                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapseBuyer">
-                                        <i class="ph-bold ph-shopping-bag me-2 text-primary fs-5"></i> Purchaser
-                                        Details
-                                    </button>
-                                </h2>
-                                <div id="collapseBuyer" class="accordion-collapse collapse"
-                                    data-bs-parent="#dealDetailsAccordion">
-                                    <div class="accordion-body bg-white p-4 border-top">
+                                        <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button collapsed fw-bold text-uppercase text-dark py-3"
+                                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapseBuyer">
+                                                    <i class="ph-bold ph-shopping-bag me-2 text-primary fs-5"></i> Purchaser
+                                                    Details
+                                                </button>
+                                            </h2>
+                                            <div id="collapseBuyer" class="accordion-collapse collapse"
+                                                data-bs-parent="#dealDetailsAccordion">
+                                                <div class="accordion-body bg-white p-4 border-top">
 
-                                        <!-- Basic Info -->
-                                        <div class="row g-3 mb-3">
-                                            <div class="col-12">
-                                                <small class="text-muted text-uppercase fw-bold">Purchaser
-                                                    Name</small>
-                                                <div class="fs-5 fw-bold text-dark">Sneha Gupta</div>
-                                                <small class="text-muted">Date: 2025-11-26</small>
-                                            </div>
-                                            <div class="col-12">
-                                                <div class="bg-light p-3 rounded border">
-                                                    <small class="text-muted text-uppercase fw-bold">Address</small>
-                                                    <div>Flat 4B, Green Heights, Kolkata - 700054</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <small class="text-muted fw-bold" style="font-size:10px">BIKE
-                                                    NAME</small>
-                                                <div class="fw-bold text-dark">Classic 350</div>
-                                            </div>
-                                            <div class="col-6">
-                                                <small class="text-muted fw-bold" style="font-size:10px">VEHICLE
-                                                    NO</small>
-                                                <div class="fw-bold text-dark">WB 12 AB 9999</div>
-                                            </div>
-                                            <!-- <div class="col-12">
+                                                    <!-- Basic Info -->
+                                                    <div class="row g-3 mb-3">
+                                                        <div class="col-12">
+                                                            <small class="text-muted text-uppercase fw-bold">Purchaser
+                                                                Name</small>
+                                                            <div class="fs-5 fw-bold text-dark">Sneha Gupta</div>
+                                                            <small class="text-muted">Date: 2025-11-26</small>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <div class="bg-light p-3 rounded border">
+                                                                <small class="text-muted text-uppercase fw-bold">Address</small>
+                                                                <div>Flat 4B, Green Heights, Kolkata - 700054</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <small class="text-muted fw-bold" style="font-size:10px">BIKE
+                                                                NAME</small>
+                                                            <div class="fw-bold text-dark">Classic 350</div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <small class="text-muted fw-bold" style="font-size:10px">VEHICLE
+                                                                NO</small>
+                                                            <div class="fw-bold text-dark">WB 12 AB 9999</div>
+                                                        </div>
+                                                        <!-- <div class="col-12">
                                                     <small class="text-muted fw-bold" style="font-size:10px">BUYER
                                                         NAME</small>
                                                     <div class="fw-bold text-dark">Sneha Gupta (Self)</div>
                                                 </div> -->
-                                        </div>
-
-                                        <!-- Buyer Payment Table -->
-                                        <div class="border rounded-4 overflow-hidden mb-4">
-                                            <div class="bg-light px-3 py-2 border-bottom">
-                                                <h6 class="fw-bold mb-0 small text-uppercase">Buyer Payment Fees
-                                                </h6>
-                                            </div>
-                                            <table class="table table-sm align-middle mb-0 text-center">
-                                                <thead>
-                                                    <tr class="text-muted small">
-                                                        <th class="py-2 text-start ps-3">Type</th>
-                                                        <th class="py-2">Amt</th>
-                                                        <th class="py-2">Date</th>
-                                                        <th class="py-2">Status</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td class="text-start ps-3 small fw-bold">Transfer</td>
-                                                        <td>₹2,500</td>
-                                                        <td class="small text-muted">Nov 20</td>
-                                                        <td><span
-                                                                class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-start ps-3 small fw-bold">HPA</td>
-                                                        <td>₹1,500</td>
-                                                        <td class="small text-muted">Nov 22</td>
-                                                        <td><span
-                                                                class="badge bg-danger-subtle text-danger border border-danger-subtle">Due</span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-start ps-3 small fw-bold">HP</td>
-                                                        <td>₹500</td>
-                                                        <td class="small text-muted">Nov 22</td>
-                                                        <td><span
-                                                                class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-
-                                        <!-- Insurance Details (New Field) -->
-                                        <div class="p-3 border rounded-4 bg-light mb-4 position-relative">
-                                            <span
-                                                class="position-absolute top-0 start-50 translate-middle badge bg-dark text-white border-light border">
-                                                Insurance Details
-                                            </span>
-
-                                            <div class="row g-2 mt-1">
-
-                                                <!-- Provider -->
-                                                <div class="col-12">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span class="small text-muted">Provider:</span>
-                                                        <span class="fw-bold">Tata AIG Insurance</span>
                                                     </div>
-                                                </div>
 
-                                                <!-- Policy Number -->
-                                                <!-- <div class="col-12">
+                                                    <!-- Buyer Payment Table -->
+                                                    <div class="border rounded-4 overflow-hidden mb-4">
+                                                        <div class="bg-light px-3 py-2 border-bottom">
+                                                            <h6 class="fw-bold mb-0 small text-uppercase">Buyer Payment Fees
+                                                            </h6>
+                                                        </div>
+                                                        <table class="table table-sm align-middle mb-0 text-center">
+                                                            <thead>
+                                                                <tr class="text-muted small">
+                                                                    <th class="py-2 text-start ps-3">Type</th>
+                                                                    <th class="py-2">Amt</th>
+                                                                    <th class="py-2">Date</th>
+                                                                    <th class="py-2">Status</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td class="text-start ps-3 small fw-bold">Transfer</td>
+                                                                    <td>₹2,500</td>
+                                                                    <td class="small text-muted">Nov 20</td>
+                                                                    <td><span
+                                                                            class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="text-start ps-3 small fw-bold">HPA</td>
+                                                                    <td>₹1,500</td>
+                                                                    <td class="small text-muted">Nov 22</td>
+                                                                    <td><span
+                                                                            class="badge bg-danger-subtle text-danger border border-danger-subtle">Due</span>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="text-start ps-3 small fw-bold">HP</td>
+                                                                    <td>₹500</td>
+                                                                    <td class="small text-muted">Nov 22</td>
+                                                                    <td><span
+                                                                            class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+
+                                                    <!-- Insurance Details (New Field) -->
+                                                    <div class="p-3 border rounded-4 bg-light mb-4 position-relative">
+                                                        <span
+                                                            class="position-absolute top-0 start-50 translate-middle badge bg-dark text-white border-light border">
+                                                            Insurance Details
+                                                        </span>
+
+                                                        <div class="row g-2 mt-1">
+
+                                                            <!-- Provider -->
+                                                            <div class="col-12">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span class="small text-muted">Provider:</span>
+                                                                    <span class="fw-bold">Tata AIG Insurance</span>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Policy Number -->
+                                                            <!-- <div class="col-12">
                                                         <div class="d-flex justify-content-between">
                                                             <span class="small text-muted">Policy No:</span>
                                                             <span class="fw-bold font-monospace">3005/A/123456</span>
                                                         </div>
                                                     </div> -->
 
-                                                <!-- Payment Status -->
-                                                <div class="col-12">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span class="small text-muted">Payment Status:</span>
-                                                        <span class="fw-bold text-success">PAID</span>
-                                                    </div>
-                                                </div>
+                                                            <!-- Payment Status -->
+                                                            <div class="col-12">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span class="small text-muted">Payment Status:</span>
+                                                                    <span class="fw-bold text-success">PAID</span>
+                                                                </div>
+                                                            </div>
 
-                                                <!-- Amount -->
-                                                <div class="col-12">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span class="small text-muted">Amount:</span>
-                                                        <span class="fw-bold">₹ 1,800</span>
-                                                    </div>
-                                                </div>
+                                                            <!-- Amount -->
+                                                            <div class="col-12">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span class="small text-muted">Amount:</span>
+                                                                    <span class="fw-bold">₹ 1,800</span>
+                                                                </div>
+                                                            </div>
 
-                                                <!-- Today Date -->
-                                                <div class="col-12">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span class="small text-muted">Issued On:</span>
-                                                        <span class="fw-bold">2025-11-26</span>
-                                                    </div>
-                                                </div>
+                                                            <!-- Today Date -->
+                                                            <div class="col-12">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span class="small text-muted">Issued On:</span>
+                                                                    <span class="fw-bold">2025-11-26</span>
+                                                                </div>
+                                                            </div>
 
-                                                <!-- Expiry Date -->
-                                                <div class="col-12">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span class="small text-muted">Expiry Date:</span>
-                                                        <span class="fw-bold text-danger">2026-11-26</span>
-                                                    </div>
-                                                </div>
+                                                            <!-- Expiry Date -->
+                                                            <div class="col-12">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span class="small text-muted">Expiry Date:</span>
+                                                                    <span class="fw-bold text-danger">2026-11-26</span>
+                                                                </div>
+                                                            </div>
 
-                                                <!-- Validity Text -->
-                                                <div class="col-12">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span class="small text-muted">Validity:</span>
-                                                        <span class="fw-bold text-primary">1 Year</span>
-                                                    </div>
-                                                </div>
+                                                            <!-- Validity Text -->
+                                                            <div class="col-12">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span class="small text-muted">Validity:</span>
+                                                                    <span class="fw-bold text-primary">1 Year</span>
+                                                                </div>
+                                                            </div>
 
-                                            </div>
-                                        </div>
-
-
-                                        <!-- Finance Section (HPA) -->
-                                        <div class="alert alert-primary border-primary mb-3">
-                                            <div
-                                                class="d-flex justify-content-between align-items-center border-bottom border-primary-subtle pb-2 mb-2">
-                                                <span class="badge bg-primary">Finance Mode</span>
-                                                <small class="fw-bold text-primary">HPA Active</small>
-                                            </div>
-                                            <div class="row g-2">
-                                                <div class="col-12">
-                                                    <small class="text-primary-emphasis fw-bold"
-                                                        style="font-size:10px">FINANCE COMPANY</small>
-                                                    <div class="fw-bold text-dark">Bajaj Finance</div>
-                                                </div>
-                                                <div class="col-12">
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <div>
-                                                            <small class="text-primary-emphasis fw-bold"
-                                                                style="font-size:10px">DISBURSED AMT</small>
-                                                            <div class="fw-bold text-dark">₹1,00,000</div>
                                                         </div>
-                                                        <span class="badge bg-success">Paid</span>
                                                     </div>
-                                                </div>
-                                                <div class="col-12 mt-2 pt-2 border-top border-primary-subtle">
-                                                    <small class="text-primary-emphasis fw-bold d-block mb-1"
-                                                        style="font-size:12px">REGISTERED MOBILES</small>
-                                                    <div class="d-flex gap-3 flex-wrap">
-                                                        <a href="tel:9876543210"
-                                                            class="badge bg-white text-dark border text-decoration-none">
-                                                            <i class="ph-fill ph-phone"></i> 9876543210
-                                                        </a>
-                                                        <a href="tel:8765432109"
-                                                            class="badge bg-white text-dark border text-decoration-none">
-                                                            <i class="ph-fill ph-phone"></i> 8765432109
-                                                        </a>
-                                                        <span
-                                                            class="badge bg-white text-dark border text-muted opacity-50">
-                                                            <i class="ph-fill ph-phone"></i> --
-                                                        </span>
+
+
+                                                    <!-- Finance Section (HPA) -->
+                                                    <div class="alert alert-primary border-primary mb-3">
+                                                        <div
+                                                            class="d-flex justify-content-between align-items-center border-bottom border-primary-subtle pb-2 mb-2">
+                                                            <span class="badge bg-primary">Finance Mode</span>
+                                                            <small class="fw-bold text-primary">HPA Active</small>
+                                                        </div>
+                                                        <div class="row g-2">
+                                                            <div class="col-12">
+                                                                <small class="text-primary-emphasis fw-bold"
+                                                                    style="font-size:10px">FINANCE COMPANY</small>
+                                                                <div class="fw-bold text-dark">Bajaj Finance</div>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <div class="d-flex justify-content-between align-items-center">
+                                                                    <div>
+                                                                        <small class="text-primary-emphasis fw-bold"
+                                                                            style="font-size:10px">DISBURSED AMT</small>
+                                                                        <div class="fw-bold text-dark">₹1,00,000</div>
+                                                                    </div>
+                                                                    <span class="badge bg-success">Paid</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-12 mt-2 pt-2 border-top border-primary-subtle">
+                                                                <small class="text-primary-emphasis fw-bold d-block mb-1"
+                                                                    style="font-size:12px">REGISTERED MOBILES</small>
+                                                                <div class="d-flex gap-3 flex-wrap">
+                                                                    <a href="tel:9876543210"
+                                                                        class="badge bg-white text-dark border text-decoration-none">
+                                                                        <i class="ph-fill ph-phone"></i> 9876543210
+                                                                    </a>
+                                                                    <a href="tel:8765432109"
+                                                                        class="badge bg-white text-dark border text-decoration-none">
+                                                                        <i class="ph-fill ph-phone"></i> 8765432109
+                                                                    </a>
+                                                                    <span
+                                                                        class="badge bg-white text-dark border text-muted opacity-50">
+                                                                        <i class="ph-fill ph-phone"></i> --
+                                                                    </span>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Price Breakdown -->
+                                                    <div class="d-flex text-center border rounded overflow-hidden bg-white mb-3">
+                                                        <div class="flex-fill p-2 border-end">
+                                                            <div class="small text-muted fw-bold" style="font-size:10px">
+                                                                TOTAL
+                                                            </div>
+                                                            <div class="fw-bold">₹1,85,000</div>
+                                                        </div>
+                                                        <div class="flex-fill p-2 border-end bg-success-subtle text-success">
+                                                            <div class="small fw-bold" style="font-size:10px">PAID</div>
+                                                            <div class="fw-bold">₹85,000</div>
+                                                        </div>
+                                                        <div class="flex-fill p-2 bg-danger-subtle text-danger">
+                                                            <div class="small fw-bold" style="font-size:10px">DUE</div>
+                                                            <div class="fw-bold">₹1,00,000</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-4">
+                                                        <label class="small text-muted fw-bold">PAYMENT ALL PAID?</label>
+                                                        <div class="fw-bold text-danger">No</div>
+                                                    </div>
+
+                                                    <!-- Documents -->
+                                                    <h6 class="fw-bold text-muted small text-uppercase mb-3">Purchaser
+                                                        Documents
+                                                    </h6>
+
+                                                    <div class="row g-2">
+
+                                                        <!-- AADHAR FRONT -->
+                                                        <div class="col-6 col-md-3" style="object-fit: cover;">
+                                                            <div class="border rounded p-2 text-center bg-white">
+                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">AADHAR
+                                                                    FRONT</small>
+
+                                                                <!-- Square Preview -->
+                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                                    <img src="your-image-path/aadhar-front.jpg"
+                                                                        class="w-100 h-100 object-fit-cover">
+                                                                </div>
+
+                                                                <!-- View (opens image in new tab) -->
+                                                                <a href="your-image-path/aadhar-front.jpg" target="_blank"
+                                                                    class="btn btn-dark btn-sm w-100 py-0" style="font-size:10px">
+                                                                    View
+                                                                </a>
+
+                                                                <!-- Download -->
+                                                                <a href="your-image-path/aadhar-front.jpg" download
+                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                                    style="font-size:10px">
+                                                                    Download
+                                                                </a>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- AADHAR BACK -->
+                                                        <div class="col-6 col-md-3">
+                                                            <div class="border rounded p-2 text-center bg-white">
+                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">AADHAR
+                                                                    BACK</small>
+
+                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                                    <img src="your-image-path/aadhar-back.jpg"
+                                                                        class="w-100 h-100 object-fit-cover">
+                                                                </div>
+
+                                                                <a href="your-image-path/aadhar-back.jpg" target="_blank"
+                                                                    class="btn btn-dark btn-sm w-100 py-0"
+                                                                    style="font-size:10px">View</a>
+
+                                                                <a href="your-image-path/aadhar-back.jpg" download
+                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                                    style="font-size:10px">Download</a>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- VOTER FRONT -->
+                                                        <div class="col-6 col-md-3">
+                                                            <div class="border rounded p-2 text-center bg-white">
+                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
+                                                                    FRONT</small>
+
+                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                                    <img src="your-image-path/voter-front.jpg"
+                                                                        class="w-100 h-100 object-fit-cover">
+                                                                </div>
+
+                                                                <a href="your-image-path/voter-front.jpg" target="_blank"
+                                                                    class="btn btn-dark btn-sm w-100 py-0"
+                                                                    style="font-size:10px">View</a>
+
+                                                                <a href="your-image-path/voter-front.jpg" download
+                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                                    style="font-size:10px">Download</a>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- VOTER BACK -->
+                                                        <div class="col-6 col-md-3">
+                                                            <div class="border rounded p-2 text-center bg-white">
+                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
+                                                                    BACK</small>
+
+                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                                    <img src="your-image-path/voter-back.jpg"
+                                                                        class="w-100 h-100 object-fit-cover">
+                                                                </div>
+
+                                                                <a href="your-image-path/voter-back.jpg" target="_blank"
+                                                                    class="btn btn-dark btn-sm w-100 py-0"
+                                                                    style="font-size:10px">View</a>
+
+                                                                <a href="your-image-path/voter-back.jpg" download
+                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
+                                                                    style="font-size:10px">Download</a>
+                                                            </div>
+                                                        </div>
+
                                                     </div>
 
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!-- Price Breakdown -->
-                                        <div class="d-flex text-center border rounded overflow-hidden bg-white mb-3">
-                                            <div class="flex-fill p-2 border-end">
-                                                <div class="small text-muted fw-bold" style="font-size:10px">
-                                                    TOTAL
-                                                </div>
-                                                <div class="fw-bold">₹1,85,000</div>
-                                            </div>
-                                            <div class="flex-fill p-2 border-end bg-success-subtle text-success">
-                                                <div class="small fw-bold" style="font-size:10px">PAID</div>
-                                                <div class="fw-bold">₹85,000</div>
-                                            </div>
-                                            <div class="flex-fill p-2 bg-danger-subtle text-danger">
-                                                <div class="small fw-bold" style="font-size:10px">DUE</div>
-                                                <div class="fw-bold">₹1,00,000</div>
-                                            </div>
-                                        </div>
-
-                                        <div class="mb-4">
-                                            <label class="small text-muted fw-bold">PAYMENT ALL PAID?</label>
-                                            <div class="fw-bold text-danger">No</div>
-                                        </div>
-
-                                        <!-- Documents -->
-                                        <h6 class="fw-bold text-muted small text-uppercase mb-3">Purchaser
-                                            Documents
-                                        </h6>
-
-                                        <div class="row g-2">
-
-                                            <!-- AADHAR FRONT -->
-                                            <div class="col-6 col-md-3" style="object-fit: cover;">
-                                                <div class="border rounded p-2 text-center bg-white">
-                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">AADHAR
-                                                        FRONT</small>
-
-                                                    <!-- Square Preview -->
-                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                        <img src="your-image-path/aadhar-front.jpg"
-                                                            class="w-100 h-100 object-fit-cover">
-                                                    </div>
-
-                                                    <!-- View (opens image in new tab) -->
-                                                    <a href="your-image-path/aadhar-front.jpg" target="_blank"
-                                                        class="btn btn-dark btn-sm w-100 py-0" style="font-size:10px">
-                                                        View
-                                                    </a>
-
-                                                    <!-- Download -->
-                                                    <a href="your-image-path/aadhar-front.jpg" download
-                                                        class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                        style="font-size:10px">
-                                                        Download
-                                                    </a>
-                                                </div>
-                                            </div>
-
-                                            <!-- AADHAR BACK -->
-                                            <div class="col-6 col-md-3">
-                                                <div class="border rounded p-2 text-center bg-white">
-                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">AADHAR
-                                                        BACK</small>
-
-                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                        <img src="your-image-path/aadhar-back.jpg"
-                                                            class="w-100 h-100 object-fit-cover">
-                                                    </div>
-
-                                                    <a href="your-image-path/aadhar-back.jpg" target="_blank"
-                                                        class="btn btn-dark btn-sm w-100 py-0"
-                                                        style="font-size:10px">View</a>
-
-                                                    <a href="your-image-path/aadhar-back.jpg" download
-                                                        class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                        style="font-size:10px">Download</a>
-                                                </div>
-                                            </div>
-
-                                            <!-- VOTER FRONT -->
-                                            <div class="col-6 col-md-3">
-                                                <div class="border rounded p-2 text-center bg-white">
-                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
-                                                        FRONT</small>
-
-                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                        <img src="your-image-path/voter-front.jpg"
-                                                            class="w-100 h-100 object-fit-cover">
-                                                    </div>
-
-                                                    <a href="your-image-path/voter-front.jpg" target="_blank"
-                                                        class="btn btn-dark btn-sm w-100 py-0"
-                                                        style="font-size:10px">View</a>
-
-                                                    <a href="your-image-path/voter-front.jpg" download
-                                                        class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                        style="font-size:10px">Download</a>
-                                                </div>
-                                            </div>
-
-                                            <!-- VOTER BACK -->
-                                            <div class="col-6 col-md-3">
-                                                <div class="border rounded p-2 text-center bg-white">
-                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
-                                                        BACK</small>
-
-                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                        <img src="your-image-path/voter-back.jpg"
-                                                            class="w-100 h-100 object-fit-cover">
-                                                    </div>
-
-                                                    <a href="your-image-path/voter-back.jpg" target="_blank"
-                                                        class="btn btn-dark btn-sm w-100 py-0"
-                                                        style="font-size:10px">View</a>
-
-                                                    <a href="your-image-path/voter-back.jpg" download
-                                                        class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                        style="font-size:10px">Download</a>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- ==========================
+                                        <!-- ==========================
                              STEP 4: OWNERSHIP TRANSFER
                              ========================== -->
-                            <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed fw-bold text-uppercase text-dark py-3"
-                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapseTransfer">
-                                        <i class="ph-bold ph-arrows-left-right me-2 text-primary fs-5"></i>
-                                        Ownership Transfer
-                                    </button>
-                                </h2>
-                                <div id="collapseTransfer" class="accordion-collapse collapse"
-                                    data-bs-parent="#dealDetailsAccordion">
-                                    <div class="accordion-body bg-white p-4 border-top">
+                                        <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button collapsed fw-bold text-uppercase text-dark py-3"
+                                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapseTransfer">
+                                                    <i class="ph-bold ph-arrows-left-right me-2 text-primary fs-5"></i>
+                                                    Ownership Transfer
+                                                </button>
+                                            </h2>
+                                            <div id="collapseTransfer" class="accordion-collapse collapse"
+                                                data-bs-parent="#dealDetailsAccordion">
+                                                <div class="accordion-body bg-white p-4 border-top">
 
-                                        <!-- Basic Transfer Info -->
-                                        <div class="row g-3 mb-4">
-                                            <div class="col-12 col-md-6">
-                                                <small class="text-muted fw-bold text-uppercase"
-                                                    style="font-size:10px">Transfer Name To</small>
-                                                <div class="fw-bold text-dark">Sneha Gupta</div>
-                                            </div>
-                                            <div class="col-6 col-md-6">
-                                                <small class="text-muted fw-bold text-uppercase"
-                                                    style="font-size:10px">Vehicle Number</small>
-                                                <div class="fw-bold text-dark">WB 12 AB 9999</div>
-                                            </div>
-                                            <div class="col-6 col-md-6">
-                                                <small class="text-muted fw-bold text-uppercase"
-                                                    style="font-size:10px">RTO
-                                                    Location</small>
-                                                <div class="fw-bold text-dark">Asansol</div>
-                                            </div>
-                                            <div class="col-12 col-md-6">
-                                                <small class="text-muted fw-bold text-uppercase"
-                                                    style="font-size:10px">Vendor Name</small>
-                                                <div class="fw-bold text-primary">RTO Services Pvt Ltd</div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Vendor Payment Table -->
-                                        <div class="border rounded-4 overflow-hidden mb-4">
-                                            <div class="bg-light px-3 py-2 border-bottom">
-                                                <h6 class="fw-bold mb-0 small text-uppercase">Vendor Payment
-                                                    Details
-                                                </h6>
-                                            </div>
-                                            <table class="table table-sm align-middle mb-0 text-center">
-                                                <thead>
-                                                    <tr class="text-muted small">
-                                                        <th class="py-2 text-start ps-3">Type</th>
-                                                        <th class="py-2">Amt</th>
-                                                        <th class="py-2">Date</th>
-                                                        <th class="py-2">Status</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td class="text-start ps-3 small fw-bold">Transfer</td>
-                                                        <td>₹1,200</td>
-                                                        <td class="small text-muted">Nov 28</td>
-                                                        <td><span
-                                                                class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-start ps-3 small fw-bold">HPA</td>
-                                                        <td>₹500</td>
-                                                        <td class="small text-muted">Nov 28</td>
-                                                        <td><span
-                                                                class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-start ps-3 small fw-bold">HP</td>
-                                                        <td>₹200</td>
-                                                        <td class="small text-muted">--</td>
-                                                        <td><span
-                                                                class="badge bg-danger-subtle text-danger border border-danger-subtle">Due</span>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-
-                                        <!-- Insurance Details (New Field) -->
-                                        <div class="p-3 border rounded-4 bg-light mb-4 position-relative">
-                                            <span
-                                                class="position-absolute top-0 start-50 translate-middle badge bg-dark text-white border-light border">
-                                                Insurance Details
-                                            </span>
-
-                                            <div class="row g-2 mt-1">
-
-                                                <!-- Provider -->
-                                                <div class="col-12">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span class="small text-muted">Provider:</span>
-                                                        <span class="fw-bold">Tata AIG Insurance</span>
+                                                    <!-- Basic Transfer Info -->
+                                                    <div class="row g-3 mb-4">
+                                                        <div class="col-12 col-md-6">
+                                                            <small class="text-muted fw-bold text-uppercase"
+                                                                style="font-size:10px">Transfer Name To</small>
+                                                            <div class="fw-bold text-dark">Sneha Gupta</div>
+                                                        </div>
+                                                        <div class="col-6 col-md-6">
+                                                            <small class="text-muted fw-bold text-uppercase"
+                                                                style="font-size:10px">Vehicle Number</small>
+                                                            <div class="fw-bold text-dark">WB 12 AB 9999</div>
+                                                        </div>
+                                                        <div class="col-6 col-md-6">
+                                                            <small class="text-muted fw-bold text-uppercase"
+                                                                style="font-size:10px">RTO
+                                                                Location</small>
+                                                            <div class="fw-bold text-dark">Asansol</div>
+                                                        </div>
+                                                        <div class="col-12 col-md-6">
+                                                            <small class="text-muted fw-bold text-uppercase"
+                                                                style="font-size:10px">Vendor Name</small>
+                                                            <div class="fw-bold text-primary">RTO Services Pvt Ltd</div>
+                                                        </div>
                                                     </div>
-                                                </div>
 
-                                                <!-- Policy Number -->
-                                                <!-- <div class="col-12">
+                                                    <!-- Vendor Payment Table -->
+                                                    <div class="border rounded-4 overflow-hidden mb-4">
+                                                        <div class="bg-light px-3 py-2 border-bottom">
+                                                            <h6 class="fw-bold mb-0 small text-uppercase">Vendor Payment
+                                                                Details
+                                                            </h6>
+                                                        </div>
+                                                        <table class="table table-sm align-middle mb-0 text-center">
+                                                            <thead>
+                                                                <tr class="text-muted small">
+                                                                    <th class="py-2 text-start ps-3">Type</th>
+                                                                    <th class="py-2">Amt</th>
+                                                                    <th class="py-2">Date</th>
+                                                                    <th class="py-2">Status</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td class="text-start ps-3 small fw-bold">Transfer</td>
+                                                                    <td>₹1,200</td>
+                                                                    <td class="small text-muted">Nov 28</td>
+                                                                    <td><span
+                                                                            class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="text-start ps-3 small fw-bold">HPA</td>
+                                                                    <td>₹500</td>
+                                                                    <td class="small text-muted">Nov 28</td>
+                                                                    <td><span
+                                                                            class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="text-start ps-3 small fw-bold">HP</td>
+                                                                    <td>₹200</td>
+                                                                    <td class="small text-muted">--</td>
+                                                                    <td><span
+                                                                            class="badge bg-danger-subtle text-danger border border-danger-subtle">Due</span>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+
+                                                    <!-- Insurance Details (New Field) -->
+                                                    <div class="p-3 border rounded-4 bg-light mb-4 position-relative">
+                                                        <span
+                                                            class="position-absolute top-0 start-50 translate-middle badge bg-dark text-white border-light border">
+                                                            Insurance Details
+                                                        </span>
+
+                                                        <div class="row g-2 mt-1">
+
+                                                            <!-- Provider -->
+                                                            <div class="col-12">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span class="small text-muted">Provider:</span>
+                                                                    <span class="fw-bold">Tata AIG Insurance</span>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Policy Number -->
+                                                            <!-- <div class="col-12">
                                                         <div class="d-flex justify-content-between">
                                                             <span class="small text-muted">Policy No:</span>
                                                             <span class="fw-bold font-monospace">3005/A/123456</span>
                                                         </div>
                                                     </div> -->
 
-                                                <!-- Payment Status -->
-                                                <div class="col-12">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span class="small text-muted">Payment Status:</span>
-                                                        <span class="fw-bold text-success">PAID</span>
-                                                    </div>
-                                                </div>
+                                                            <!-- Payment Status -->
+                                                            <div class="col-12">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span class="small text-muted">Payment Status:</span>
+                                                                    <span class="fw-bold text-success">PAID</span>
+                                                                </div>
+                                                            </div>
 
-                                                <!-- Amount -->
-                                                <div class="col-12">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span class="small text-muted">Amount:</span>
-                                                        <span class="fw-bold">₹ 1,800</span>
-                                                    </div>
-                                                </div>
+                                                            <!-- Amount -->
+                                                            <div class="col-12">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span class="small text-muted">Amount:</span>
+                                                                    <span class="fw-bold">₹ 1,800</span>
+                                                                </div>
+                                                            </div>
 
-                                                <!-- Today Date -->
-                                                <div class="col-12">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span class="small text-muted">Issued On:</span>
-                                                        <span class="fw-bold">2025-11-26</span>
-                                                    </div>
-                                                </div>
+                                                            <!-- Today Date -->
+                                                            <div class="col-12">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span class="small text-muted">Issued On:</span>
+                                                                    <span class="fw-bold">2025-11-26</span>
+                                                                </div>
+                                                            </div>
 
-                                                <!-- Expiry Date -->
-                                                <div class="col-12">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span class="small text-muted">Expiry Date:</span>
-                                                        <span class="fw-bold text-danger">2026-11-26</span>
-                                                    </div>
-                                                </div>
+                                                            <!-- Expiry Date -->
+                                                            <div class="col-12">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span class="small text-muted">Expiry Date:</span>
+                                                                    <span class="fw-bold text-danger">2026-11-26</span>
+                                                                </div>
+                                                            </div>
 
-                                                <!-- Validity Text -->
-                                                <div class="col-12">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span class="small text-muted">Validity:</span>
-                                                        <span class="fw-bold text-primary">1 Year</span>
-                                                    </div>
-                                                </div>
+                                                            <!-- Validity Text -->
+                                                            <div class="col-12">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span class="small text-muted">Validity:</span>
+                                                                    <span class="fw-bold text-primary">1 Year</span>
+                                                                </div>
+                                                            </div>
 
-                                            </div>
-                                        </div>
+                                                        </div>
+                                                    </div>
 
-                                        <!-- Signatures -->
-                                        <div class="row g-2">
-                                            <div class="col-6">
-                                                <div class="p-3 border rounded-3 text-center bg-light h-100">
-                                                    <i class="ph-fill ph-pen-nib text-primary mb-2 fs-5"></i>
-                                                    <div class="small fw-bold text-muted mb-1">Purchaser</div>
-                                                    <span class="badge bg-success mb-1">Signed</span>
-                                                    <div class="small text-muted" style="font-size:10px">
-                                                        2025-11-26
+                                                    <!-- Signatures -->
+                                                    <div class="row g-2">
+                                                        <div class="col-6">
+                                                            <div class="p-3 border rounded-3 text-center bg-light h-100">
+                                                                <i class="ph-fill ph-pen-nib text-primary mb-2 fs-5"></i>
+                                                                <div class="small fw-bold text-muted mb-1">Purchaser</div>
+                                                                <span class="badge bg-success mb-1">Signed</span>
+                                                                <div class="small text-muted" style="font-size:10px">
+                                                                    2025-11-26
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="p-3 border rounded-3 text-center bg-light h-100">
+                                                                <i class="ph-fill ph-pen-nib text-primary mb-2 fs-5"></i>
+                                                                <div class="small fw-bold text-muted mb-1">Seller</div>
+                                                                <span class="badge bg-success mb-1">Signed</span>
+                                                                <div class="small text-muted" style="font-size:10px">
+                                                                    2025-11-26
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="p-3 border rounded-3 text-center bg-light h-100">
-                                                    <i class="ph-fill ph-pen-nib text-primary mb-2 fs-5"></i>
-                                                    <div class="small fw-bold text-muted mb-1">Seller</div>
-                                                    <span class="badge bg-success mb-1">Signed</span>
-                                                    <div class="small text-muted" style="font-size:10px">
-                                                        2025-11-26
-                                                    </div>
+
                                                 </div>
                                             </div>
                                         </div>
 
                                     </div>
                                 </div>
-                            </div>
 
+                                <div class="modal-footer border-top bg-white px-4 py-3">
+                                    <button type="button" class="btn btn-light border fw-bold rounded-pill px-4 shadow-sm w-100"
+                                        data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="modal-footer border-top bg-white px-4 py-3">
-                        <button type="button" class="btn btn-light border fw-bold rounded-pill px-4 shadow-sm w-100"
-                            data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
+
+                <?php endwhile; ?>
             </div>
         </div>
+        <!-- END OF Vehicle Data Grid -->
 
-        <!-- Edit vechical form -->
-        <div class="modal fade" id="dealModal" data-bs-backdrop="static" tabindex="-1">
-            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
-                <div class="modal-content">
-                    <div class="modal-header border-0 pt-4 pb-2 d-flex align-items-center justify-content-between">
 
-                        <!-- Left Section: Icon + Title -->
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm border"
-                                style="width: 45px; height: 45px; overflow: hidden; padding: 2px;">
-                                <img src="../images/logo.jpeg" alt="Chowdhury Automobile" class="rounded-circle"
-                                    style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
 
-                            <div class="d-flex flex-column lh-1">
-                                <span class="fs-5 fw-bolder text-dark">CHOWDHURY</span>
-                                <span class="text-secondary fw-bold text-uppercase"
-                                    style="font-size: 0.75rem; letter-spacing: 1.5px;">
-                                    Automobile
-                                </span>
-                            </div>
-                        </div>
+    </div>
+    <script>
 
-                        <!-- Right: Bootstrap Close Button (Perfectly Centered) -->
-                        <button type="button" class="btn-close ms-3" data-bs-dismiss="modal"></button>
-
-                    </div>
-
-                    <?php
-                    // Check URL parameters to determine state
-                    $open_modal = isset($_GET['modal']) && $_GET['modal'] == 'open';
-                    $current_step = isset($_GET['step']) ? (int) $_GET['step'] : 1;
-                    $row_id = isset($_GET['id']) ? $_GET['id'] : '';
-                    ?>
-
-                    <div class="wizard-nav d-flex justify-content-between flex-wrap gap-3 mt-3 px-2 text-center">
-
-                        <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="1">
-                            <div class="step-circle d-flex align-items-center justify-content-center rounded-circle 
-            <?php echo $current_step >= 1 ? 'bg-primary text-white shadow-sm' : 'bg-light text-muted border'; ?>"
-                                style="width: 40px; height: 40px; transition: all 0.3s ease;">
-                                1
-                            </div>
-                            <div
-                                class="step-label small mt-1 <?php echo $current_step >= 1 ? 'text-primary fw-bold' : 'text-muted'; ?>">
-                                Vehicle
-                            </div>
-                        </div>
-
-                        <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="2">
-                            <div class="step-circle d-flex align-items-center justify-content-center rounded-circle 
-            <?php echo $current_step >= 2 ? 'bg-primary text-white shadow-sm' : 'bg-light text-muted border'; ?>"
-                                style="width: 40px; height: 40px; transition: all 0.3s ease;">
-                                2
-                            </div>
-                            <div
-                                class="step-label small mt-1 <?php echo $current_step >= 2 ? 'text-primary fw-bold' : 'text-muted'; ?>">
-                                Seller
-                            </div>
-                        </div>
-
-                        <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="3">
-                            <div class="step-circle d-flex align-items-center justify-content-center rounded-circle 
-            <?php echo $current_step >= 3 ? 'bg-primary text-white shadow-sm' : 'bg-light text-muted border'; ?>"
-                                style="width: 40px; height: 40px; transition: all 0.3s ease;">
-                                3
-                            </div>
-                            <div
-                                class="step-label small mt-1 <?php echo $current_step >= 3 ? 'text-primary fw-bold' : 'text-muted'; ?>">
-                                Purchaser
-                            </div>
-                        </div>
-
-                        <div class="step-item d-flex flex-column align-items-center flex-fill" data-step="4">
-                            <div class="step-circle d-flex align-items-center justify-content-center rounded-circle 
-            <?php echo $current_step >= 4 ? 'bg-primary text-white shadow-sm' : 'bg-light text-muted border'; ?>"
-                                style="width: 40px; height: 40px; transition: all 0.3s ease;">
-                                4
-                            </div>
-                            <div
-                                class="step-label small mt-1 <?php echo $current_step >= 4 ? 'text-primary fw-bold' : 'text-muted'; ?>">
-                                Transfer
-                            </div>
-                        </div>
-
-                    </div>
-
-
-
-                    <div class="modal-body">
-
-
-                        <!-- Your form -->
-                        <form action="vehicle_update_form.php" id="dealForm" method="POST" class="app-form"
-                            enctype="multipart/form-data" novalidate>
-                            <input type="hidden" name="row_id" value="<?php echo $row_id; ?>">
-                            <input type="hidden" name="current_step" value="<?php echo $current_step; ?>">
-
-
-                            <!-- STEP 1: VEHICLE -->
-                            <div id="step-1" class="wizard-step">
-                                <div
-                                    class="card steps-id p-4 border-0 shadow-sm position-relative sold-wrapper rounded-4">
-                                    <div class="sold-stamp">SOLD OUT</div>
-                                    <div class="sold-overlay"></div>
-                                    <div>
-                                        <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Vehicle Details</h6>
-                                        <label class="mb-2">Vehicle Photos</label>
-                                        <div class="row g-3 mb-4">
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <i class="ph-bold ph-camera fs-3 text-secondary"></i>
-                                                    <img src="">
-                                                    <input type="file" name="photo1" accept="image/*" hidden>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <i class="ph-bold ph-camera fs-3 text-secondary"></i>
-                                                    <img src="">
-                                                    <input type="file" name="photo2" accept="image/*" hidden>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <i class="ph-bold ph-camera fs-3 text-secondary"></i>
-                                                    <img src="">
-                                                    <input type="file" name="photo3" accept="image/*" hidden>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <i class="ph-bold ph-camera fs-3 text-secondary"></i>
-                                                    <img src="">
-                                                    <input type="file" name="photo4" accept="image/*" hidden>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row g-3 mb-3">
-                                            <div class="col-12 col-md-6">
-                                                <label for="vehicleType" class="form-label">Vehicle Type</label>
-                                                <select id="vehicleType" name="vehicle_type"
-                                                    class="form-select fw-bold">
-                                                    <option selected disabled>Choose Vehicle Type</option>
-                                                    <option>Scooters</option>
-                                                    <option>Mopeds</option>
-                                                    <option>Dirt / Off-road Bikes</option>
-                                                    <option>Electric Bikes</option>
-                                                    <option>Cruiser Bikes</option>
-                                                    <option>Sport Bikes</option>
-                                                    <option>Touring Bikes</option>
-                                                    <option>Adventure / Dual-Sport Bikes</option>
-                                                    <option>Naked / Standard Bikes</option>
-                                                    <option>Cafe Racers</option>
-                                                    <option>Bobbers</option>
-                                                    <option>Choppers</option>
-                                                    <option>Pocket Bikes / Mini Bikes</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-12 col-md-6">
-                                                <label class="fw-bold">Name</label>
-                                                <input type="text" id="nameField" name="name" class="form-control"
-                                                    placeholder="Enter Name">
-                                            </div>
-                                            <div class="col-12 col-md-6">
-                                                <label>Vehicle Number</label>
-                                                <input type="text" name="vehicle_number"
-                                                    class="form-control fw-bold text-uppercase"
-                                                    placeholder="WB 00 AA 0000" value="WB ">
-                                            </div>
-                                            <div class="col-12 col-md-6">
-                                                <label>Register Date</label>
-                                                <input type="date" name="register_date" class="form-control"
-                                                    value="2025-11-26">
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                <label>Owner Serial</label>
-                                                <select name="owner_serial" class="form-select">
-                                                    <option>1st</option>
-                                                    <option>2nd</option>
-                                                    <option>3rd</option>
-                                                    <option>4th</option>
-                                                    <option>5th</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                <label>Chassis Number</label>
-                                                <input type="text" name="chassis_number"
-                                                    class="form-control text-uppercase">
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                <label>Engine Number</label>
-                                                <input type="text" name="engine_number"
-                                                    class="form-control text-uppercase">
-                                            </div>
-                                        </div>
-
-                                        <div class="row g-3 mb-3">
-                                            <div class="col-12 col-md-6">
-                                                <label class="fw-bold mb-2">Payment Type</label>
-                                                <div class="d-flex gap-2 mb-3">
-                                                    <input type="radio" class="btn-check" name="payment_type"
-                                                        id="sp_cash" value="cash" checked data-bs-toggle="collapse"
-                                                        data-bs-target="#cashBox" aria-controls="cashBox">
-                                                    <label class="btn btn-outline-success" for="sp_cash">Cash</label>
-
-                                                    <input type="radio" class="btn-check" name="payment_type"
-                                                        id="sp_online" value="online" data-bs-toggle="collapse"
-                                                        data-bs-target="#onlineBox" aria-controls="onlineBox">
-                                                    <label class="btn btn-outline-primary"
-                                                        for="sp_online">Online</label>
-                                                </div>
-
-                                                <div id="payBoxes">
-                                                    <div id="cashBox" class="collapse show" data-bs-parent="#payBoxes">
-                                                        <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
-                                                            <label class="fw-bold small mb-1">Bike Price</label>
-                                                            <input type="number" name="cash_price"
-                                                                class="form-control form-control-sm mb-3"
-                                                                placeholder="Enter Amount">
-                                                        </div>
-                                                    </div>
-
-                                                    <div id="onlineBox" class="collapse" data-bs-parent="#payBoxes">
-                                                        <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
-                                                            <label class="fw-bold small mb-2">Select Online
-                                                                Method</label>
-                                                            <div class="d-flex flex-wrap gap-3 mb-2">
-                                                                <div class="form-check">
-                                                                    <input type="radio" class="form-check-input"
-                                                                        name="online_method" id="om_gpay" value="gpay">
-                                                                    <label class="form-check-label small fw-bold"
-                                                                        for="om_gpay">Google
-                                                                        Pay</label>
-                                                                </div>
-                                                                <div class="form-check">
-                                                                    <input type="radio" class="form-check-input"
-                                                                        name="online_method" id="om_paytm"
-                                                                        value="paytm">
-                                                                    <label class="form-check-label small fw-bold"
-                                                                        for="om_paytm">Paytm</label>
-                                                                </div>
-                                                                <div class="form-check">
-                                                                    <input type="radio" class="form-check-input"
-                                                                        name="online_method" id="om_phonepe"
-                                                                        value="phonepe">
-                                                                    <label class="form-check-label small fw-bold"
-                                                                        for="om_phonepe">PhonePe</label>
-                                                                </div>
-                                                                <div class="form-check">
-                                                                    <input type="radio" class="form-check-input"
-                                                                        name="online_method" id="om_bharatpe"
-                                                                        value="bharatpe">
-                                                                    <label class="form-check-label small fw-bold"
-                                                                        for="om_bharatpe">BharatPe</label>
-                                                                </div>
-                                                            </div>
-
-                                                            <input type="text" name="upi_ref"
-                                                                class="form-control form-control-sm mb-3 text-uppercase"
-                                                                placeholder="Transaction / UPI Reference ID">
-
-                                                            <label class="fw-bold small mb-1">Bike Price</label>
-                                                            <div class="input-group">
-                                                                <span
-                                                                    class="input-group-text bg-white border-end-0">₹</span>
-                                                                <input type="number" name="online_price"
-                                                                    class="form-control border-start-0 ps-0"
-                                                                    placeholder="Enter Price" required>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="p-3 rounded-4 bg-light border">
-                                            <label>Police Challan</label>
-                                            <div class="d-flex gap-3 mb-2">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="police_challan"
-                                                        value="no" checked data-bs-toggle="collapse"
-                                                        data-bs-target="#challan-section">
-                                                    <label class="form-check-label fw-bold">No</label>
-                                                </div>
-
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="police_challan"
-                                                        value="yes" data-bs-toggle="collapse"
-                                                        data-bs-target="#challan-section">
-                                                    <label class="form-check-label fw-bold">Yes</label>
-                                                </div>
-                                            </div>
-
-                                            <div class="collapse mt-3" id="challan-section">
-                                                <!-- Challan 1 -->
-                                                <div class="border rounded p-2 mb-2 bg-white">
-                                                    <label class="fw-bold small">Challan 1</label>
-                                                    <div class="row g-2">
-                                                        <div class="col-md-4">
-                                                            <input type="text" name="challan1_number"
-                                                                class="form-control text-uppercase"
-                                                                placeholder="Challan Number">
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <input type="number" name="challan1_amount"
-                                                                class="form-control" placeholder="Amount">
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <div class="btn-group w-100 btn-group-sm">
-                                                                <input type="radio" class="btn-check"
-                                                                    name="challan1_status" id="pen1" value="pending"
-                                                                    checked>
-                                                                <label class="btn btn-outline-danger"
-                                                                    for="pen1">Pending</label>
-
-                                                                <input type="radio" class="btn-check"
-                                                                    name="challan1_status" id="paid1" value="paid">
-                                                                <label class="btn btn-outline-success"
-                                                                    for="paid1">Paid</label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Challan 2 -->
-                                                <div class="border rounded p-2 mb-2 bg-white">
-                                                    <label class="fw-bold small">Challan 2</label>
-                                                    <div class="row g-2">
-                                                        <div class="col-md-4">
-                                                            <input type="text" name="challan2_number"
-                                                                class="form-control text-uppercase"
-                                                                placeholder="Challan Number">
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <input type="number" name="challan2_amount"
-                                                                class="form-control" placeholder="Amount">
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <div class="btn-group w-100 btn-group-sm">
-                                                                <input type="radio" class="btn-check"
-                                                                    name="challan2_status" id="pen2" value="pending"
-                                                                    checked>
-                                                                <label class="btn btn-outline-danger"
-                                                                    for="pen2">Pending</label>
-
-                                                                <input type="radio" class="btn-check"
-                                                                    name="challan2_status" id="paid2" value="paid">
-                                                                <label class="btn btn-outline-success"
-                                                                    for="paid2">Paid</label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Challan 3 -->
-                                                <div class="border rounded p-2 mb-2 bg-white">
-                                                    <label class="fw-bold small">Challan 3</label>
-                                                    <div class="row g-2">
-                                                        <div class="col-md-4">
-                                                            <input type="text" name="challan3_number"
-                                                                class="form-control text-uppercase"
-                                                                placeholder="Challan Number">
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <input type="number" name="challan3_amount"
-                                                                class="form-control" placeholder="Amount">
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <div class="btn-group w-100 btn-group-sm">
-                                                                <input type="radio" class="btn-check"
-                                                                    name="challan3_status" id="pen3" value="pending"
-                                                                    checked>
-                                                                <label class="btn btn-outline-danger"
-                                                                    for="pen3">Pending</label>
-
-                                                                <input type="radio" class="btn-check"
-                                                                    name="challan3_status" id="paid3" value="paid">
-                                                                <label class="btn btn-outline-success"
-                                                                    for="paid3">Paid</label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="mt-4 pt-3 border-top d-flex align-items-center justify-content-between">
-                                        <label class="form-check-label fw-bold text-danger mb-0" for="soldToggle">Mark
-                                            as
-                                            Sold Out</label>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="soldToggle"
-                                                name="sold_out" style="width: 3em; height: 1.5em;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- STEP 2: SELLER -->
-                            <div id="step-2" class="wizard-step d-none">
-                                <div class="card steps-id border-0 p-4 shadow-sm rounded-4">
-                                    <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Seller Details</h6>
-
-                                    <!-- SELLER BASIC INFO -->
-                                    <div class="row g-3 mb-3">
-                                        <div class="col-12 col-md-4">
-                                            <label>Date</label>
-                                            <input type="date" name="seller_date" class="form-control">
-                                        </div>
-
-                                        <div class="col-12 col-md-4">
-                                            <label>Vehicle No</label>
-                                            <input type="text" name="seller_vehicle_number"
-                                                class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000"
-                                                value="WB ">
-                                        </div>
-
-                                        <div class="col-12 col-md-4">
-                                            <label>Bike Name</label>
-                                            <input type="text" name="bike_name" class="form-control text-uppercase">
-                                        </div>
-
-                                        <div class="col-12 col-md-6">
-                                            <label>Chassis No</label>
-                                            <input type="text" name="chassis_number"
-                                                class="form-control text-uppercase">
-                                        </div>
-
-                                        <div class="col-12 col-md-6">
-                                            <label>Engine No</label>
-                                            <input type="text" name="engine_number" class="form-control text-uppercase">
-                                        </div>
-
-                                        <div class="col-12">
-                                            <label>Seller Name</label>
-                                            <input type="text" name="seller_name" class="form-control text-uppercase">
-                                        </div>
-
-                                        <div class="col-12">
-                                            <label>Address</label>
-                                            <textarea name="seller_address" class="form-control text-uppercase"
-                                                rows="2"></textarea>
-                                        </div>
-                                    </div>
-
-                                    <!-- MOBILE NUMBERS -->
-                                    <label class="mb-2">Mobile Numbers</label>
-                                    <div class="row g-2 mb-3">
-                                        <div class="col-12"><input type="tel" name="mobile1" class="form-control"
-                                                placeholder="Mob 1"></div>
-                                        <div class="col-12"><input type="tel" name="mobile2" class="form-control"
-                                                placeholder="Mob 2"></div>
-                                        <div class="col-12"><input type="tel" name="mobile3" class="form-control"
-                                                placeholder="Mob 3"></div>
-                                    </div>
-
-                                    <!-- DOCUMENT UPLOADS -->
-                                    <div class="mb-3">
-                                        <label class="mb-2">Purchaser Documents</label>
-                                        <div class="row g-2">
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <span class="small text-muted fw-bold">Aadhar Front</span>
-                                                    <img src="">
-                                                    <input type="file" name="aadhar_front" accept="image/*" hidden>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <span class="small text-muted fw-bold">Aadhar Back</span>
-                                                    <img src="">
-                                                    <input type="file" name="aadhar_back" accept="image/*" hidden>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <span class="small text-muted fw-bold">Voter Front</span>
-                                                    <img src="">
-                                                    <input type="file" name="voter_front" accept="image/*" hidden>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <span class="small text-muted fw-bold">Voter Back</span>
-                                                    <img src="">
-                                                    <input type="file" name="voter_back" accept="image/*" hidden>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- PAPERS RECEIVED -->
-                                    <div class="bg-light p-3 rounded-4 border mb-3">
-                                        <label class="mb-2 fw-bold">Papers Received</label>
-                                        <div class="d-flex flex-wrap gap-3">
-                                            <div class="form-check">
-                                                <input type="checkbox" name="papers_rc" class="form-check-input"
-                                                    id="pr_rc" data-bs-toggle="collapse" data-bs-target="#rcUploadBox">
-                                                <label class="fw-bold" for="pr_rc">RC</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" name="papers_tax" class="form-check-input"
-                                                    id="pr_tax">
-                                                <label class="fw-bold" for="pr_tax">Tax Token</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" name="papers_insurance" class="form-check-input"
-                                                    id="pr_ins">
-                                                <label class="fw-bold" for="pr_ins">Insurance</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" name="papers_pucc" class="form-check-input"
-                                                    id="pr_puc">
-                                                <label class="fw-bold" for="pr_puc">PUCC</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" name="papers_noc" class="form-check-input"
-                                                    id="pr_noc" data-bs-toggle="collapse"
-                                                    data-bs-target="#nocUploadBox">
-                                                <label class="fw-bold" for="pr_noc">NOC</label>
-                                            </div>
-                                        </div>
-
-                                        <!-- RC UPLOAD -->
-                                        <div class="collapse mt-3" id="rcUploadBox">
-                                            <label class="fw-bold small">RC Upload</label>
-                                            <div class="row g-2">
-                                                <div class="col-6">
-                                                    <div class="border rounded p-2 text-center bg-white">
-                                                        <small class="fw-bold d-block mb-1" style="font-size:10px">RC
-                                                            FRONT</small>
-                                                        <input type="file" name="rc_front"
-                                                            class="form-control form-control-sm mt-1">
-                                                    </div>
-                                                </div>
-                                                <div class="col-6">
-                                                    <div class="border rounded p-2 text-center bg-white">
-                                                        <small class="fw-bold d-block mb-1" style="font-size:10px">RC
-                                                            BACK</small>
-                                                        <input type="file" name="rc_back"
-                                                            class="form-control form-control-sm mt-1">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- NOC UPLOAD -->
-                                        <div class="collapse mt-3" id="nocUploadBox">
-                                            <label class="fw-bold small">NOC Status</label>
-                                            <div class="d-flex justify-content-center">
-                                                <div class="btn-group w-75 btn-group-sm mb-3 mx-auto" role="group">
-                                                    <input type="radio" name="noc_payment" class="btn-check"
-                                                        id="noc_paid" value="paid" checked>
-                                                    <label class="btn btn-outline-success" for="noc_paid">Paid</label>
-
-                                                    <input type="radio" name="noc_payment" class="btn-check"
-                                                        id="noc_due" value="due">
-                                                    <label class="btn btn-outline-danger" for="noc_due">Due</label>
-                                                </div>
-                                            </div>
-
-                                            <div class="row g-2">
-                                                <div class="col-6">
-                                                    <div class="border rounded small-box text-center p-2">
-                                                        <span class="small text-muted fw-bold">NOC Front</span>
-                                                        <input type="file" name="noc_front"
-                                                            class="form-control form-control-sm mt-1">
-                                                    </div>
-                                                </div>
-                                                <div class="col-6">
-                                                    <div class="border rounded small-box text-center p-2">
-                                                        <span class="small text-muted fw-bold">NOC Back</span>
-                                                        <input type="file" name="noc_back"
-                                                            class="form-control form-control-sm mt-1">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- PAYMENT SECTION -->
-                                    <div class="row g-3 mb-3">
-                                        <div class="col-12 col-md-6">
-                                            <label class="fw-bold mb-2">Payment Type</label>
-                                            <div class="d-flex gap-2 mb-3">
-                                                <input type="radio" name="pay_type" class="btn-check" id="pay_cash"
-                                                    value="cash" checked data-bs-toggle="collapse"
-                                                    data-bs-target="#cashBox">
-                                                <label class="btn btn-outline-success" for="pay_cash">Cash</label>
-
-                                                <input type="radio" name="pay_type" class="btn-check" id="pay_online"
-                                                    value="online" data-bs-toggle="collapse"
-                                                    data-bs-target="#onlineBox">
-                                                <label class="btn btn-outline-primary" for="pay_online">Online</label>
-                                            </div>
-
-                                            <div id="payAccordion">
-                                                <div id="cashBox" class="collapse show" data-bs-parent="#payAccordion">
-                                                    <div class="p-3 bg-white border rounded shadow-sm">
-                                                        <label class="fw-bold small mb-1">Price</label>
-                                                        <div class="input-group">
-                                                            <span
-                                                                class="input-group-text bg-white border-end-0">₹</span>
-                                                            <input type="number" name="cash_price"
-                                                                class="form-control border-start-0 ps-0"
-                                                                placeholder="Enter Price">
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div id="onlineBox" class="collapse" data-bs-parent="#payAccordion">
-                                                    <div class="p-3 bg-white border rounded shadow-sm">
-                                                        <label class="fw-bold small mb-2">Online Method</label>
-                                                        <div class="d-flex flex-wrap gap-3 mb-3">
-                                                            <label class="form-check">
-                                                                <input type="radio" name="online_method"
-                                                                    class="form-check-input" value="gpay">
-                                                                <span class="form-check-label fw-bold">Google Pay</span>
-                                                            </label>
-                                                            <label class="form-check">
-                                                                <input type="radio" name="online_method"
-                                                                    class="form-check-input" value="paytm">
-                                                                <span class="form-check-label fw-bold">Paytm</span>
-                                                            </label>
-                                                            <label class="form-check">
-                                                                <input type="radio" name="online_method"
-                                                                    class="form-check-input" value="phonepe">
-                                                                <span class="form-check-label fw-bold">PhonePe</span>
-                                                            </label>
-                                                            <label class="form-check">
-                                                                <input type="radio" name="online_method"
-                                                                    class="form-check-input" value="bharatpe">
-                                                                <span class="form-check-label fw-bold">BharatPe</span>
-                                                            </label>
-                                                        </div>
-
-                                                        <input type="text" name="upi_ref"
-                                                            class="form-control form-control-sm mb-3 text-uppercase"
-                                                            placeholder="Transaction / UPI Reference ID">
-
-                                                        <label class="fw-bold small mb-1">Price</label>
-                                                        <div class="input-group">
-                                                            <span
-                                                                class="input-group-text bg-white border-end-0">₹</span>
-                                                            <input type="number" name="online_price"
-                                                                class="form-control border-start-0 ps-0"
-                                                                placeholder="Enter Price">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- OTHER FIELDS -->
-                                    <div class="row g-3 mb-3">
-                                        <div class="col-12 col-md-6">
-                                            <label>Exchange Showroom Name</label>
-                                            <input type="text" name="showroom_name" class="form-control text-uppercase"
-                                                placeholder="Showroom Name">
-                                        </div>
-                                        <div class="col-12 col-md-6">
-                                            <label>Staff Name</label>
-                                            <input type="text" name="staff_name" class="form-control text-uppercase"
-                                                placeholder="Staff Name">
-                                        </div>
-                                    </div>
-
-                                    <!-- PAYMENT CALCULATION -->
-                                    <div class="bg-light p-3 rounded-4 border">
-                                        <label class="text-primary">Payment Calculation</label>
-                                        <div class="row g-2">
-                                            <div class="col-12"><input type="number" name="total_amount"
-                                                    class="form-control" placeholder="Total" id="s_total"></div>
-                                            <div class="col-12"><input type="number" name="paid_amount"
-                                                    class="form-control" placeholder="Paid" id="s_paid"></div>
-                                            <div class="col-12"><input type="number" name="due_amount"
-                                                    class="form-control bg-white fw-bold text-danger" placeholder="Due"
-                                                    id="s_due" readonly></div>
-                                            <div class="col-12"><input type="text" name="due_reason"
-                                                    class="form-control d-none mt-1" id="s_due_reason"
-                                                    placeholder="Reason for due amount..."></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-
-
-                            <!-- STEP 3: PURCHASER -->
-                            <div id="step-3" class="wizard-step d-none">
-                                <div class="card steps-id border-0 p-4 shadow-sm rounded-4">
-                                    <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Purchaser Details</h6>
-
-                                    <!-- Purchaser Basic Info -->
-                                    <div class="row g-3 mb-3">
-                                        <div class="col-12 col-md-6">
-                                            <label>Date</label>
-                                            <input type="date" name="purchaser_date" class="form-control"
-                                                value="2025-11-26">
-                                        </div>
-                                        <div class="col-12 col-md-6">
-                                            <label>Purchaser Name</label>
-                                            <input type="text" name="purchaser_name"
-                                                class="form-control text-uppercase">
-                                        </div>
-                                        <div class="col-12">
-                                            <label>Address</label>
-                                            <textarea name="purchaser_address" class="form-control text-uppercase"
-                                                rows="2"></textarea>
-                                        </div>
-                                        <div class="col-12 col-md-6">
-                                            <label>Bike Name</label>
-                                            <input type="text" name="purchaser_bike_name"
-                                                class="form-control text-uppercase">
-                                        </div>
-                                        <div class="col-12 col-md-6">
-                                            <label>Vehicle No</label>
-                                            <input type="text" name="purchaser_vehicle_no"
-                                                class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000"
-                                                value="WB ">
-                                        </div>
-                                    </div>
-
-                                    <!-- Purchaser Paper Payment Fees -->
-                                    <div class="bg-light p-3 rounded-4 border mb-4">
-                                        <label class="text-dark mb-3 d-block">Purchaser Paper Payment Fees</label>
-
-                                        <!-- Name Transfer -->
-                                        <div class="row g-2 align-items-end mb-3">
-                                            <div class="col-12 col-md-4">
-                                                <label>Transfer Amount</label>
-                                                <input type="number" name="transfer_amount" class="form-control"
-                                                    placeholder="Amount">
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                <label>Date</label>
-                                                <input type="date" name="transfer_date" class="form-control"
-                                                    value="2025-11-26">
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                <label>Status</label>
-                                                <select name="transfer_status" class="form-select">
-                                                    <option value="paid">Paid</option>
-                                                    <option value="due">Due</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <!-- HPA -->
-                                        <div class="row g-2 align-items-end mb-3">
-                                            <div class="col-12 col-md-4">
-                                                <label>HPA</label>
-                                                <input type="number" name="hpa_amount" class="form-control"
-                                                    placeholder="Amount">
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                <label>Date</label>
-                                                <input type="date" name="hpa_date" class="form-control"
-                                                    value="2025-11-26">
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                <label>Status</label>
-                                                <select name="hpa_status" class="form-select">
-                                                    <option value="paid">Paid</option>
-                                                    <option value="due">Due</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <!-- HP -->
-                                        <div class="row g-2 align-items-end mb-3">
-                                            <div class="col-12 col-md-4">
-                                                <label>HP</label>
-                                                <input type="number" name="hp_amount" class="form-control"
-                                                    placeholder="Amount">
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                <label>Date</label>
-                                                <input type="date" name="hp_date" class="form-control"
-                                                    value="2025-11-26">
-                                            </div>
-                                            <div class="col-12 col-md-4">
-                                                <label>Status</label>
-                                                <select name="hp_status" class="form-select">
-                                                    <option value="paid">Paid</option>
-                                                    <option value="due">Due</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <!-- Insurance -->
-                                        <div class="row g-3 mb-3">
-                                            <div class="col-md-3">
-                                                <label class="fw-bold">Insurance Name</label>
-                                                <select name="insurance_name" class="form-control text-uppercase"
-                                                    required>
-                                                    <option value="">-- Select Insurance --</option>
-                                                    <option value="Tata AIG Insurance">Tata AIG Insurance</option>
-                                                    <option value="Bharti AXA">Bharti AXA</option>
-                                                    <option value="Bajaj Allianz">Bajaj Allianz</option>
-                                                    <option value="ICICI Lombard">ICICI Lombard</option>
-                                                    <option value="IFFCO Tokio">IFFCO Tokio</option>
-                                                    <option value="National Insurance">National Insurance</option>
-                                                    <option value="New India Assurance">New India Assurance</option>
-                                                    <option value="Oriental Insurance">Oriental Insurance</option>
-                                                    <option value="United India Insurance">United India Insurance
-                                                    </option>
-                                                    <option value="Reliance General Insurance">Reliance General
-                                                        Insurance
-                                                    </option>
-                                                    <option value="Royal Sundaram Insurance">Royal Sundaram Insurance
-                                                    </option>
-                                                    <option value="Chola MS Insurance">Chola MS Insurance</option>
-                                                    <option value="HDFC ERGO">HDFC ERGO</option>
-                                                    <option value="ECGC">ECGC</option>
-                                                    <option value="Agriculture Insurance Company of India (AIC)">
-                                                        Agriculture
-                                                        Insurance Company of India (AIC)</option>
-                                                    <option value="Star Health Insurance">Star Health Insurance</option>
-                                                    <option value="Future Generali">Future Generali</option>
-                                                    <option value="Universal Sompo">Universal Sompo</option>
-                                                    <option value="Shriram General Insurance">Shriram General Insurance
-                                                    </option>
-                                                    <option value="Raheja QBE">Raheja QBE</option>
-                                                    <option value="SBI General Insurance">SBI General Insurance</option>
-                                                    <option value="Niva Bupa Health Insurance">Niva Bupa Health
-                                                        Insurance
-                                                    </option>
-                                                    <option value="L&T Insurance">L&T Insurance</option>
-                                                    <option value="Care Health Insurance">Care Health Insurance</option>
-                                                    <option value="Magma HDI">Magma HDI</option>
-                                                    <option value="Liberty General Insurance">Liberty General Insurance
-                                                    </option>
-                                                    <option value="Manipal Cigna">Manipal Cigna</option>
-                                                    <option value="Kotak General Insurance">Kotak General Insurance
-                                                    </option>
-                                                    <option value="Aditya Birla Capital Health Insurance">Aditya Birla
-                                                        Capital Health Insurance</option>
-                                                    <option value="Digit Insurance">Digit Insurance</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="col-md-3">
-                                                <label class="fw-bold">Payment Status</label>
-                                                <select name="insurance_status" class="form-control" required>
-                                                    <option value="">-- Select Status --</option>
-                                                    <option value="paid">Paid</option>
-                                                    <option value="due">Due</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="col-md-3">
-                                                <label class="fw-bold">Amount</label>
-                                                <input type="number" name="insurance_amount" class="form-control"
-                                                    placeholder="Enter Amount" required>
-                                            </div>
-
-                                            <div class="col-md-3">
-                                                <label class="fw-bold">Issue Date</label>
-                                                <input type="date" name="insurance_issue_date" class="form-control"
-                                                    value="2025-11-26" required>
-                                            </div>
-
-                                            <div class="col-md-3">
-                                                <label class="fw-bold">Expiry Date</label>
-                                                <input type="date" name="insurance_expiry_date" class="form-control"
-                                                    readonly required>
-                                            </div>
-
-                                            <span class="fw-bold text-primary">Validity:<span
-                                                    id="expiryText">--</span></span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Price Breakdown -->
-                                    <div class="bg-light p-3 rounded-4 border mb-3">
-                                        <label class="mb-2">Price Breakdown</label>
-                                        <div class="row g-2 mb-3">
-                                            <div class="col-12">
-                                                <input type="number" name="total_price" id="p_total"
-                                                    class="form-control" placeholder="Total">
-                                            </div>
-                                            <div class="col-12">
-                                                <input type="number" name="paid_price" id="p_paid" class="form-control"
-                                                    placeholder="Paid">
-                                            </div>
-                                            <div class="col-12">
-                                                <input type="number" name="due_price" id="p_due"
-                                                    class="form-control bg-white" placeholder="Due" readonly>
-                                            </div>
-                                        </div>
-
-                                        <div class="d-flex gap-3 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="payment_mode"
-                                                    id="rad_cash" value="cash" checked>
-                                                <label class="fw-bold" for="rad_cash" data-bs-toggle="collapse"
-                                                    data-bs-target="#sec_cash" role="button">
-                                                    Cash
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="payment_mode"
-                                                    id="rad_fin" value="finance">
-                                                <label class="fw-bold" for="rad_fin" data-bs-toggle="collapse"
-                                                    data-bs-target="#sec_finance" role="button">
-                                                    Finance
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <div id="payment_details_group">
-                                            <div id="sec_cash" class="collapse show border-top pt-2 mt-2"
-                                                data-bs-parent="#payment_details_group">
-                                                <div class="row g-2">
-                                                    <div class="col-12">
-                                                        <label>Amount</label>
-                                                        <input type="number" name="cash_amount" class="form-control"
-                                                            placeholder="Enter Amount">
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <label>Mobile Number 1</label>
-                                                        <input type="tel" name="cash_mobile1" class="form-control"
-                                                            placeholder="Enter Mobile Number">
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <label>Mobile Number 2</label>
-                                                        <input type="tel" name="cash_mobile2" class="form-control"
-                                                            placeholder="Enter Mobile Number">
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <label>Mobile Number 3</label>
-                                                        <input type="tel" name="cash_mobile3" class="form-control"
-                                                            placeholder="Enter Mobile Number">
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div id="sec_finance" class="collapse border-top pt-2 mt-2"
-                                                data-bs-parent="#payment_details_group">
-                                                <div class="row g-2">
-                                                    <div class="col-12">
-                                                        <label>HPA With</label>
-                                                        <input type="text" name="finance_company"
-                                                            class="form-control text-uppercase"
-                                                            placeholder="Finance Company">
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <label>Disburse Amount</label>
-                                                        <div class="input-group">
-                                                            <input type="number" name="finance_disburse_amount"
-                                                                class="form-control" placeholder="Amt">
-                                                            <select name="finance_disburse_status" class="form-select"
-                                                                style="max-width:100px;">
-                                                                <option value="paid">Paid</option>
-                                                                <option value="due">Due</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <label>Mobile Number 1</label>
-                                                        <input type="tel" name="finance_mobile1" class="form-control"
-                                                            placeholder="Mobile 1">
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <label>Mobile Number 2</label>
-                                                        <input type="tel" name="finance_mobile2" class="form-control"
-                                                            placeholder="Mobile 2">
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <label>Mobile Number 3</label>
-                                                        <input type="tel" name="finance_mobile3" class="form-control"
-                                                            placeholder="Mobile 3">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Purchaser Documents -->
-                                    <div class="mb-3">
-                                        <label class="mb-2">Purchaser Documents</label>
-                                        <div class="row g-2">
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <span class="small text-muted fw-bold">Aadhar Front</span>
-                                                    <img src="">
-                                                    <input type="file" name="doc_aadhar_front" accept="image/*" hidden>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <span class="small text-muted fw-bold">Aadhar Back</span>
-                                                    <img src="">
-                                                    <input type="file" name="doc_aadhar_back" accept="image/*" hidden>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <span class="small text-muted fw-bold">Voter Front</span>
-                                                    <img src="">
-                                                    <input type="file" name="doc_voter_front" accept="image/*" hidden>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <span class="small text-muted fw-bold">Voter Back</span>
-                                                    <img src="">
-                                                    <input type="file" name="doc_voter_back" accept="image/*" hidden>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="all_paid" id="all_paid">
-                                        <label class="form-check-label fw-bold text-success" for="all_paid">Payment All
-                                            Paid</label>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <!-- STEP 4: TRANSFER -->
-                            <div id="step-4" class="wizard-step d-none">
-                                <div class="card steps-id border-0 shadow-sm rounded-4">
-                                    <h6 class="fw-bold text-primary m-4 mb-3 text-uppercase ls-1">Ownership Transfer
-                                    </h6>
-
-                                    <div class="p-3 border rounded-4 mb-4">
-                                        <!-- Name Transfer -->
-                                        <div class="row g-3 mb-3">
-                                            <div class="col-12 col-md-4">
-                                                <label>Name Transfer</label>
-                                                <input type="text" class="form-control text-uppercase"
-                                                    placeholder="Enter Name" name="ot_name_transfer">
-                                            </div>
-
-                                            <div class="col-12 col-md-4">
-                                                <label>Vehicle Number</label>
-                                                <input type="text" class="form-control fw-bold text-uppercase"
-                                                    placeholder="WB 00 AA 0000" value="WB " name="ot_vehicle_number">
-                                            </div>
-
-                                            <div class="col-12 col-md-4">
-                                                <label>RTO Name</label>
-                                                <select class="form-select" name="ot_rto_name">
-                                                    <option>Bankura</option>
-                                                    <option>Bishnupur</option>
-                                                    <option>Durgapur</option>
-                                                    <option>Manbazar</option>
-                                                    <option>Suri</option>
-                                                    <option>Asansol</option>
-                                                    <option>Kalimpong</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <!-- Vendor Name -->
-                                        <div class="row g-3 mb-4">
-                                            <div class="col-12 col-md-6">
-                                                <label>Vendor Name</label>
-                                                <input type="text" class="form-control text-uppercase"
-                                                    placeholder="Vendor Name" name="ot_vendor_name">
-                                            </div>
-                                        </div>
-
-                                        <!-- Vendor Payments Section -->
-                                        <div class="bg-light p-3 rounded-4 border mb-4">
-                                            <label class="text-dark mb-3 d-block">Vendor Payment</label>
-
-                                            <!-- Transfer Payment -->
-                                            <div class="row g-2 align-items-end mb-3">
-                                                <div class="col-12 col-md-4">
-                                                    <label>Transfer Amount</label>
-                                                    <input type="number" class="form-control" placeholder="Amount"
-                                                        name="ot_transfer_amount">
-                                                </div>
-                                                <div class="col-12 col-md-4">
-                                                    <label>Date</label>
-                                                    <input type="date" class="form-control" value="2025-11-26"
-                                                        name="ot_transfer_date">
-                                                </div>
-                                                <div class="col-12 col-md-4">
-                                                    <label>Status</label>
-                                                    <select class="form-select" name="ot_transfer_status">
-                                                        <option>Paid</option>
-                                                        <option>Due</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <!-- HPA -->
-                                            <div class="row g-2 align-items-end mb-3">
-                                                <div class="col-12 col-md-4">
-                                                    <label>HPA</label>
-                                                    <input type="number" class="form-control" placeholder="Amount"
-                                                        name="ot_hpa_amount">
-                                                </div>
-                                                <div class="col-12 col-md-4">
-                                                    <label>Date</label>
-                                                    <input type="date" class="form-control" value="2025-11-26"
-                                                        name="ot_hpa_date">
-                                                </div>
-                                                <div class="col-12 col-md-4">
-                                                    <label>Status</label>
-                                                    <select class="form-select" name="ot_hpa_status">
-                                                        <option>Paid</option>
-                                                        <option>Due</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <!-- HP -->
-                                            <div class="row g-2 align-items-end mb-3">
-                                                <div class="col-12 col-md-4">
-                                                    <label>HP</label>
-                                                    <input type="number" class="form-control" placeholder="Amount"
-                                                        name="ot_hp_amount">
-                                                </div>
-                                                <div class="col-12 col-md-4">
-                                                    <label>Date</label>
-                                                    <input type="date" class="form-control" value="2025-11-26"
-                                                        name="ot_hp_date">
-                                                </div>
-                                                <div class="col-12 col-md-4">
-                                                    <label>Status</label>
-                                                    <select class="form-select" name="ot_hp_status">
-                                                        <option>Paid</option>
-                                                        <option>Due</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <!-- Insurance -->
-                                            <div class="row g-3 mb-3">
-                                                <div class="col-md-3">
-                                                    <label class="fw-bold">Insurance Name</label>
-                                                    <select class="form-control text-uppercase" required
-                                                        name="ot_insurance_name">
-                                                        <option value="">-- Select Insurance --</option>
-                                                        <option value="Tata AIG Insurance">Tata AIG Insurance</option>
-                                                        <option value="Bharti AXA">Bharti AXA</option>
-                                                        <option value="Bajaj Allianz">Bajaj Allianz</option>
-                                                        <option value="ICICI Lombard">ICICI Lombard</option>
-                                                        <option value="IFFCO Tokio">IFFCO Tokio</option>
-                                                        <option value="National Insurance">National Insurance</option>
-                                                        <option value="New India Assurance">New India Assurance</option>
-                                                        <option value="Oriental Insurance">Oriental Insurance</option>
-                                                        <option value="United India Insurance">United India Insurance
-                                                        </option>
-                                                        <option value="Reliance General Insurance">Reliance General
-                                                            Insurance</option>
-                                                        <option value="Royal Sundaram Insurance">Royal Sundaram
-                                                            Insurance
-                                                        </option>
-                                                        <option value="Chola MS Insurance">Chola MS Insurance</option>
-                                                        <option value="HDFC ERGO">HDFC ERGO</option>
-                                                        <option value="ECGC">ECGC</option>
-                                                        <option value="Agriculture Insurance Company of India (AIC)">
-                                                            Agriculture Insurance Company of India (AIC)</option>
-                                                        <option value="Star Health Insurance">Star Health Insurance
-                                                        </option>
-                                                        <option value="Future Generali">Future Generali</option>
-                                                        <option value="Universal Sompo">Universal Sompo</option>
-                                                        <option value="Shriram General Insurance">Shriram General
-                                                            Insurance
-                                                        </option>
-                                                        <option value="Raheja QBE">Raheja QBE</option>
-                                                        <option value="SBI General Insurance">SBI General Insurance
-                                                        </option>
-                                                        <option value="Niva Bupa Health Insurance">Niva Bupa Health
-                                                            Insurance</option>
-                                                        <option value="L&T Insurance">L&T Insurance</option>
-                                                        <option value="Care Health Insurance">Care Health Insurance
-                                                        </option>
-                                                        <option value="Magma HDI">Magma HDI</option>
-                                                        <option value="Liberty General Insurance">Liberty General
-                                                            Insurance
-                                                        </option>
-                                                        <option value="Manipal Cigna">Manipal Cigna</option>
-                                                        <option value="Kotak General Insurance">Kotak General Insurance
-                                                        </option>
-                                                        <option value="Aditya Birla Capital Health Insurance">Aditya
-                                                            Birla
-                                                            Capital Health Insurance</option>
-                                                        <option value="Digit Insurance">Digit Insurance</option>
-                                                    </select>
-                                                </div>
-
-                                                <div class="col-md-3">
-                                                    <label class="fw-bold">Payment Status</label>
-                                                    <select class="form-control" required
-                                                        name="ot_insurance_payment_status">
-                                                        <option value="">-- Select Status --</option>
-                                                        <option value="paid">Paid</option>
-                                                        <option value="due">Due</option>
-                                                    </select>
-                                                </div>
-
-                                                <div class="col-md-3">
-                                                    <label class="fw-bold">Amount</label>
-                                                    <input type="number" class="form-control" placeholder="Enter Amount"
-                                                        required name="ot_insurance_amount">
-                                                </div>
-
-                                                <div class="col-md-3">
-                                                    <label class="fw-bold">Start Date</label>
-                                                    <input type="date" class="form-control" id="startDate"
-                                                        value="2025-11-26" required name="ot_insurance_start_date">
-                                                </div>
-
-                                                <div class="col-md-3">
-                                                    <label class="fw-bold">End Date</label>
-                                                    <input type="date" class="form-control" id="endDate" readonly
-                                                        required name="ot_insurance_end_date">
-                                                </div>
-
-                                                <span class="fw-bold text-primary">Duration:<span
-                                                        id="durationText">--</span></span>
-                                            </div>
-                                        </div>
-
-                                        <!-- Purchaser & Seller Sign -->
-                                        <div class="row g-4">
-                                            <div class="col-12 col-md-6">
-                                                <div class="border rounded-3">
-                                                    <label class="form-label fw-bold">Purchaser Sign</label>
-                                                    <div class="row g-3">
-                                                        <div class="col-6">
-                                                            <label class="form-label small">Status</label>
-                                                            <select class="form-select" name="ot_purchaser_sign_status">
-                                                                <option>Yes</option>
-                                                                <option>No</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <label class="form-label small">Date</label>
-                                                            <input type="date" class="form-control" value="2025-11-26"
-                                                                name="ot_purchaser_sign_date">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-12 col-md-6">
-                                                <div class="border rounded-3">
-                                                    <label class="form-label fw-bold">Seller Sign</label>
-                                                    <div class="row g-3">
-                                                        <div class="col-6">
-                                                            <label class="form-label small">Status</label>
-                                                            <select class="form-select" name="ot_seller_sign_status">
-                                                                <option>Yes</option>
-                                                                <option>No</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <label class="form-label small">Date</label>
-                                                            <input type="date" class="form-control" value="2025-11-26"
-                                                                name="ot_seller_sign_date">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <!-- your form fields go here -->
-                            <div class="modal-footer d-flex align-items-center">
-                                <?php if ($current_step < 4): ?>
-                                    <button type="submit" class="btn btn-primary fw-bold shadow-sm px-4 ms-auto">
-                                        <i class="ph-bold ph-floppy-disk me-1"></i> Save & Next Step
-                                    </button>
-                                <?php else: ?>
-                                    <button type="submit" class="btn btn-success px-4 ms-auto text-white shadow-lg">
-                                        Finish <i class="ph-bold ph-check-circle ms-1"></i>
-                                    </button>
-                                <?php endif; ?>
-                            </div>
-                        </form>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    </div>
-
-                    <div class="modal-footer d-flex align-items-center">
-                        <button type="button" class="btn btn-light border px-4 shadow-sm me-2" id="prevBtn"
-                            style="display:none;">Back</button>
-                        <button type="button" class="btn btn-primary px-4 ms-auto shadow-lg" id="nextBtn">Next</button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
+    </script>
 </body>
 
 </html>
