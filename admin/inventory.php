@@ -7,8 +7,6 @@ if (!isset($_SESSION["user_id"])) {
     header("Location: index.php");
     exit();
 }
-// 1. Get ID (safely handle if missing)
-$id = $_SESSION['id'] ?? 0;
 
 // 2. Run Query (Standard MySQLi style)
 $query = $conn->prepare("SELECT user_id, email, role FROM users WHERE id = ?");
@@ -247,38 +245,57 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
         <!-- Vehicle Data Grid - Displays inventory vehicles in a responsive card layout with availability status and action buttons -->
         <div class="position-relative" style="min-height: 400px;">
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
+
                 <?php
-                $sql = "SELECT * FROM stock_vehicle_details ORDER BY id DESC";
+                // 1. SQL Query (Joins all tables and selects ALL columns)
+                // ⭐ FIX: We must use vs.* and vp.* to get paper details, payments, etc.
+                $sql = "SELECT 
+            v.*, 
+            vs.*, 
+            vp.*, 
+            ot.*
+        FROM vehicle v
+        LEFT JOIN vehicle_seller vs ON v.id = vs.vehicle_id
+        LEFT JOIN vehicle_purchaser vp ON v.id = vp.vehicle_id
+        LEFT JOIN vehicle_ot ot ON v.id = ot.vehicle_id
+        ORDER BY v.id DESC";
+
                 $result = $conn->query($sql);
 
                 while ($row = $result->fetch_assoc()):
 
-                    // Check photo1 — if empty use default
-                    $image = (!empty($row['photo1'])) ? $row['photo1'] : '../images/default.jpg';
-
-                    // Determine badge text and color based on sold_out
-                    if ($row['sold_out'] == 0) {
-                        $statusText = "AVAILABLE";
-                        $statusClass = "text-success";
+                    // ⭐ IMAGE LOGIC: Fix path issues
+                    if (!empty($row['photo1'])) {
+                        $imageSrc = "../images/" . $row['photo1'];
                     } else {
-                        $statusText = "SOLD OUT";
-                        $statusClass = "text-danger";
+                        $imageSrc = "../images/default.jpg";
                     }
+
+                    // ⭐ STATUS LOGIC
+                    $isAvailable = ($row['sold_out'] == 0);
+                    $statusText = $isAvailable ? "AVAILABLE" : "SOLD OUT";
+                    $statusClass = $isAvailable ? "text-success" : "text-danger";
+
+                    // ⭐ UNIQUE MODAL ID
+                    $modalID = "viewModal_" . $row['id'];
+
+                    // ⭐ PREVENT WARNINGS: Set defaults for keys that might be null
+                    $row['pr_rc'] = $row['pr_rc'] ?? 0;
+                    $row['pr_noc'] = $row['pr_noc'] ?? 0;
+                    $row['seller_payment_type'] = $row['seller_payment_type'] ?? '';
                 ?>
 
                     <div class="col">
                         <div class="card border-0 inventory-card h-100">
-
                             <div class="hover-card position-relative overflow-hidden">
 
-                                <!-- image -->
-                                <img src="../<?= $image; ?>"
-                                    class="d-block w-100 h-100 object-fit-cover"
-                                    loading="lazy" alt="Bike">
-
+                                <img src="<?= $imageSrc; ?>" class="d-block w-100 h-100 object-fit-cover" loading="lazy"
+                                    style="height: 300px !important;" alt="Bike">
 
                                 <div class="position-absolute top-0 end-0 p-3 z-2 mt-2">
-                                    <span class="badge status-badge fw-bold bg-white shadow-sm rounded-pill px-3 py-2 <?= $statusClass ?>"
+                                    <span
+                                        class="badge status-badge <?= $statusClass ?> fw-bold bg-white shadow-sm rounded-pill px-3 py-2"
                                         style="font-size: 11px; letter-spacing: 0.5px;">
                                         <i class="ph-fill ph-circle me-1"></i> <?= $statusText ?>
                                     </span>
@@ -290,37 +307,40 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                             <h6 class="fw-bold mb-1 text-dark fs-5"><?= $row['vehicle_number']; ?></h6>
                                             <small class="text-muted"><?= $row['name']; ?></small>
                                         </div>
-                                        <div class="fw-bold text-primary fs-4">₹ <?= number_format($row['cash_price']); ?></div>
+                                        <div class="fw-bold text-primary fs-4">₹ <?= number_format($row['cash_price']); ?>
+                                        </div>
                                     </div>
 
                                     <div class="d-flex flex-wrap gap-2 mt-2">
-                                        <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
+                                        <span
+                                            class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
                                             <?= date('Y', strtotime($row['register_date'])); ?>
                                         </span>
-                                        <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
+                                        <span
+                                            class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
                                             <?= $row['owner_serial']; ?> Owner
                                         </span>
                                     </div>
 
                                     <div class="d-flex gap-2 mt-3">
-                                        <a href="edit_inventory.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-dark fw-bold flex-grow-1 rounded-pill py-2">
+                                        <a href="edit_inventory.php?id=<?= $row['id']; ?>"
+                                            class="btn btn-sm btn-dark fw-bold flex-grow-1 rounded-pill py-2">
                                             <i class="ph-bold ph-pencil-simple text-white me-1"></i> Edit
                                         </a>
 
                                         <button class="btn btn-sm btn-outline-dark fw-bold flex-grow-1 rounded-pill py-2"
-                                            data-bs-toggle="modal" data-bs-target="#viewDealModal">
+                                            data-bs-toggle="modal" data-bs-target="#<?= $modalID; ?>">
                                             View Details
                                         </button>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
 
-
-
                     <!-- View Vehicle Modal -->
-                    <div class="modal fade" id="viewDealModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal fade" id="<?= $modalID; ?>" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen">
                             <div class="modal-content rounded-5 border-0 shadow-lg overflow-hidden">
                                 <!-- Header -->
@@ -332,13 +352,12 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                 style="width: 100%; height: 100%; object-fit: cover;">
                                         </div>
                                         <div class="lh-1">
-                                            <h5 class="modal-title fw-bold text-dark mb-1">WB 12 AB 9999</h5>
+                                            <h5 class="modal-title fw-bold text-dark mb-1"><?php echo htmlspecialchars($row['vehicle_number']); ?></h5>
                                             <div class="d-flex align-items-center gap-2 small text-muted">
-                                                <span class="fw-bold text-uppercase">Royal Enfield Classic 350</span>
+                                                <span class="fw-bold text-uppercase"><?php echo htmlspecialchars($row['name']); ?></span>
                                                 <i class="ph-fill ph-dot text-muted" style="font-size: 8px;"></i>
                                                 <span
-                                                    class="badge bg-danger text-white border border-danger-subtle rounded-pill">Sold
-                                                    Out</span>
+                                                    class="badge <?php echo $row['sold_out'] ? 'bg-danger' : 'bg-success'; ?> text-white border border-danger-subtle rounded-pill"><?php echo $row['sold_out'] ? 'Sold Out' : 'Available'; ?></span>
                                             </div>
                                         </div>
                                         <button type="button" class="btn-close ms-auto bg-light rounded-circle p-2"
@@ -1443,15 +1462,22 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                 </div>
 
                                 <div class="modal-footer border-top bg-white px-4 py-3">
-                                    <button type="button" class="btn btn-light border fw-bold rounded-pill px-4 shadow-sm w-100"
+                                    <button type="button"
+                                        class="btn btn-light border fw-bold rounded-pill px-4 shadow-sm w-100"
                                         data-bs-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-
                 <?php endwhile; ?>
+
+
+
+
+
+
+
             </div>
         </div>
         <!-- END OF Vehicle Data Grid -->

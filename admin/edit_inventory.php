@@ -8,10 +8,10 @@ if (!isset($_SESSION["user_id"])) {
 }
 
 // Get the vehicle ID from URL
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$vehicle_id = intval($_GET['id']);
 
 // Fetch vehicle data
-$query = $conn->prepare("SELECT * FROM stock_vehicle_details WHERE id = ?");
+$query = $conn->prepare("SELECT * FROM vehicle WHERE id = ?");
 $query->bind_param("i", $id);
 $query->execute();
 $vehicle = $query->get_result()->fetch_assoc();
