@@ -299,46 +299,72 @@ $vehicle = $query->get_result()->fetch_assoc();
                             <div class="card-body p-4">
 
                                 <?php
-                                // 1. Get ID and Initialize
-                                $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+                                // ---------------------------
+                                // 1. Get ID
+                                // ---------------------------
+                                $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
                                 $vehicle = [];
 
-                                // 2. Fetch Data if Edit Mode
+                                // ---------------------------
+                                // 2. Ensure DB connection
+                                // ---------------------------
+                                if (!isset($conn)) {
+                                    die("Database connection not found. Include db.php file.");
+                                }
+
+                                // ---------------------------
+                                // 3. Fetch data using prepared statement
+                                // ---------------------------
                                 if ($id > 0) {
-                                    // Assuming $conn is your database connection variable
-                                    $sql = "SELECT * FROM stock_vehicle_details WHERE id = $id LIMIT 1";
-                                    $result = $conn->query($sql);
+                                    $stmt = $conn->prepare("SELECT * FROM stock_vehicle_details WHERE id = ? LIMIT 1");
+                                    $stmt->bind_param("i", $id);
+                                    $stmt->execute();
+                                    $result = $stmt->get_result();
+
                                     if ($result && $result->num_rows > 0) {
                                         $vehicle = $result->fetch_assoc();
                                     }
+                                    $stmt->close();
                                 }
 
-                                // 3. Helper function for "Select" fields to keep HTML clean
+                                // ---------------------------
+                                // 4. Helper : SELECT tag
+                                // ---------------------------
                                 function isSelected($dbValue, $optionValue)
                                 {
-                                    return (isset($dbValue) && $dbValue == $optionValue) ? 'selected' : '';
+                                    return ($dbValue == $optionValue) ? "selected" : "";
                                 }
 
-                                // 4. Helper for "Checked" (Radios/Checkbox)
+                                // ---------------------------
+                                // 5. Helper : Radio / Checkbox
+                                // ---------------------------
                                 function isChecked($dbValue, $checkValue)
                                 {
-                                    return (isset($dbValue) && $dbValue == $checkValue) ? 'checked' : '';
+                                    return ($dbValue == $checkValue) ? "checked" : "";
                                 }
+
                                 ?>
-                                <form action="vechicle_update_form.php" id="dealForm" method="POST" class="app-form">
+
+
+                                <form action="vechicle_update_form.php" id="dealForm" method="POST" class="app-form" enctype="multipart/form-data">
+                                    <input type="hidden" name="row_id" value="<?= $id ?>">
+
                                     <!-- STEP 1: VEHICLE -->
                                     <div id="step-1" class="wizard-step">
                                         <div class="card steps-id p-4 border-0 shadow-sm position-relative sold-wrapper rounded-4">
                                             <div>
+
                                                 <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Vehicle Details</h6>
 
+                                                <!-- VEHICLE PHOTOS -->
                                                 <label class="mb-2">Vehicle Photos</label>
                                                 <div class="row g-3 mb-4">
                                                     <?php for ($i = 1; $i <= 4; $i++): ?>
                                                         <div class="col-6 col-md-3">
                                                             <div class="photo-upload-box">
-                                                                <?php if (!empty($vehicle['photo' . $i])): ?>
-                                                                    <img src="<?= $vehicle['photo' . $i] ?>" class="d-block w-100 h-100 object-fit-cover rounded">
+
+                                                                <?php if (!empty($vehicle["photo$i"])): ?>
+                                                                    <img src="../<?= $vehicle["photo$i"] ?>" class="d-block w-100 h-100 object-fit-cover rounded">
                                                                     <i class="ph-bold ph-camera fs-3 text-secondary d-none"></i>
                                                                 <?php else: ?>
                                                                     <i class="ph-bold ph-camera fs-3 text-secondary"></i>
@@ -351,37 +377,47 @@ $vehicle = $query->get_result()->fetch_assoc();
                                                     <?php endfor; ?>
                                                 </div>
 
+                                                <!-- VEHICLE FIELDS -->
                                                 <div class="row g-3 mb-3">
+
                                                     <div class="col-12 col-md-6">
-                                                        <label for="vehicleType" class="form-label">Vehicle Type</label>
+                                                        <label class="form-label">Vehicle Type</label>
                                                         <select id="vehicleType" name="vehicle_type" class="form-select fw-bold">
-                                                            <option selected disabled>Choose Vehicle Type</option>
-                                                            <option <?= isSelected($vehicle['vehicle_type'] ?? '', 'Scooters') ?>>Scooters</option>
-                                                            <option <?= isSelected($vehicle['vehicle_type'] ?? '', 'Mopeds') ?>>Mopeds</option>
-                                                            <option <?= isSelected($vehicle['vehicle_type'] ?? '', 'Dirt / Off-road Bikes') ?>>Dirt / Off-road Bikes</option>
-                                                            <option <?= isSelected($vehicle['vehicle_type'] ?? '', 'Electric Bikes') ?>>Electric Bikes</option>
-                                                            <option <?= isSelected($vehicle['vehicle_type'] ?? '', 'Cruiser Bikes') ?>>Cruiser Bikes</option>
-                                                            <option <?= isSelected($vehicle['vehicle_type'] ?? '', 'Sport Bikes') ?>>Sport Bikes</option>
-                                                            <option <?= isSelected($vehicle['vehicle_type'] ?? '', 'Touring Bikes') ?>>Touring Bikes</option>
-                                                            <option <?= isSelected($vehicle['vehicle_type'] ?? '', 'Adventure / Dual-Sport Bikes') ?>>Adventure / Dual-Sport Bikes</option>
-                                                            <option <?= isSelected($vehicle['vehicle_type'] ?? '', 'Naked / Standard Bikes') ?>>Naked / Standard Bikes</option>
-                                                            <option <?= isSelected($vehicle['vehicle_type'] ?? '', 'Cafe Racers') ?>>Cafe Racers</option>
-                                                            <option <?= isSelected($vehicle['vehicle_type'] ?? '', 'Bobbers') ?>>Bobbers</option>
-                                                            <option <?= isSelected($vehicle['vehicle_type'] ?? '', 'Choppers') ?>>Choppers</option>
-                                                            <option <?= isSelected($vehicle['vehicle_type'] ?? '', 'Pocket Bikes / Mini Bikes') ?>>Pocket Bikes / Mini Bikes</option>
+                                                            <option disabled>Choose Vehicle Type</option>
+                                                            <?php
+                                                            $types = [
+                                                                'Scooters',
+                                                                'Mopeds',
+                                                                'Dirt / Off-road Bikes',
+                                                                'Electric Bikes',
+                                                                'Cruiser Bikes',
+                                                                'Sport Bikes',
+                                                                'Touring Bikes',
+                                                                'Adventure / Dual-Sport Bikes',
+                                                                'Naked / Standard Bikes',
+                                                                'Cafe Racers',
+                                                                'Bobbers',
+                                                                'Choppers',
+                                                                'Pocket Bikes / Mini Bikes'
+                                                            ];
+                                                            foreach ($types as $t):
+                                                            ?>
+                                                                <option <?= isSelected($vehicle['vehicle_type'] ?? '', $t) ?>><?= $t ?></option>
+                                                            <?php endforeach; ?>
                                                         </select>
                                                     </div>
 
                                                     <div class="col-12 col-md-6">
                                                         <label class="fw-bold">Name</label>
-                                                        <input type="text" name="name" id="nameField" class="form-control"
-                                                            placeholder="Enter Name" value="<?= $vehicle['name'] ?? '' ?>">
+                                                        <input type="text" name="name" class="form-control"
+                                                            value="<?= $vehicle['name'] ?? '' ?>" placeholder="Enter Name">
                                                     </div>
 
                                                     <div class="col-12 col-md-6">
                                                         <label>Vehicle Number</label>
-                                                        <input type="text" name="vehicle_number" class="form-control fw-bold text-uppercase"
-                                                            placeholder="WB 00 AA 0000" value="<?= $vehicle['vehicle_number'] ?? 'WB ' ?>">
+                                                        <input type="text" name="vehicle_number"
+                                                            class="form-control fw-bold text-uppercase"
+                                                            value="<?= $vehicle['vehicle_number'] ?? 'WB ' ?>">
                                                     </div>
 
                                                     <div class="col-12 col-md-6">
@@ -393,11 +429,12 @@ $vehicle = $query->get_result()->fetch_assoc();
                                                     <div class="col-12 col-md-4">
                                                         <label>Owner Serial</label>
                                                         <select name="owner_serial" class="form-select">
-                                                            <option <?= isSelected($vehicle['owner_serial'] ?? '', '1st') ?>>1st</option>
-                                                            <option <?= isSelected($vehicle['owner_serial'] ?? '', '2nd') ?>>2nd</option>
-                                                            <option <?= isSelected($vehicle['owner_serial'] ?? '', '3rd') ?>>3rd</option>
-                                                            <option <?= isSelected($vehicle['owner_serial'] ?? '', '4th') ?>>4th</option>
-                                                            <option <?= isSelected($vehicle['owner_serial'] ?? '', '5th') ?>>5th</option>
+                                                            <?php
+                                                            $owners = ['1st', '2nd', '3rd', '4th', '5th'];
+                                                            foreach ($owners as $os):
+                                                            ?>
+                                                                <option <?= isSelected($vehicle['owner_serial'] ?? '', $os) ?>><?= $os ?></option>
+                                                            <?php endforeach; ?>
                                                         </select>
                                                     </div>
 
@@ -412,47 +449,49 @@ $vehicle = $query->get_result()->fetch_assoc();
                                                         <input type="text" name="engine_number" class="form-control text-uppercase"
                                                             value="<?= $vehicle['engine_number'] ?? '' ?>">
                                                     </div>
+
                                                 </div>
 
-                                                <?php
-                                                $pType = $vehicle['payment_type'] ?? 'Cash'; // Default to Cash
-                                                ?>
+                                                <!-- PAYMENT SECTION -->
+                                                <?php $pType = $vehicle['payment_type'] ?? 'Cash'; ?>
+
                                                 <div class="row g-3 mb-3">
                                                     <div class="col-12 col-md-6">
                                                         <label class="fw-bold mb-2">Payment Type</label>
 
                                                         <div class="d-flex gap-2 mb-3">
-                                                            <input type="radio" class="btn-check" name="payment_type" value="Cash" id="sp_cash"
-                                                                <?= $pType == 'Cash' ? 'checked' : '' ?>
-                                                                data-bs-toggle="collapse" data-bs-target="#cashBox" aria-controls="cashBox">
+                                                            <input type="radio" class="btn-check" name="payment_type" id="sp_cash" value="Cash"
+                                                                <?= isChecked($pType, 'Cash') ?> data-bs-toggle="collapse" data-bs-target="#cashBox">
                                                             <label class="btn btn-outline-success" for="sp_cash">Cash</label>
 
-                                                            <input type="radio" class="btn-check" name="payment_type" value="Online" id="sp_online"
-                                                                <?= $pType == 'Online' ? 'checked' : '' ?>
-                                                                data-bs-toggle="collapse" data-bs-target="#onlineBox" aria-controls="onlineBox">
+                                                            <input type="radio" class="btn-check" name="payment_type" id="sp_online" value="Online"
+                                                                <?= isChecked($pType, 'Online') ?> data-bs-toggle="collapse" data-bs-target="#onlineBox">
                                                             <label class="btn btn-outline-primary" for="sp_online">Online</label>
                                                         </div>
 
                                                         <div id="payBoxes">
-                                                            <div id="cashBox" class="collapse <?= $pType == 'Cash' ? 'show' : '' ?>" data-bs-parent="#payBoxes">
-                                                                <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
-                                                                    <label class="fw-bold small mb-1">Bike Price</label>
+
+                                                            <!-- CASH BOX -->
+                                                            <div id="cashBox" class="collapse <?= $pType == 'Cash' ? 'show' : '' ?>">
+                                                                <div class="p-3 bg-white rounded shadow-sm">
+                                                                    <label class="fw-bold small">Bike Price</label>
                                                                     <input type="number" step="0.01" name="cash_price"
-                                                                        class="form-control form-control-sm mb-3"
-                                                                        placeholder="Enter Amount" value="<?= $vehicle['cash_price'] ?? '' ?>">
+                                                                        class="form-control form-control-sm"
+                                                                        value="<?= $vehicle['cash_price'] ?? '' ?>">
                                                                 </div>
                                                             </div>
 
-                                                            <div id="onlineBox" class="collapse <?= $pType == 'Online' ? 'show' : '' ?>" data-bs-parent="#payBoxes">
-                                                                <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
-                                                                    <label class="fw-bold small mb-2">Select Online Method</label>
-                                                                    <div class="d-flex flex-wrap gap-3 mb-2">
-                                                                        <?php
-                                                                        $methods = ['Google Pay', 'Paytm', 'PhonePe', 'BharatPe'];
-                                                                        foreach ($methods as $m):
+                                                            <!-- ONLINE BOX -->
+                                                            <div id="onlineBox" class="collapse <?= $pType == 'Online' ? 'show' : '' ?>">
+                                                                <div class="p-3 bg-white rounded shadow-sm">
+
+                                                                    <!-- METHODS -->
+                                                                    <?php $methods = ['Google Pay', 'Paytm', 'PhonePe', 'BharatPe']; ?>
+                                                                    <div class="mb-2">
+                                                                        <?php foreach ($methods as $m):
                                                                             $idSafe = strtolower(str_replace(' ', '', $m));
                                                                         ?>
-                                                                            <div class="form-check">
+                                                                            <div class="form-check d-inline-block me-3">
                                                                                 <input type="radio" class="form-check-input" name="online_method"
                                                                                     value="<?= $m ?>" id="om_<?= $idSafe ?>"
                                                                                     <?= isChecked($vehicle['online_method'] ?? '', $m) ?>>
@@ -462,86 +501,100 @@ $vehicle = $query->get_result()->fetch_assoc();
                                                                     </div>
 
                                                                     <input type="text" name="online_transaction_id"
-                                                                        class="form-control form-control-sm mb-3 text-uppercase"
-                                                                        placeholder="Transaction / UPI Reference ID"
+                                                                        class="form-control form-control-sm text-uppercase mb-3"
+                                                                        placeholder="Transaction / UPI ID"
                                                                         value="<?= $vehicle['online_transaction_id'] ?? '' ?>">
 
-                                                                    <label class="fw-bold small mb-1">Bike Price</label>
-                                                                    <div class="input-group">
-                                                                        <span class="input-group-text bg-white border-end-0">₹</span>
-                                                                        <input type="number" step="0.01" name="online_price"
-                                                                            class="form-control border-start-0 ps-0"
-                                                                            placeholder="Enter Price"
-                                                                            value="<?= $vehicle['online_price'] ?? '' ?>">
-                                                                    </div>
+                                                                    <label class="fw-bold small">Bike Price</label>
+                                                                    <input type="number" step="0.01" name="online_price"
+                                                                        class="form-control"
+                                                                        value="<?= $vehicle['online_price'] ?? '' ?>">
                                                                 </div>
                                                             </div>
+
                                                         </div>
+
                                                     </div>
                                                 </div>
 
+                                                <!-- CHALLAN -->
                                                 <?php $hasChallan = ($vehicle['police_challan'] ?? 'No') == 'Yes'; ?>
-                                                <div class="p-3 rounded-4 bg-light border">
+
+                                                <div class="p-3 rounded bg-light border">
                                                     <label>Police Challan</label>
                                                     <div class="d-flex gap-3 mb-2">
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="radio" name="police_challan" value="No"
-                                                                <?= !$hasChallan ? 'checked' : '' ?>
+                                                                <?= isChecked($vehicle['police_challan'] ?? 'No', 'No') ?>
                                                                 data-bs-toggle="collapse" data-bs-target="#challan-section">
                                                             <label class="form-check-label fw-bold">No</label>
                                                         </div>
+
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="radio" name="police_challan" value="Yes"
-                                                                <?= $hasChallan ? 'checked' : '' ?>
+                                                                <?= isChecked($vehicle['police_challan'] ?? 'No', 'Yes') ?>
                                                                 data-bs-toggle="collapse" data-bs-target="#challan-section">
                                                             <label class="form-check-label fw-bold">Yes</label>
                                                         </div>
                                                     </div>
 
-                                                    <div class="collapse mt-3 <?= $hasChallan ? 'show' : '' ?>" id="challan-section">
+                                                    <div id="challan-section" class="collapse <?= $hasChallan ? 'show' : '' ?>">
+
                                                         <?php for ($c = 1; $c <= 3; $c++): ?>
                                                             <div class="border rounded p-2 mb-2 bg-white">
-                                                                <label class="fw-bold small">Challan <?= $c ?></label>
-                                                                <div class="row g-2">
-                                                                    <div class="col-md-4">
-                                                                        <input type="text" name="challan<?= $c ?>_number" class="form-control text-uppercase"
-                                                                            placeholder="Challan Number" value="<?= $vehicle['challan' . $c . '_number'] ?? '' ?>">
-                                                                    </div>
-                                                                    <div class="col-md-4">
-                                                                        <input type="number" step="0.01" name="challan<?= $c ?>_amount" class="form-control"
-                                                                            placeholder="Amount" value="<?= $vehicle['challan' . $c . '_amount'] ?? '' ?>">
-                                                                    </div>
-                                                                    <div class="col-md-4">
-                                                                        <div class="btn-group w-100 btn-group-sm">
-                                                                            <?php $cStatus = $vehicle['challan' . $c . '_status'] ?? 'Pending'; ?>
 
-                                                                            <input type="radio" class="btn-check" name="challan<?= $c ?>_status" value="Pending"
-                                                                                id="pen<?= $c ?>" <?= $cStatus == 'Pending' ? 'checked' : '' ?>>
+                                                                <label class="fw-bold small">Challan <?= $c ?></label>
+
+                                                                <div class="row g-2">
+
+                                                                    <div class="col-md-4">
+                                                                        <input type="text" name="challan<?= $c ?>_number"
+                                                                            class="form-control text-uppercase"
+                                                                            value="<?= $vehicle["challan{$c}_number"] ?? '' ?>">
+                                                                    </div>
+
+                                                                    <div class="col-md-4">
+                                                                        <input type="number" step="0.01" name="challan<?= $c ?>_amount"
+                                                                            class="form-control"
+                                                                            value="<?= $vehicle["challan{$c}_amount"] ?? '' ?>">
+                                                                    </div>
+
+                                                                    <div class="col-md-4">
+                                                                        <?php $cStatus = $vehicle["challan{$c}_status"] ?? 'Pending'; ?>
+                                                                        <div class="btn-group w-100 btn-group-sm">
+
+                                                                            <input type="radio" class="btn-check" name="challan<?= $c ?>_status"
+                                                                                value="Pending" id="pen<?= $c ?>" <?= isChecked($cStatus, 'Pending') ?>>
                                                                             <label class="btn btn-outline-danger" for="pen<?= $c ?>">Pending</label>
 
-                                                                            <input type="radio" class="btn-check" name="challan<?= $c ?>_status" value="Paid"
-                                                                                id="paid<?= $c ?>" <?= $cStatus == 'Paid' ? 'checked' : '' ?>>
+                                                                            <input type="radio" class="btn-check" name="challan<?= $c ?>_status"
+                                                                                value="Paid" id="paid<?= $c ?>" <?= isChecked($cStatus, 'Paid') ?>>
                                                                             <label class="btn btn-outline-success" for="paid<?= $c ?>">Paid</label>
+
                                                                         </div>
                                                                     </div>
+
                                                                 </div>
                                                             </div>
                                                         <?php endfor; ?>
+
                                                     </div>
                                                 </div>
 
-                                                <div class="mt-4 pt-3 border-top d-flex align-items-center justify-content-between">
-                                                    <label class="form-check-label fw-bold text-danger mb-0" for="soldToggle">Mark as Sold Out</label>
+                                                <!-- SOLD OUT -->
+                                                <div class="mt-4 pt-3 border-top d-flex justify-content-between">
+                                                    <label class="fw-bold text-danger">Mark as Sold Out</label>
                                                     <div class="form-check form-switch">
-                                                        <input class="form-check-input" type="checkbox" name="sold_out" value="1" id="soldToggle"
-                                                            style="width: 3em; height: 1.5em;"
-                                                            <?= ($vehicle['sold_out'] ?? 0) == 1 ? 'checked' : '' ?>>
+                                                        <input class="form-check-input" type="checkbox" name="sold_out" value="1"
+                                                            style="width:3em;height:1.5em;"
+                                                            <?= isChecked($vehicle['sold_out'] ?? 0, 1) ?>>
                                                     </div>
                                                 </div>
 
                                             </div>
                                         </div>
                                     </div>
+
 
                                     <!-- STEP 2: SELLER -->
                                     <div id="step-2" class="wizard-step d-none">

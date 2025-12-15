@@ -5,7 +5,6 @@ $(document).ready(function () {
         $('#loader').fadeOut(500);
     }, 500);
 
-
     // --- 2. LOGIN FLOW ---
     $('#loginForm').on('submit', function (e) {
         e.preventDefault();
@@ -17,95 +16,185 @@ $(document).ready(function () {
     });
 
 
+
+
     // --- 3. WIZARD VARIABLES & LOGIC ---
     let currentStep = 1;
-    // Calculate total steps based on how many .step-item divs (circles) exist
-    // Default to 4 if for some reason the length is 0 (e.g. loaded dynamically)
-    const totalSteps = $('.step-item').length || 4;
+    const totalSteps = 4;
 
-    // Function to update UI based on currentStep
+    // --- UI UPDATE FUNCTION ---
+
     function updateWizard() {
-        // 1. Update Navigation Circles
+        // Update Sidebar Circles
         $('.step-item').each(function () {
             let stepNum = parseInt($(this).data('step'));
-            $(this).removeClass('active completed');
+            let $circle = $(this).find('.step-circle');
+            let $label = $(this).find('.step-label');
+
+            $(this).removeClass('bg-primary-subtle border-primary');
+            $circle.removeClass('bg-primary bg-success text-white shadow').addClass('bg-light text-secondary');
+            $circle.html('<span class="small fw-bold">' + stepNum + '</span>');
+            $label.removeClass('text-primary text-success fw-bolder').addClass('text-secondary');
 
             if (stepNum === currentStep) {
-                $(this).addClass('active');
+                $(this).addClass('bg-primary-subtle border-primary');
+                $circle.removeClass('bg-light text-secondary').addClass('bg-primary text-white shadow');
+                $label.removeClass('text-secondary').addClass('text-primary fw-bolder');
             } else if (stepNum < currentStep) {
-                $(this).addClass('completed');
+                $circle.removeClass('bg-light text-secondary').addClass('bg-success text-white');
+                $circle.html('<i class="ph-bold ph-check"></i>');
+                $label.removeClass('text-secondary').addClass('text-success fw-bold');
             }
         });
 
-        // 2. Show specific Step Content
-        // First, hide ALL steps by adding d-none class
+        // Show/Hide Steps
         $('.wizard-step').addClass('d-none');
-        
-        // Then, show only the CURRENT step using its ID (e.g., #step-1)
-        // We use .hide().fadeIn() to force the fade animation
         $('#step-' + currentStep).removeClass('d-none').hide().fadeIn(300);
 
-        // 3. Handle Buttons
+        // Update Mobile Title
+        $('#mobile-step-indicator').text('Step ' + currentStep);
 
-        // --- BACK BUTTON LOGIC ---
-        if (currentStep === 1) {
-            $('#prevBtn').hide(); // Completely hide on Step 1
-        } else {
-            $('#prevBtn').show(); // Show on Step 2, 3, 4
-        }
+        // Handle Button Visibility
+        if (currentStep === 1) $('#prevBtn').hide();
+        else $('#prevBtn').show();
 
-        // --- NEXT / SUBMIT BUTTON LOGIC ---
         if (currentStep === totalSteps) {
-            $('#nextBtn').addClass('d-none');      // Hide Next button
-            $('#submitBtn').removeClass('d-none'); // Show Submit button
+            $('#btn-next').addClass('d-none');
+            $('#btn-finish').removeClass('d-none');
         } else {
-            $('#nextBtn').removeClass('d-none');   // Show Next button
-            $('#submitBtn').addClass('d-none');    // Hide Submit button
+            $('#btn-next').removeClass('d-none');
+            $('#btn-finish').addClass('d-none');
         }
     }
 
-    // Function to Reset Wizard (Used when Modal Opens)
-    function resetWizard() {
-        currentStep = 1;
-        updateWizard();
-        // Optional: Reset form inputs if needed
-        // $('#wizardForm')[0].reset(); 
+
+    // --- 4. AJAX SAVE FUNCTION ---
+    function saveData(actionType) {
+
+        // 1. Get Form Data
+        let formData = new FormData($('#dealForm')[0]);
+
+        // 2. Append Manual Fields
+        formData.append('step', currentStep);
+        formData.append('action', actionType);
+
+        // 3. UI: Show Loading Spinner
+        let $btn = (actionType === 'save_next') ? $('#btn-next') :
+            (actionType === 'save_only' ? $('#btn-save-draft') : $('#btn-finish'));
+
+        let originalText = $btn.html();
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Processing...');
+
+        // 4. Perform AJAX
+        $.ajax({
+            url: 'vehicle_form.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success: function (response) {
+
+                // Reset Button
+                $btn.prop('disabled', false).html(originalText);
+
+                if (response.status === 'success') {
+
+                    // A. Update Vehicle ID (Crucial for linking steps)
+                    $('input[name="vehicle_id"]').val(response.id);
+
+                    // B. Handle Logic based on button clicked
+                    if (actionType === 'save_next') {
+
+                        // ⭐ Success Notification (Optional but good UX)
+                        showGlobalToast(response.message, 'success');
+
+                        // Move to Next Step
+                        if (currentStep < totalSteps) {
+                            currentStep++;
+                            updateWizard();
+                        }
+                    }
+                    else if (actionType === 'save_only') {
+                        // ⭐ REPLACED ALERT WITH TOAST
+                        showGlobalToast(response.message, 'success');
+                    }
+                    else if (actionType === 'finish') {
+                        // ⭐ REPLACED ALERT WITH TOAST (Before Redirect)
+                        showGlobalToast("Deal Completed! Redirecting...", 'success');
+
+                        setTimeout(function () {
+                            window.location.href = 'dashboard.php';
+                        }, 1500); // Small delay so user sees the success message
+                    }
+
+                } else {
+                    // ⭐ REPLACED ERROR ALERT WITH TOAST
+                    showGlobalToast(response.message, 'error');
+                }
+            },
+            error: function (xhr, status, error) {
+                // Handle System Error
+                $btn.prop('disabled', false).html(originalText);
+                console.error("AJAX Error:", xhr.responseText);
+
+                // ⭐ REPLACED SYSTEM ERROR ALERT WITH TOAST
+                showGlobalToast("System Error: Check console for details.", 'error');
+            }
+        });
     }
 
 
-    // --- 4. MODAL HANDLERS ---
-    // Assigned to window so it can be called from HTML onclick attributes
-    window.openModal = function (id) {
-        var modalElement = document.getElementById(id);
-        
-        if (!modalElement) return; // Safety check
+    // GLOBAL MESSAGE FOR FORM
+    function showGlobalToast(message, type = 'success') {
+        const toastElement = document.getElementById('liveToast');
+        const toastBody = document.getElementById('toastMessage');
 
-        // Use getOrCreateInstance to prevent duplicate instance errors
-        var myModal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        // 1. Set Message
+        toastBody.innerText = message;
 
-        // If opening the deal modal, reset the wizard to step 1
-        if (id === 'dealModal') {
-            resetWizard();
+        // 2. Set Color based on Type
+        toastElement.classList.remove('text-bg-success', 'text-bg-danger', 'text-bg-warning');
+
+        if (type === 'success') {
+            toastElement.classList.add('text-bg-success'); // Green
+        } else if (type === 'error') {
+            toastElement.classList.add('text-bg-danger'); // Red
+        } else {
+            toastElement.classList.add('text-bg-warning'); // Yellow/Orange
         }
 
-        myModal.show();
-    };
+        // 3. Show Toast using Bootstrap 5 API
+        const toast = new bootstrap.Toast(toastElement, { delay: 4000 }); // Disappears after 4 seconds
+        toast.show();
+    }
 
 
-    // --- 5. WIZARD EVENTS ---
 
-    // Next Button Click
-    $('#nextBtn').click(function () {
-        if (currentStep < totalSteps) {
-            // Optional: Validation can go here
-            // if( !validateStep(currentStep) ) return;
 
-            currentStep++;
-            updateWizard();
+
+
+
+    // --- 5. BUTTON CLICK LISTENERS ---
+
+    // Save Draft
+    $('#btn-save-draft').click(function () {
+        saveData('save_only');
+    });
+
+    // Next
+    $('#btn-next').click(function () {
+        saveData('save_next');
+    });
+
+    // Finish
+    $('#btn-finish').click(function () {
+        if (confirm("Are you sure you want to finish?")) {
+            saveData('finish');
         }
     });
 
-    // Back Button Click
+    // Back (Just UI change, no save needed usually)
     $('#prevBtn').click(function () {
         if (currentStep > 1) {
             currentStep--;
@@ -113,8 +202,25 @@ $(document).ready(function () {
         }
     });
 
-    // Initialize the wizard view on page load
+    // Initialize
     updateWizard();
+
+    // --- 6. GLOBAL MODAL HANDLER ---
+    window.openModal = function (id) {
+        var modalElement = document.getElementById(id);
+        if (!modalElement) return;
+
+        var myModal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+        if (id === 'dealModal') {
+            // Reset Wizard for New Entry
+            currentStep = 1;
+            updateWizard();
+            $('input[name="vehicle_id"]').val(''); // Clear ID
+            $('#dealForm')[0].reset(); // Clear Form
+        }
+        myModal.show();
+    };
 
 });
 

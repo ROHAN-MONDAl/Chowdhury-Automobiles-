@@ -272,7 +272,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                             <div class="hover-card position-relative overflow-hidden">
 
                                 <!-- image -->
-                                <img src="<?= $image; ?>"
+                                <img src="../<?= $image; ?>"
                                     class="d-block w-100 h-100 object-fit-cover"
                                     loading="lazy" alt="Bike">
 
