@@ -340,9 +340,9 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                     </div>
 
                     <!-- View Vehicle Modal -->
-                    <div class="modal fade" id="<?= $modalID; ?>" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen">
-                            <div class="modal-content rounded-5 border-0 shadow-lg overflow-hidden">
+                    <div class="modal fade p-0" id="<?= $modalID; ?>" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-fullscreen m-0">
+                            <div class="modal-content rounded-0 border-0 h-100">
                                 <!-- Header -->
                                 <div class="modal-header border-bottom bg-white px-4 py-3 sticky-top z-3">
                                     <div class="d-flex align-items-center gap-3 w-100">
@@ -374,172 +374,148 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                         <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
                                             <h2 class="accordion-header">
                                                 <button class="accordion-button fw-bold text-uppercase text-dark py-3" type="button"
-                                                    data-bs-toggle="collapse" data-bs-target="#collapseVehicle">
+                                                    data-bs-toggle="collapse" data-bs-target="#collapseVehicle_<?= $row['id']; ?>">
                                                     <i class="ph-bold ph-moped me-2 text-primary fs-5"></i> Vehicle Details
                                                 </button>
                                             </h2>
-                                            <div id="collapseVehicle" class="accordion-collapse collapse show"
+                                            <div id="collapseVehicle_<?= $row['id']; ?>" class="accordion-collapse collapse show"
                                                 data-bs-parent="#dealDetailsAccordion">
                                                 <div class="accordion-body bg-white p-4 border-top">
 
-                                                    <!-- Photos -->
-                                                    <h6 class="fw-bold text-muted small text-uppercase mb-3">Vehicle Photos
-                                                    </h6>
+                                                    <h6 class="fw-bold text-muted small text-uppercase mb-3">Vehicle Photos</h6>
                                                     <div class="row g-3 mb-4">
-                                                        <div class="col-6 col-md-3">
-                                                            <div
-                                                                class="ratio ratio-1x1 rounded-4 overflow-hidden border mb-2 bg-light">
-                                                                <img src="https://images.carandbike.com/cms/articles/3201199/Royal_Enfield_Hunter_350_1_2022_08_05_T03_41_40_503_Z_6ab6dc0960.png"
-                                                                    class="object-fit-cover">
-                                                            </div>
-                                                            <button class="btn btn-sm btn-dark rounded-pill w-100 fw-bold py-1"
-                                                                style="font-size: 11px;">Download</button>
-                                                        </div>
-                                                        <div class="col-6 col-md-3">
-                                                            <div
-                                                                class="ratio ratio-1x1 rounded-4 overflow-hidden border mb-2 bg-light">
-                                                                <img src="https://images.carandbike.com/cms/articles/3201199/Royal_Enfield_Hunter_350_1_2022_08_05_T03_41_40_503_Z_6ab6dc0960.png"
-                                                                    class="object-fit-cover">
-                                                            </div>
-                                                            <button class="btn btn-sm btn-dark rounded-pill w-100 fw-bold py-1"
-                                                                style="font-size: 11px;">Download</button>
-                                                        </div>
-                                                        <div class="col-6 col-md-3">
-                                                            <div
-                                                                class="ratio ratio-1x1 rounded-4 overflow-hidden border mb-2 bg-light">
-                                                                <img src="https://images.carandbike.com/cms/articles/3201199/Royal_Enfield_Hunter_350_1_2022_08_05_T03_41_40_503_Z_6ab6dc0960.png"
-                                                                    class="object-fit-cover">
-                                                            </div>
-                                                            <button class="btn btn-sm btn-dark rounded-pill w-100 fw-bold py-1"
-                                                                style="font-size: 11px;">Download</button>
-                                                        </div>
-                                                        <div class="col-6 col-md-3">
-                                                            <div
-                                                                class="ratio ratio-1x1 rounded-4 overflow-hidden border mb-2 bg-light">
-                                                                <img src="https://images.carandbike.com/cms/articles/3201199/Royal_Enfield_Hunter_350_1_2022_08_05_T03_41_40_503_Z_6ab6dc0960.png"
-                                                                    class="object-fit-cover">
-                                                            </div>
-                                                            <button class="btn btn-sm btn-dark rounded-pill w-100 fw-bold py-1"
-                                                                style="font-size: 11px;">Download</button>
-                                                        </div>
+                                                        <?php
+                                                        // Check all 4 photo columns
+                                                        for ($i = 1; $i <= 4; $i++):
+                                                            $photoKey = "photo" . $i;
+                                                            if (!empty($row[$photoKey])):
+                                                                $imgSrc = "../images/" . $row[$photoKey];
+                                                        ?>
+                                                                <div class="col-6 col-md-3">
+                                                                    <div class="ratio ratio-1x1 rounded-4 overflow-hidden border mb-2 bg-light">
+                                                                        <img src="<?= $imgSrc; ?>" class="object-fit-cover">
+                                                                    </div>
+                                                                    <a href="<?= $imgSrc; ?>" download class="btn btn-sm btn-dark rounded-pill w-100 fw-bold py-1" style="font-size: 11px;">Download</a>
+                                                                </div>
+                                                        <?php endif;
+                                                        endfor; ?>
+
+                                                        <?php if (empty($row['photo1']) && empty($row['photo2']) && empty($row['photo3']) && empty($row['photo4'])): ?>
+                                                            <div class="col-12 text-muted small">No photos uploaded.</div>
+                                                        <?php endif; ?>
                                                     </div>
 
-                                                    <!-- Basic Info -->
                                                     <div class="p-3 bg-light rounded-4 border mb-3">
                                                         <div class="row g-3">
                                                             <div class="col-6 col-md-4">
-                                                                <small class="text-muted text-uppercase fw-bold"
-                                                                    style="font-size: 10px;">Register Date</small>
-                                                                <div class="fw-bold text-dark">2023-05-15</div>
+                                                                <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Register Date</small>
+                                                                <div class="fw-bold text-dark"><?= date('d-M-Y', strtotime($row['register_date'])); ?></div>
                                                             </div>
                                                             <div class="col-6 col-md-4">
-                                                                <small class="text-muted text-uppercase fw-bold"
-                                                                    style="font-size: 10px;">Vehicle Type</small>
-                                                                <div class="fw-bold text-dark">Motorcycle</div>
+                                                                <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Vehicle Type</small>
+                                                                <div class="fw-bold text-dark"><?= $row['vehicle_type']; ?></div>
                                                             </div>
-
                                                             <div class="col-6 col-md-4">
-                                                                <small class="text-muted text-uppercase fw-bold"
-                                                                    style="font-size: 10px;">Owner Serial</small>
-                                                                <div class="fw-bold text-dark">1st Owner</div>
+                                                                <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Owner Serial</small>
+                                                                <div class="fw-bold text-dark"><?= $row['owner_serial']; ?></div>
                                                             </div>
                                                             <div class="col-12 col-md-12">
-                                                                <small class="text-muted text-uppercase fw-bold"
-                                                                    style="font-size: 10px;">Bike Name</small>
-                                                                <div class="fw-bold text-dark">Pulsar 125</div>
+                                                                <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Bike Name</small>
+                                                                <div class="fw-bold text-dark"><?= $row['name']; ?></div>
                                                             </div>
                                                             <div class="col-12 col-md-12">
-                                                                <small class="text-muted text-uppercase fw-bold"
-                                                                    style="font-size: 10px;">Vehicle Number</small>
-                                                                <div class="fw-bold text-dark">WB 12 AB 9999</div>
+                                                                <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Vehicle Number</small>
+                                                                <div class="fw-bold text-dark text-uppercase"><?= $row['vehicle_number']; ?></div>
                                                             </div>
                                                             <div class="col-12 col-md-12">
-                                                                <small class="text-muted text-uppercase fw-bold"
-                                                                    style="font-size: 10px;">Chassis Number</small>
-                                                                <div class="fw-bold text-dark font-monospace">
-                                                                    ME3J5F5F9LC01234
-                                                                </div>
+                                                                <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Chassis Number</small>
+                                                                <div class="fw-bold text-dark font-monospace"><?= $row['chassis_number']; ?></div>
                                                             </div>
                                                             <div class="col-12 col-md-12">
-                                                                <small class="text-muted text-uppercase fw-bold"
-                                                                    style="font-size: 10px;">Engine Number</small>
-                                                                <div class="fw-bold text-dark font-monospace">J5F5F9LC09988
-                                                                </div>
+                                                                <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Engine Number</small>
+                                                                <div class="fw-bold text-dark font-monospace"><?= $row['engine_number']; ?></div>
                                                             </div>
                                                         </div>
                                                     </div>
 
-                                                    <!-- Price & Payment Mode -->
+                                                    <?php
+                                                    $isOnline = ($row['payment_type'] == 'Online');
+                                                    $price = $isOnline ? $row['online_price'] : $row['cash_price'];
+                                                    $method = $isOnline ? $row['online_method'] : 'Cash Payment';
+                                                    $txnId = $isOnline ? $row['online_transaction_id'] : 'N/A';
+                                                    ?>
                                                     <div class="d-flex justify-content-between align-items-center mb-4">
                                                         <div>
-                                                            <small class="text-muted text-uppercase fw-bold">Payment
-                                                                Mode</small>
-                                                            <div class="fw-bold text-primary"><i
-                                                                    class="ph-bold ph-google-logo me-1"></i> Google Pay
+                                                            <small class="text-muted text-uppercase fw-bold">Payment Mode</small>
+                                                            <div class="fw-bold text-primary">
+                                                                <i class="ph-bold <?= $isOnline ? 'ph-globe' : 'ph-money'; ?> me-1"></i> <?= $method; ?>
                                                             </div>
                                                         </div>
                                                         <div class="text-end">
                                                             <small class="text-muted text-uppercase fw-bold">Price</small>
-                                                            <div class="fs-4 fw-bold text-dark">₹ 1,85,000</div>
+                                                            <div class="fs-4 fw-bold text-dark">₹ <?= number_format($price, 2); ?></div>
                                                         </div>
                                                     </div>
 
-                                                    <!-- Transaction ID / UPI ID -->
-                                                    <div class="d-flex justify-content-between align-items-center mb-4">
-                                                        <div>
-                                                            <small class="text-muted text-uppercase fw-bold">Transaction
-                                                                ID</small>
-                                                            <div class="fw-bold text-primary">TXN123456789</div>
+                                                    <?php if ($isOnline): ?>
+                                                        <div class="d-flex justify-content-between align-items-center mb-4">
+                                                            <div>
+                                                                <small class="text-muted text-uppercase fw-bold">Transaction ID</small>
+                                                                <div class="fw-bold text-primary text-break"><?= $txnId; ?></div>
+                                                            </div>
                                                         </div>
-                                                        <div class="text-end">
-                                                            <small class="text-muted text-uppercase fw-bold">UPI ID</small>
-                                                            <div class="fw-bold text-dark">dummy@upi</div>
-                                                        </div>
-                                                    </div>
+                                                    <?php endif; ?>
 
-
-                                                    <!-- Police Challan Table -->
-                                                    <div class="border rounded-4 overflow-scroll">
-                                                        <div
-                                                            class="bg-light px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
-                                                            <h6 class="fw-bold text-danger mb-0 small text-uppercase">Police
-                                                                Challan Details</h6>
-                                                            <span class="badge bg-danger">Yes</span>
+                                                    <div class="border rounded-4 overflow-hidden">
+                                                        <div class="bg-light px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
+                                                            <h6 class="fw-bold text-danger mb-0 small text-uppercase">Police Challan Details</h6>
+                                                            <span class="badge <?= ($row['police_challan'] == 'Yes') ? 'bg-danger' : 'bg-success'; ?>">
+                                                                <?= $row['police_challan']; ?>
+                                                            </span>
                                                         </div>
-                                                        <table class="table table-sm align-middle mb-0 text-center">
-                                                            <thead>
-                                                                <tr class="text-muted small">
-                                                                    <th class="py-2">#</th>
-                                                                    <th class="py-2">Challan No</th>
-                                                                    <th class="py-2">Amt</th>
-                                                                    <th class="py-2">Status</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr class="border-bottom">
-                                                                    <td>1</td>
-                                                                    <td class="font-monospace small">WB/KOL/2023/11</td>
-                                                                    <td class="fw-bold">₹500</td>
-                                                                    <td><span
-                                                                            class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr class="border-bottom">
-                                                                    <td>2</td>
-                                                                    <td class="font-monospace small">WB/HOW/2023/45</td>
-                                                                    <td class="fw-bold">₹1000</td>
-                                                                    <td><span
-                                                                            class="badge bg-danger-subtle text-danger border border-danger-subtle">Pending</span>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>3</td>
-                                                                    <td class="font-monospace small">--</td>
-                                                                    <td class="fw-bold">--</td>
-                                                                    <td>--</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
+
+                                                        <?php if ($row['police_challan'] == 'Yes'): ?>
+                                                            <div class="table-responsive">
+                                                                <table class="table table-sm align-middle mb-0 text-center">
+                                                                    <thead>
+                                                                        <tr class="text-muted small">
+                                                                            <th class="py-2">#</th>
+                                                                            <th class="py-2">Challan No</th>
+                                                                            <th class="py-2">Amt</th>
+                                                                            <th class="py-2">Status</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <?php
+                                                                        // Loop through challan 1 to 3
+                                                                        for ($c = 1; $c <= 3; $c++):
+                                                                            $cNum = $row['challan' . $c . '_number'];
+                                                                            $cAmt = $row['challan' . $c . '_amount'];
+                                                                            $cStatus = $row['challan' . $c . '_status'];
+
+                                                                            // Only display row if Challan Number exists
+                                                                            if (!empty($cNum)):
+                                                                        ?>
+                                                                                <tr class="border-bottom">
+                                                                                    <td><?= $c; ?></td>
+                                                                                    <td class="font-monospace small"><?= $cNum; ?></td>
+                                                                                    <td class="fw-bold">₹<?= $cAmt; ?></td>
+                                                                                    <td>
+                                                                                        <?php if ($cStatus == 'Paid'): ?>
+                                                                                            <span class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
+                                                                                        <?php else: ?>
+                                                                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Pending</span>
+                                                                                        <?php endif; ?>
+                                                                                    </td>
+                                                                                </tr>
+                                                                        <?php endif;
+                                                                        endfor; ?>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        <?php else: ?>
+                                                            <div class="p-3 text-center text-muted small">No Challans Reported.</div>
+                                                        <?php endif; ?>
                                                     </div>
 
                                                 </div>
@@ -551,395 +527,213 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                              ========================== -->
                                         <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
                                             <h2 class="accordion-header">
-                                                <button class="accordion-button collapsed fw-bold text-uppercase text-dark py-3"
-                                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeller">
-                                                    <i class="ph-bold ph-user-circle me-2 text-primary fs-5"></i> Seller
-                                                    Details
+                                                <button class="accordion-button collapsed fw-bold text-uppercase text-dark py-3" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#collapseSeller_<?= $row['id']; ?>">
+                                                    <i class="ph-bold ph-user-circle me-2 text-primary fs-5"></i> Seller Details
                                                 </button>
                                             </h2>
-                                            <div id="collapseSeller" class="accordion-collapse collapse"
+                                            <div id="collapseSeller_<?= $row['id']; ?>" class="accordion-collapse collapse"
                                                 data-bs-parent="#dealDetailsAccordion">
                                                 <div class="accordion-body bg-white p-4 border-top">
 
                                                     <div class="d-flex justify-content-between mb-3">
                                                         <div>
-                                                            <small class="text-muted text-uppercase fw-bold">Seller
-                                                                Name</small>
-                                                            <div class="fs-5 fw-bold text-dark">Rahul Roy</div>
+                                                            <small class="text-muted text-uppercase fw-bold">Seller Name</small>
+                                                            <div class="fs-5 fw-bold text-dark"><?= $row['seller_name']; ?></div>
                                                         </div>
                                                         <div class="text-end">
                                                             <small class="text-muted text-uppercase fw-bold">Date</small>
-                                                            <div class="fw-bold text-dark">2025-11-26</div>
+                                                            <div class="fw-bold text-dark">
+                                                                <?= (!empty($row['seller_date'])) ? date('Y-m-d', strtotime($row['seller_date'])) : '-'; ?>
+                                                            </div>
                                                         </div>
                                                     </div>
 
-                                                    <!-- Vehicle Info -->
                                                     <div class="row g-2 mb-3">
                                                         <div class="col-12">
-                                                            <small class="text-muted fw-bold" style="font-size:10px;">VEHICLE
-                                                                NO</small>
-                                                            <div class="fw-bold text-dark small">WB 02 AD 5555</div>
+                                                            <small class="text-muted fw-bold" style="font-size:10px;">VEHICLE NO</small>
+                                                            <div class="fw-bold text-dark small text-uppercase"><?= $row['seller_vehicle_number']; ?></div>
                                                         </div>
                                                         <div class="col-12">
-                                                            <small class="text-muted fw-bold" style="font-size:10px;">BIKE
-                                                                NAME</small>
-                                                            <div class="fw-bold text-dark small">Pulsar 150</div>
+                                                            <small class="text-muted fw-bold" style="font-size:10px;">BIKE NAME</small>
+                                                            <div class="fw-bold text-dark small"><?= $row['seller_bike_name']; ?></div>
                                                         </div>
                                                         <div class="col-12">
-                                                            <small class="text-muted fw-bold" style="font-size:10px;">CHASSIS
-                                                                NO</small>
-                                                            <div class="fw-bold text-dark font-monospace small">MD2A123...
-                                                            </div>
+                                                            <small class="text-muted fw-bold" style="font-size:10px;">CHASSIS NO</small>
+                                                            <div class="fw-bold text-dark font-monospace small"><?= $row['seller_chassis_no']; ?></div>
                                                         </div>
                                                         <div class="col-12">
-                                                            <small class="text-muted fw-bold" style="font-size:10px;">ENGINE
-                                                                NO</small>
-                                                            <div class="fw-bold text-dark font-monospace small">DHK88...
-                                                            </div>
+                                                            <small class="text-muted fw-bold" style="font-size:10px;">ENGINE NO</small>
+                                                            <div class="fw-bold text-dark font-monospace small"><?= $row['seller_engine_no']; ?></div>
                                                         </div>
                                                     </div>
 
-                                                    <!-- Contact -->
                                                     <div class="bg-light p-3 rounded-3 mb-3 border">
                                                         <small class="text-muted fw-bold">Address</small>
-                                                        <div class="mb-2">123, G.T. Road, Howrah - 711101</div>
-                                                        <div class="d-flex gap-3 flex-wrap">
-                                                            <a href="tel:9876543210"
-                                                                class="badge bg-white text-dark border text-decoration-none">
-                                                                <i class="ph-fill ph-phone"></i> 9876543210
-                                                            </a>
-                                                            <a href="tel:8765432109"
-                                                                class="badge bg-white text-dark border text-decoration-none">
-                                                                <i class="ph-fill ph-phone"></i> 8765432109
-                                                            </a>
-                                                            <span class="badge bg-white text-dark border text-muted opacity-50">
-                                                                <i class="ph-fill ph-phone"></i> --
-                                                            </span>
+                                                        <div class="mb-2"><?= $row['seller_address']; ?></div>
+                                                        <div class="d-flex gap-2 flex-wrap">
+                                                            <?php
+                                                            // Loop through mobile 1, 2, 3
+                                                            for ($m = 1; $m <= 3; $m++):
+                                                                $mob = $row['seller_mobile' . $m];
+                                                                if (!empty($mob)):
+                                                            ?>
+                                                                    <a href="tel:<?= $mob; ?>" class="badge bg-white text-dark border text-decoration-none py-2">
+                                                                        <i class="ph-fill ph-phone me-1"></i> <?= $mob; ?>
+                                                                    </a>
+                                                            <?php endif;
+                                                            endfor; ?>
                                                         </div>
                                                     </div>
 
-                                                    <!-- Documents -->
-                                                    <h6 class="fw-bold text-muted small text-uppercase mb-3">Purchaser
-                                                        Documents
-                                                    </h6>
-
+                                                    <h6 class="fw-bold text-muted small text-uppercase mb-3">Seller Documents</h6>
                                                     <div class="row g-2">
+                                                        <?php
+                                                        // Array to map DB columns to Display Labels
+                                                        $docs = [
+                                                            'doc_aadhar_front' => 'AADHAR FRONT',
+                                                            'doc_aadhar_back'  => 'AADHAR BACK',
+                                                            'doc_voter_front'  => 'VOTER FRONT',
+                                                            'doc_voter_back'   => 'VOTER BACK'
+                                                        ];
 
-                                                        <!-- AADHAR FRONT -->
-                                                        <div class="col-6 col-md-3" style="object-fit: cover;">
-                                                            <div class="border rounded p-2 text-center bg-white">
-                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">AADHAR
-                                                                    FRONT</small>
-
-                                                                <!-- Square Preview -->
-                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                                    <img src="your-image-path/aadhar-front.jpg"
-                                                                        class="w-100 h-100 object-fit-cover">
+                                                        foreach ($docs as $col => $label):
+                                                            if (!empty($row[$col])):
+                                                                $imgSrc = "../images/" . $row[$col];
+                                                        ?>
+                                                                <div class="col-6 col-md-3">
+                                                                    <div class="border rounded p-2 text-center bg-white h-100">
+                                                                        <small class="fw-bold d-block mb-1" style="font-size:10px"><?= $label; ?></small>
+                                                                        <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                                            <img src="<?= $imgSrc; ?>" class="object-fit-cover">
+                                                                        </div>
+                                                                        <a href="<?= $imgSrc; ?>" target="_blank" class="btn btn-dark btn-sm w-100 py-0 mb-1" style="font-size:10px">View</a>
+                                                                        <a href="<?= $imgSrc; ?>" download class="btn btn-secondary btn-sm w-100 py-0" style="font-size:10px">Download</a>
+                                                                    </div>
                                                                 </div>
-
-                                                                <!-- View (opens image in new tab) -->
-                                                                <a href="your-image-path/aadhar-front.jpg" target="_blank"
-                                                                    class="btn btn-dark btn-sm w-100 py-0" style="font-size:10px">
-                                                                    View
-                                                                </a>
-
-                                                                <!-- Download -->
-                                                                <a href="your-image-path/aadhar-front.jpg" download
-                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                                    style="font-size:10px">
-                                                                    Download
-                                                                </a>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- AADHAR BACK -->
-                                                        <div class="col-6 col-md-3">
-                                                            <div class="border rounded p-2 text-center bg-white">
-                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">AADHAR
-                                                                    BACK</small>
-
-                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                                    <img src="your-image-path/aadhar-back.jpg"
-                                                                        class="w-100 h-100 object-fit-cover">
-                                                                </div>
-
-                                                                <a href="your-image-path/aadhar-back.jpg" target="_blank"
-                                                                    class="btn btn-dark btn-sm w-100 py-0"
-                                                                    style="font-size:10px">View</a>
-
-                                                                <a href="your-image-path/aadhar-back.jpg" download
-                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                                    style="font-size:10px">Download</a>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- VOTER FRONT -->
-                                                        <div class="col-6 col-md-3">
-                                                            <div class="border rounded p-2 text-center bg-white">
-                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
-                                                                    FRONT</small>
-
-                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                                    <img src="your-image-path/voter-front.jpg"
-                                                                        class="w-100 h-100 object-fit-cover">
-                                                                </div>
-
-                                                                <a href="your-image-path/voter-front.jpg" target="_blank"
-                                                                    class="btn btn-dark btn-sm w-100 py-0"
-                                                                    style="font-size:10px">View</a>
-
-                                                                <a href="your-image-path/voter-front.jpg" download
-                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                                    style="font-size:10px">Download</a>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- VOTER BACK -->
-                                                        <div class="col-6 col-md-3">
-                                                            <div class="border rounded p-2 text-center bg-white">
-                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
-                                                                    BACK</small>
-
-                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                                    <img src="your-image-path/voter-back.jpg"
-                                                                        class="w-100 h-100 object-fit-cover">
-                                                                </div>
-
-                                                                <a href="your-image-path/voter-back.jpg" target="_blank"
-                                                                    class="btn btn-dark btn-sm w-100 py-0"
-                                                                    style="font-size:10px">View</a>
-
-                                                                <a href="your-image-path/voter-back.jpg" download
-                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                                    style="font-size:10px">Download</a>
-                                                            </div>
-                                                        </div>
-
+                                                        <?php endif;
+                                                        endforeach; ?>
                                                     </div>
 
-
-                                                    <!-- Papers & Challan -->
-                                                    <div class="row g-3 mb-3">
+                                                    <div class="row g-3 mb-3 mt-2">
                                                         <div class="col-12">
-                                                            <label class="small text-muted fw-bold mb-1">PAPERS
-                                                                RECEIVED</label>
+                                                            <label class="small text-muted fw-bold mb-1">PAPERS RECEIVED</label>
                                                             <div class="d-flex flex-wrap gap-2">
-                                                                <span
-                                                                    class="badge bg-primary-subtle text-primary border border-primary-subtle">RC</span>
-                                                                <span
-                                                                    class="badge bg-primary-subtle text-primary border border-primary-subtle">Tax
-                                                                    Token</span>
-                                                                <span
-                                                                    class="badge bg-light text-muted border text-decoration-line-through">Insurance</span>
-                                                                <span
-                                                                    class="badge bg-primary-subtle text-primary border border-primary-subtle">PUCC</span>
-                                                                <span
-                                                                    class="badge bg-primary-subtle text-primary border border-primary-subtle">NOC</span>
+                                                                <span class="badge <?= ($row['pr_rc'] == 1) ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border text-decoration-line-through'; ?>">RC</span>
+                                                                <span class="badge <?= ($row['pr_tax'] == 1) ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border text-decoration-line-through'; ?>">Tax Token</span>
+                                                                <span class="badge <?= ($row['pr_insurance'] == 1) ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border text-decoration-line-through'; ?>">Insurance</span>
+                                                                <span class="badge <?= ($row['pr_pucc'] == 1) ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border text-decoration-line-through'; ?>">PUCC</span>
+                                                                <span class="badge <?= ($row['pr_noc'] == 1) ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border text-decoration-line-through'; ?>">NOC</span>
                                                             </div>
-                                                        </div>
-                                                        <!-- <div class="col-12">
-                                                    <div
-                                                        class="p-2 border rounded bg-warning-subtle text-warning-emphasis">
-                                                        <div class="d-flex justify-content-between align-items-center">
-                                                            <span class="small fw-bold"><i
-                                                                    class="ph-bold ph-warning-circle me-1"></i> Seller
-                                                                Challan</span>
-                                                            <span class="badge bg-warning text-dark">Yes</span>
-                                                        </div>
-                                                        <div class="small mt-1"><strong>No:</strong> WB/KOL/999/2024
-                                                        </div>
-                                                    </div>
-                                                </div> -->
-                                                    </div>
-
-                                                    <!-- NOC -->
-                                                    <div class="border rounded-4 p-3 mb-3">
-                                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                                            <small class="fw-bold text-uppercase text-muted">NOC
-                                                                Details</small>
-                                                            <span class="badge bg-success">Paid</span>
-                                                        </div>
-
-                                                        <div class="row g-2">
-
-                                                            <!-- NOC FRONT -->
-                                                            <div class="col-6">
-                                                                <div class="border rounded p-2 text-center bg-white">
-
-                                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">NOC
-                                                                        FRONT</small>
-
-                                                                    <!-- Small square preview -->
-                                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
-                                                                        style="width:50px; height:50px; margin:auto;">
-                                                                        <img src="your-image-path/noc-front.jpg" class="w-100 h-100"
-                                                                            style="object-fit:cover;">
-                                                                    </div>
-
-                                                                    <!-- View -->
-                                                                    <a href="your-image-path/noc-front.jpg" target="_blank"
-                                                                        class="btn btn-outline-dark btn-sm w-100 py-0"
-                                                                        style="font-size:10px">
-                                                                        View
-                                                                    </a>
-
-                                                                    <!-- Download -->
-                                                                    <a href="your-image-path/noc-front.jpg" download
-                                                                        class="btn btn-dark btn-sm w-100 mt-1 py-0"
-                                                                        style="font-size:10px">
-                                                                        Download
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- NOC BACK -->
-                                                            <div class="col-6">
-                                                                <div class="border rounded p-2 text-center bg-white">
-
-                                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">NOC
-                                                                        BACK</small>
-
-                                                                    <!-- Small square preview -->
-                                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
-                                                                        style="width:50px; height:50px; margin:auto;">
-                                                                        <img src="your-image-path/noc-back.jpg" class="w-100 h-100"
-                                                                            style="object-fit:cover;">
-                                                                    </div>
-
-                                                                    <!-- View -->
-                                                                    <a href="your-image-path/noc-back.jpg" target="_blank"
-                                                                        class="btn btn-outline-dark btn-sm w-100 py-0"
-                                                                        style="font-size:10px">
-                                                                        View
-                                                                    </a>
-
-                                                                    <!-- Download -->
-                                                                    <a href="your-image-path/noc-back.jpg" download
-                                                                        class="btn btn-dark btn-sm w-100 mt-1 py-0"
-                                                                        style="font-size:10px">
-                                                                        Download
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-
                                                         </div>
                                                     </div>
 
-                                                    <!-- RC -->
-                                                    <div class="border rounded-4 p-3 mb-3">
-                                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                                            <small class="fw-bold text-uppercase text-muted">RC
-                                                                Details</small>
-                                                            <!-- <span class="badge bg-success">Paid</span> -->
-                                                        </div>
-
-                                                        <div class="row g-2">
-
-                                                            <!-- RC FRONT -->
-                                                            <div class="col-6">
-                                                                <div class="border rounded p-2 text-center bg-white">
-
-                                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">RC
-                                                                        FRONT</small>
-
-                                                                    <!-- Small square preview -->
-                                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
-                                                                        style="width:50px; height:50px; margin:auto;">
-                                                                        <img src="your-image-path/rc-front.jpg" class="w-100 h-100"
-                                                                            style="object-fit:cover;">
-                                                                    </div>
-
-                                                                    <!-- View -->
-                                                                    <a href="your-image-path/rc-front.jpg" target="_blank"
-                                                                        class="btn btn-outline-dark btn-sm w-100 py-0"
-                                                                        style="font-size:10px">
-                                                                        View
-                                                                    </a>
-
-                                                                    <!-- Download -->
-                                                                    <a href="your-image-path/rc-front.jpg" download
-                                                                        class="btn btn-dark btn-sm w-100 mt-1 py-0"
-                                                                        style="font-size:10px">
-                                                                        Download
-                                                                    </a>
-                                                                </div>
+                                                    <?php if (!empty($row['noc_front']) || !empty($row['noc_back'])): ?>
+                                                        <div class="border rounded-4 p-3 mb-3">
+                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                <small class="fw-bold text-uppercase text-muted">NOC Details</small>
+                                                                <span class="badge <?= ($row['noc_status'] == 'Paid') ? 'bg-success' : 'bg-danger'; ?>"><?= $row['noc_status']; ?></span>
                                                             </div>
-
-                                                            <!-- RC BACK -->
-                                                            <div class="col-6">
-                                                                <div class="border rounded p-2 text-center bg-white">
-
-                                                                    <small class="fw-bold d-block mb-1" style="font-size:10px">RC
-                                                                        BACK</small>
-
-                                                                    <!-- Small square preview -->
-                                                                    <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden"
-                                                                        style="width:50px; height:50px; margin:auto;">
-                                                                        <img src="your-image-path/rc-back.jpg" class="w-100 h-100"
-                                                                            style="object-fit:cover;">
-                                                                    </div>
-
-                                                                    <!-- View -->
-                                                                    <a href="your-image-path/rc-back.jpg" target="_blank"
-                                                                        class="btn btn-outline-dark btn-sm w-100 py-0"
-                                                                        style="font-size:10px">
-                                                                        View
-                                                                    </a>
-
-                                                                    <!-- Download -->
-                                                                    <a href="your-image-path/rc-back.jpg" download
-                                                                        class="btn btn-dark btn-sm w-100 mt-1 py-0"
-                                                                        style="font-size:10px">
-                                                                        Download
-                                                                    </a>
-                                                                </div>
+                                                            <div class="row g-2">
+                                                                <?php
+                                                                $nocDocs = ['noc_front' => 'NOC FRONT', 'noc_back' => 'NOC BACK'];
+                                                                foreach ($nocDocs as $col => $label):
+                                                                    if (!empty($row[$col])): $imgSrc = "../images/" . $row[$col];
+                                                                ?>
+                                                                        <div class="col-6">
+                                                                            <div class="border rounded p-2 text-center bg-white">
+                                                                                <small class="fw-bold d-block mb-1" style="font-size:10px"><?= $label; ?></small>
+                                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden" style="width:50px; height:50px; margin:auto;">
+                                                                                    <img src="<?= $imgSrc; ?>" class="object-fit-cover">
+                                                                                </div>
+                                                                                <a href="<?= $imgSrc; ?>" target="_blank" class="btn btn-outline-dark btn-sm w-100 py-0 mb-1" style="font-size:10px">View</a>
+                                                                                <a href="<?= $imgSrc; ?>" download class="btn btn-dark btn-sm w-100 py-0" style="font-size:10px">Download</a>
+                                                                            </div>
+                                                                        </div>
+                                                                <?php endif;
+                                                                endforeach; ?>
                                                             </div>
-
                                                         </div>
-                                                    </div>
+                                                    <?php endif; ?>
 
+                                                    <?php if (!empty($row['rc_front']) || !empty($row['rc_back'])): ?>
+                                                        <div class="border rounded-4 p-3 mb-3">
+                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                <small class="fw-bold text-uppercase text-muted">RC Details</small>
+                                                            </div>
+                                                            <div class="row g-2">
+                                                                <?php
+                                                                $rcDocs = ['rc_front' => 'RC FRONT', 'rc_back' => 'RC BACK'];
+                                                                foreach ($rcDocs as $col => $label):
+                                                                    if (!empty($row[$col])): $imgSrc = "../images/" . $row[$col];
+                                                                ?>
+                                                                        <div class="col-6">
+                                                                            <div class="border rounded p-2 text-center bg-white">
+                                                                                <small class="fw-bold d-block mb-1" style="font-size:10px"><?= $label; ?></small>
+                                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden" style="width:50px; height:50px; margin:auto;">
+                                                                                    <img src="<?= $imgSrc; ?>" class="object-fit-cover">
+                                                                                </div>
+                                                                                <a href="<?= $imgSrc; ?>" target="_blank" class="btn btn-outline-dark btn-sm w-100 py-0 mb-1" style="font-size:10px">View</a>
+                                                                                <a href="<?= $imgSrc; ?>" download class="btn btn-dark btn-sm w-100 py-0" style="font-size:10px">Download</a>
+                                                                            </div>
+                                                                        </div>
+                                                                <?php endif;
+                                                                endforeach; ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endif; ?>
 
-
-                                                    <!-- Payment Info -->
                                                     <div class="bg-light border rounded-4 p-3 mb-3">
                                                         <h6 class="fw-bold small mb-2">Payment Details</h6>
+
                                                         <div class="d-flex justify-content-between mb-1">
                                                             <span class="small text-muted">Type:</span>
-                                                            <span class="fw-bold text-dark">Online (PhonePe)</span>
+                                                            <span class="fw-bold text-dark">
+                                                                <?php if ($row['seller_payment_type'] == 'Online'): ?>
+                                                                    Online (<?= $row['seller_online_method']; ?>)
+                                                                <?php else: ?>
+                                                                    Cash
+                                                                <?php endif; ?>
+                                                            </span>
                                                         </div>
-                                                        <div class="d-flex justify-content-between mb-3">
-                                                            <span class="small text-muted">Txn ID:</span>
-                                                            <span class="fw-bold font-monospace small">T230515123456</span>
-                                                        </div>
+
+                                                        <?php if ($row['seller_payment_type'] == 'Online'): ?>
+                                                            <div class="d-flex justify-content-between mb-3">
+                                                                <span class="small text-muted">Txn ID:</span>
+                                                                <span class="fw-bold font-monospace small text-break"><?= $row['seller_online_transaction_id']; ?></span>
+                                                            </div>
+                                                        <?php endif; ?>
 
                                                         <div class="d-flex text-center border rounded overflow-hidden bg-white">
                                                             <div class="flex-fill p-2 border-end">
-                                                                <div class="small text-muted fw-bold" style="font-size:10px">
-                                                                    TOTAL</div>
-                                                                <div class="fw-bold">₹50,000</div>
+                                                                <div class="small text-muted fw-bold" style="font-size:10px">TOTAL</div>
+                                                                <div class="fw-bold">₹<?= number_format($row['total_amount'], 0); ?></div>
                                                             </div>
                                                             <div class="flex-fill p-2 border-end bg-success-subtle text-success">
                                                                 <div class="small fw-bold" style="font-size:10px">PAID</div>
-                                                                <div class="fw-bold">₹30,000</div>
+                                                                <div class="fw-bold">₹<?= number_format($row['paid_amount'], 0); ?></div>
                                                             </div>
                                                             <div class="flex-fill p-2 bg-danger-subtle text-danger">
                                                                 <div class="small fw-bold" style="font-size:10px">DUE</div>
-                                                                <div class="fw-bold">₹20,000</div>
+                                                                <div class="fw-bold">₹<?= number_format($row['due_amount'], 0); ?></div>
                                                             </div>
                                                         </div>
-                                                        <div class="small text-danger mt-2 fst-italic"><i
-                                                                class="ph-bold ph-info me-1"></i> Pending RC transfer</div>
+
+                                                        <?php if ($row['due_amount'] > 0 && !empty($row['due_reason'])): ?>
+                                                            <div class="small text-danger mt-2 fst-italic">
+                                                                <i class="ph-bold ph-info me-1"></i> <?= $row['due_reason']; ?>
+                                                            </div>
+                                                        <?php endif; ?>
                                                     </div>
 
                                                     <div class="row g-2">
                                                         <div class="col-6">
-                                                            <small class="text-muted fw-bold"
-                                                                style="font-size:10px">SHOWROOM</small>
-                                                            <div class="fw-bold small">Speedy Wheels</div>
+                                                            <small class="text-muted fw-bold" style="font-size:10px">SHOWROOM</small>
+                                                            <div class="fw-bold small"><?= $row['exchange_showroom_name'] ?? '-'; ?></div>
                                                         </div>
                                                         <div class="col-6">
                                                             <small class="text-muted fw-bold" style="font-size:10px">STAFF</small>
-                                                            <div class="fw-bold small">Amit Das</div>
+                                                            <div class="fw-bold small"><?= $row['staff_name'] ?? '-'; ?></div>
                                                         </div>
                                                     </div>
 
@@ -950,332 +744,230 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                         <!-- ==========================
                              STEP 3: PURCHASER DETAILS
                              ========================== -->
-                                        <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
-                                            <h2 class="accordion-header">
-                                                <button class="accordion-button collapsed fw-bold text-uppercase text-dark py-3"
-                                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapseBuyer">
-                                                    <i class="ph-bold ph-shopping-bag me-2 text-primary fs-5"></i> Purchaser
-                                                    Details
-                                                </button>
-                                            </h2>
-                                            <div id="collapseBuyer" class="accordion-collapse collapse"
-                                                data-bs-parent="#dealDetailsAccordion">
-                                                <div class="accordion-body bg-white p-4 border-top">
+                                        <?php if ($row['sold_out'] == 1): // Only show if vehicle is sold 
+                                        ?>
+                                            <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
+                                                <h2 class="accordion-header">
+                                                    <button class="accordion-button collapsed fw-bold text-uppercase text-dark py-3"
+                                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapsePurchaser_<?= $row['id']; ?>">
+                                                        <i class="ph-bold ph-shopping-bag me-2 text-primary fs-5"></i> Purchaser Details
+                                                    </button>
+                                                </h2>
+                                                <div id="collapsePurchaser_<?= $row['id']; ?>" class="accordion-collapse collapse"
+                                                    data-bs-parent="#dealDetailsAccordion">
+                                                    <div class="accordion-body bg-white p-4 border-top">
 
-                                                    <!-- Basic Info -->
-                                                    <div class="row g-3 mb-3">
-                                                        <div class="col-12">
-                                                            <small class="text-muted text-uppercase fw-bold">Purchaser
-                                                                Name</small>
-                                                            <div class="fs-5 fw-bold text-dark">Sneha Gupta</div>
-                                                            <small class="text-muted">Date: 2025-11-26</small>
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <div class="bg-light p-3 rounded border">
-                                                                <small class="text-muted text-uppercase fw-bold">Address</small>
-                                                                <div>Flat 4B, Green Heights, Kolkata - 700054</div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <small class="text-muted fw-bold" style="font-size:10px">BIKE
-                                                                NAME</small>
-                                                            <div class="fw-bold text-dark">Classic 350</div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <small class="text-muted fw-bold" style="font-size:10px">VEHICLE
-                                                                NO</small>
-                                                            <div class="fw-bold text-dark">WB 12 AB 9999</div>
-                                                        </div>
-                                                        <!-- <div class="col-12">
-                                                    <small class="text-muted fw-bold" style="font-size:10px">BUYER
-                                                        NAME</small>
-                                                    <div class="fw-bold text-dark">Sneha Gupta (Self)</div>
-                                                </div> -->
-                                                    </div>
-
-                                                    <!-- Buyer Payment Table -->
-                                                    <div class="border rounded-4 overflow-hidden mb-4">
-                                                        <div class="bg-light px-3 py-2 border-bottom">
-                                                            <h6 class="fw-bold mb-0 small text-uppercase">Buyer Payment Fees
-                                                            </h6>
-                                                        </div>
-                                                        <table class="table table-sm align-middle mb-0 text-center">
-                                                            <thead>
-                                                                <tr class="text-muted small">
-                                                                    <th class="py-2 text-start ps-3">Type</th>
-                                                                    <th class="py-2">Amt</th>
-                                                                    <th class="py-2">Date</th>
-                                                                    <th class="py-2">Status</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td class="text-start ps-3 small fw-bold">Transfer</td>
-                                                                    <td>₹2,500</td>
-                                                                    <td class="small text-muted">Nov 20</td>
-                                                                    <td><span
-                                                                            class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="text-start ps-3 small fw-bold">HPA</td>
-                                                                    <td>₹1,500</td>
-                                                                    <td class="small text-muted">Nov 22</td>
-                                                                    <td><span
-                                                                            class="badge bg-danger-subtle text-danger border border-danger-subtle">Due</span>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="text-start ps-3 small fw-bold">HP</td>
-                                                                    <td>₹500</td>
-                                                                    <td class="small text-muted">Nov 22</td>
-                                                                    <td><span
-                                                                            class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-
-                                                    <!-- Insurance Details (New Field) -->
-                                                    <div class="p-3 border rounded-4 bg-light mb-4 position-relative">
-                                                        <span
-                                                            class="position-absolute top-0 start-50 translate-middle badge bg-dark text-white border-light border">
-                                                            Insurance Details
-                                                        </span>
-
-                                                        <div class="row g-2 mt-1">
-
-                                                            <!-- Provider -->
+                                                        <div class="row g-3 mb-3">
                                                             <div class="col-12">
-                                                                <div class="d-flex justify-content-between">
-                                                                    <span class="small text-muted">Provider:</span>
-                                                                    <span class="fw-bold">Tata AIG Insurance</span>
+                                                                <small class="text-muted text-uppercase fw-bold">Purchaser Name</small>
+                                                                <div class="fs-5 fw-bold text-dark"><?= $row['purchaser_name']; ?></div>
+                                                                <small class="text-muted">Date: <?= date('d-M-Y', strtotime($row['purchaser_date'])); ?></small>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <div class="bg-light p-3 rounded border">
+                                                                    <small class="text-muted text-uppercase fw-bold">Address</small>
+                                                                    <div><?= $row['purchaser_address']; ?></div>
                                                                 </div>
                                                             </div>
-
-                                                            <!-- Policy Number -->
-                                                            <!-- <div class="col-12">
-                                                        <div class="d-flex justify-content-between">
-                                                            <span class="small text-muted">Policy No:</span>
-                                                            <span class="fw-bold font-monospace">3005/A/123456</span>
+                                                            <div class="col-6">
+                                                                <small class="text-muted fw-bold" style="font-size:10px;">BIKE NAME</small>
+                                                                <div class="fw-bold text-dark"><?= $row['purchaser_bike_name']; ?></div>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <small class="text-muted fw-bold" style="font-size:10px;">VEHICLE NO</small>
+                                                                <div class="fw-bold text-dark text-uppercase"><?= $row['purchaser_vehicle_no']; ?></div>
+                                                            </div>
                                                         </div>
-                                                    </div> -->
 
-                                                            <!-- Payment Status -->
-                                                            <div class="col-12">
-                                                                <div class="d-flex justify-content-between">
-                                                                    <span class="small text-muted">Payment Status:</span>
-                                                                    <span class="fw-bold text-success">PAID</span>
-                                                                </div>
+                                                        <div class="border rounded-4 overflow-hidden mb-4">
+                                                            <div class="bg-light px-3 py-2 border-bottom">
+                                                                <h6 class="fw-bold mb-0 small text-uppercase">Buyer Payment Fees</h6>
                                                             </div>
-
-                                                            <!-- Amount -->
-                                                            <div class="col-12">
-                                                                <div class="d-flex justify-content-between">
-                                                                    <span class="small text-muted">Amount:</span>
-                                                                    <span class="fw-bold">₹ 1,800</span>
-                                                                </div>
+                                                            <div class="table-responsive">
+                                                                <table class="table table-sm align-middle mb-0 text-center">
+                                                                    <thead>
+                                                                        <tr class="text-muted small">
+                                                                            <th class="py-2 text-start ps-3">Type</th>
+                                                                            <th class="py-2">Amt</th>
+                                                                            <th class="py-2">Date</th>
+                                                                            <th class="py-2">Status</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <?php
+                                                                        $fees = [
+                                                                            'Transfer' => ['amt' => 'purchaser_transfer_amount', 'date' => 'purchaser_transfer_date', 'status' => 'purchaser_transfer_status'],
+                                                                            'HPA'      => ['amt' => 'purchaser_hpa_amount',      'date' => 'purchaser_hpa_date',      'status' => 'purchaser_hpa_status'],
+                                                                            'HP'       => ['amt' => 'purchaser_hp_amount',       'date' => 'purchaser_hp_date',       'status' => 'purchaser_hp_status'],
+                                                                        ];
+                                                                        foreach ($fees as $label => $cols):
+                                                                            if ($row[$cols['amt']] > 0): // Only show if amount exists
+                                                                        ?>
+                                                                                <tr>
+                                                                                    <td class="text-start ps-3 small fw-bold"><?= $label; ?></td>
+                                                                                    <td>₹<?= number_format($row[$cols['amt']]); ?></td>
+                                                                                    <td class="small text-muted"><?= (!empty($row[$cols['date']])) ? date('M d', strtotime($row[$cols['date']])) : '-'; ?></td>
+                                                                                    <td>
+                                                                                        <?php if ($row[$cols['status']] == 'Paid'): ?>
+                                                                                            <span class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
+                                                                                        <?php else: ?>
+                                                                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Due</span>
+                                                                                        <?php endif; ?>
+                                                                                    </td>
+                                                                                </tr>
+                                                                        <?php endif;
+                                                                        endforeach; ?>
+                                                                    </tbody>
+                                                                </table>
                                                             </div>
-
-                                                            <!-- Today Date -->
-                                                            <div class="col-12">
-                                                                <div class="d-flex justify-content-between">
-                                                                    <span class="small text-muted">Issued On:</span>
-                                                                    <span class="fw-bold">2025-11-26</span>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Expiry Date -->
-                                                            <div class="col-12">
-                                                                <div class="d-flex justify-content-between">
-                                                                    <span class="small text-muted">Expiry Date:</span>
-                                                                    <span class="fw-bold text-danger">2026-11-26</span>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Validity Text -->
-                                                            <div class="col-12">
-                                                                <div class="d-flex justify-content-between">
-                                                                    <span class="small text-muted">Validity:</span>
-                                                                    <span class="fw-bold text-primary">1 Year</span>
-                                                                </div>
-                                                            </div>
-
                                                         </div>
-                                                    </div>
 
-
-                                                    <!-- Finance Section (HPA) -->
-                                                    <div class="alert alert-primary border-primary mb-3">
-                                                        <div
-                                                            class="d-flex justify-content-between align-items-center border-bottom border-primary-subtle pb-2 mb-2">
-                                                            <span class="badge bg-primary">Finance Mode</span>
-                                                            <small class="fw-bold text-primary">HPA Active</small>
-                                                        </div>
-                                                        <div class="row g-2">
-                                                            <div class="col-12">
-                                                                <small class="text-primary-emphasis fw-bold"
-                                                                    style="font-size:10px">FINANCE COMPANY</small>
-                                                                <div class="fw-bold text-dark">Bajaj Finance</div>
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <div class="d-flex justify-content-between align-items-center">
-                                                                    <div>
-                                                                        <small class="text-primary-emphasis fw-bold"
-                                                                            style="font-size:10px">DISBURSED AMT</small>
-                                                                        <div class="fw-bold text-dark">₹1,00,000</div>
+                                                        <?php if (!empty($row['purchaser_insurance_name'])):
+                                                            // Calculate Validity
+                                                            $insStart = new DateTime($row['purchaser_insurance_issue_date']);
+                                                            $insEnd   = new DateTime($row['purchaser_insurance_expiry_date']);
+                                                            $interval = $insStart->diff($insEnd);
+                                                            $validity = $interval->y . " Year" . ($interval->y > 1 ? 's' : '');
+                                                        ?>
+                                                            <div class="p-3 border rounded-4 bg-light mb-4 position-relative">
+                                                                <span class="position-absolute top-0 start-50 translate-middle badge bg-dark text-white border-light border">
+                                                                    Insurance Details
+                                                                </span>
+                                                                <div class="row g-2 mt-1">
+                                                                    <div class="col-12">
+                                                                        <div class="d-flex justify-content-between">
+                                                                            <span class="small text-muted">Provider:</span>
+                                                                            <span class="fw-bold"><?= $row['purchaser_insurance_name']; ?></span>
+                                                                        </div>
                                                                     </div>
-                                                                    <span class="badge bg-success">Paid</span>
+                                                                    <div class="col-12">
+                                                                        <div class="d-flex justify-content-between">
+                                                                            <span class="small text-muted">Payment Status:</span>
+                                                                            <span class="fw-bold <?= ($row['purchaser_insurance_payment_status'] == 'paid') ? 'text-success' : 'text-danger'; ?>">
+                                                                                <?= strtoupper($row['purchaser_insurance_payment_status']); ?>
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-12">
+                                                                        <div class="d-flex justify-content-between">
+                                                                            <span class="small text-muted">Amount:</span>
+                                                                            <span class="fw-bold">₹ <?= number_format($row['purchaser_insurance_amount']); ?></span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-12">
+                                                                        <div class="d-flex justify-content-between">
+                                                                            <span class="small text-muted">Issued On:</span>
+                                                                            <span class="fw-bold"><?= $row['purchaser_insurance_issue_date']; ?></span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-12">
+                                                                        <div class="d-flex justify-content-between">
+                                                                            <span class="small text-muted">Expiry Date:</span>
+                                                                            <span class="fw-bold text-danger"><?= $row['purchaser_insurance_expiry_date']; ?></span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-12">
+                                                                        <div class="d-flex justify-content-between">
+                                                                            <span class="small text-muted">Validity:</span>
+                                                                            <span class="fw-bold text-primary"><?= $validity; ?></span>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-12 mt-2 pt-2 border-top border-primary-subtle">
-                                                                <small class="text-primary-emphasis fw-bold d-block mb-1"
-                                                                    style="font-size:12px">REGISTERED MOBILES</small>
-                                                                <div class="d-flex gap-3 flex-wrap">
-                                                                    <a href="tel:9876543210"
-                                                                        class="badge bg-white text-dark border text-decoration-none">
-                                                                        <i class="ph-fill ph-phone"></i> 9876543210
-                                                                    </a>
-                                                                    <a href="tel:8765432109"
-                                                                        class="badge bg-white text-dark border text-decoration-none">
-                                                                        <i class="ph-fill ph-phone"></i> 8765432109
-                                                                    </a>
-                                                                    <span
-                                                                        class="badge bg-white text-dark border text-muted opacity-50">
-                                                                        <i class="ph-fill ph-phone"></i> --
-                                                                    </span>
+                                                        <?php endif; ?>
+
+                                                        <?php if ($row['purchaser_payment_mode'] == 'Finance'): ?>
+                                                            <div class="alert alert-primary border-primary mb-3">
+                                                                <div class="d-flex justify-content-between align-items-center border-bottom border-primary-subtle pb-2 mb-2">
+                                                                    <span class="badge bg-primary">Finance Mode</span>
+                                                                    <small class="fw-bold text-primary">HPA Active</small>
                                                                 </div>
-
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Price Breakdown -->
-                                                    <div class="d-flex text-center border rounded overflow-hidden bg-white mb-3">
-                                                        <div class="flex-fill p-2 border-end">
-                                                            <div class="small text-muted fw-bold" style="font-size:10px">
-                                                                TOTAL
-                                                            </div>
-                                                            <div class="fw-bold">₹1,85,000</div>
-                                                        </div>
-                                                        <div class="flex-fill p-2 border-end bg-success-subtle text-success">
-                                                            <div class="small fw-bold" style="font-size:10px">PAID</div>
-                                                            <div class="fw-bold">₹85,000</div>
-                                                        </div>
-                                                        <div class="flex-fill p-2 bg-danger-subtle text-danger">
-                                                            <div class="small fw-bold" style="font-size:10px">DUE</div>
-                                                            <div class="fw-bold">₹1,00,000</div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="mb-4">
-                                                        <label class="small text-muted fw-bold">PAYMENT ALL PAID?</label>
-                                                        <div class="fw-bold text-danger">No</div>
-                                                    </div>
-
-                                                    <!-- Documents -->
-                                                    <h6 class="fw-bold text-muted small text-uppercase mb-3">Purchaser
-                                                        Documents
-                                                    </h6>
-
-                                                    <div class="row g-2">
-
-                                                        <!-- AADHAR FRONT -->
-                                                        <div class="col-6 col-md-3" style="object-fit: cover;">
-                                                            <div class="border rounded p-2 text-center bg-white">
-                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">AADHAR
-                                                                    FRONT</small>
-
-                                                                <!-- Square Preview -->
-                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                                    <img src="your-image-path/aadhar-front.jpg"
-                                                                        class="w-100 h-100 object-fit-cover">
+                                                                <div class="row g-2">
+                                                                    <div class="col-12">
+                                                                        <small class="text-primary-emphasis fw-bold" style="font-size:10px">FINANCE COMPANY</small>
+                                                                        <div class="fw-bold text-dark"><?= $row['purchaser_fin_hpa_with']; ?></div>
+                                                                    </div>
+                                                                    <div class="col-12">
+                                                                        <div class="d-flex justify-content-between align-items-center">
+                                                                            <div>
+                                                                                <small class="text-primary-emphasis fw-bold" style="font-size:10px">DISBURSED AMT</small>
+                                                                                <div class="fw-bold text-dark">₹<?= number_format($row['purchaser_fin_disburse_amount']); ?></div>
+                                                                            </div>
+                                                                            <span class="badge <?= ($row['purchaser_fin_disburse_status'] == 'Paid') ? 'bg-success' : 'bg-warning text-dark'; ?>">
+                                                                                <?= $row['purchaser_fin_disburse_status']; ?>
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-12 mt-2 pt-2 border-top border-primary-subtle">
+                                                                        <small class="text-primary-emphasis fw-bold d-block mb-1" style="font-size:12px">REGISTERED MOBILES</small>
+                                                                        <div class="d-flex gap-3 flex-wrap">
+                                                                            <?php for ($m = 1; $m <= 3; $m++): $pmob = $row['purchaser_fin_mobile' . $m];
+                                                                                if (!empty($pmob)): ?>
+                                                                                    <a href="tel:<?= $pmob; ?>" class="badge bg-white text-dark border text-decoration-none">
+                                                                                        <i class="ph-fill ph-phone"></i> <?= $pmob; ?>
+                                                                                    </a>
+                                                                            <?php endif;
+                                                                            endfor; ?>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
+                                                            </div>
+                                                        <?php endif; ?>
 
-                                                                <!-- View (opens image in new tab) -->
-                                                                <a href="your-image-path/aadhar-front.jpg" target="_blank"
-                                                                    class="btn btn-dark btn-sm w-100 py-0" style="font-size:10px">
-                                                                    View
-                                                                </a>
-
-                                                                <!-- Download -->
-                                                                <a href="your-image-path/aadhar-front.jpg" download
-                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                                    style="font-size:10px">
-                                                                    Download
-                                                                </a>
+                                                        <div class="d-flex text-center border rounded overflow-hidden bg-white mb-3">
+                                                            <div class="flex-fill p-2 border-end">
+                                                                <div class="small text-muted fw-bold" style="font-size:10px">TOTAL</div>
+                                                                <div class="fw-bold">₹<?= number_format($row['purchaser_total']); ?></div>
+                                                            </div>
+                                                            <div class="flex-fill p-2 border-end bg-success-subtle text-success">
+                                                                <div class="small fw-bold" style="font-size:10px">PAID</div>
+                                                                <div class="fw-bold">₹<?= number_format($row['purchaser_paid']); ?></div>
+                                                            </div>
+                                                            <div class="flex-fill p-2 bg-danger-subtle text-danger">
+                                                                <div class="small fw-bold" style="font-size:10px">DUE</div>
+                                                                <div class="fw-bold">₹<?= number_format($row['purchaser_due']); ?></div>
                                                             </div>
                                                         </div>
 
-                                                        <!-- AADHAR BACK -->
-                                                        <div class="col-6 col-md-3">
-                                                            <div class="border rounded p-2 text-center bg-white">
-                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">AADHAR
-                                                                    BACK</small>
-
-                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                                    <img src="your-image-path/aadhar-back.jpg"
-                                                                        class="w-100 h-100 object-fit-cover">
-                                                                </div>
-
-                                                                <a href="your-image-path/aadhar-back.jpg" target="_blank"
-                                                                    class="btn btn-dark btn-sm w-100 py-0"
-                                                                    style="font-size:10px">View</a>
-
-                                                                <a href="your-image-path/aadhar-back.jpg" download
-                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                                    style="font-size:10px">Download</a>
-                                                            </div>
+                                                        <div class="mb-4">
+                                                            <label class="small text-muted fw-bold">PAYMENT ALL PAID?</label>
+                                                            <?php if ($row['purchaser_payment_all_paid'] == 1): ?>
+                                                                <div class="fw-bold text-success">Yes, All Clear</div>
+                                                            <?php else: ?>
+                                                                <div class="fw-bold text-danger">No, Payment Pending</div>
+                                                            <?php endif; ?>
                                                         </div>
 
-                                                        <!-- VOTER FRONT -->
-                                                        <div class="col-6 col-md-3">
-                                                            <div class="border rounded p-2 text-center bg-white">
-                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
-                                                                    FRONT</small>
-
-                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                                    <img src="your-image-path/voter-front.jpg"
-                                                                        class="w-100 h-100 object-fit-cover">
-                                                                </div>
-
-                                                                <a href="your-image-path/voter-front.jpg" target="_blank"
-                                                                    class="btn btn-dark btn-sm w-100 py-0"
-                                                                    style="font-size:10px">View</a>
-
-                                                                <a href="your-image-path/voter-front.jpg" download
-                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                                    style="font-size:10px">Download</a>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- VOTER BACK -->
-                                                        <div class="col-6 col-md-3">
-                                                            <div class="border rounded p-2 text-center bg-white">
-                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">VOTER
-                                                                    BACK</small>
-
-                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
-                                                                    <img src="your-image-path/voter-back.jpg"
-                                                                        class="w-100 h-100 object-fit-cover">
-                                                                </div>
-
-                                                                <a href="your-image-path/voter-back.jpg" target="_blank"
-                                                                    class="btn btn-dark btn-sm w-100 py-0"
-                                                                    style="font-size:10px">View</a>
-
-                                                                <a href="your-image-path/voter-back.jpg" download
-                                                                    class="btn btn-secondary btn-sm w-100 mt-1 py-0"
-                                                                    style="font-size:10px">Download</a>
-                                                            </div>
+                                                        <h6 class="fw-bold text-muted small text-uppercase mb-3">Purchaser Documents</h6>
+                                                        <div class="row g-2">
+                                                            <?php
+                                                            $pDocs = [
+                                                                'purchaser_doc_aadhar_front' => 'AADHAR FRONT',
+                                                                'purchaser_doc_aadhar_back'  => 'AADHAR BACK',
+                                                                'purchaser_doc_voter_front'  => 'VOTER FRONT',
+                                                                'purchaser_doc_voter_back'   => 'VOTER BACK'
+                                                            ];
+                                                            foreach ($pDocs as $col => $label):
+                                                                if (!empty($row[$col])): $imgSrc = "../images/" . $row[$col];
+                                                            ?>
+                                                                    <div class="col-6 col-md-3">
+                                                                        <div class="border rounded p-2 text-center bg-white h-100">
+                                                                            <small class="fw-bold d-block mb-1" style="font-size:10px"><?= $label; ?></small>
+                                                                            <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
+                                                                                <img src="<?= $imgSrc; ?>" class="w-100 h-100 object-fit-cover">
+                                                                            </div>
+                                                                            <a href="<?= $imgSrc; ?>" target="_blank" class="btn btn-dark btn-sm w-100 py-0 mb-1" style="font-size:10px">View</a>
+                                                                            <a href="<?= $imgSrc; ?>" download class="btn btn-secondary btn-sm w-100 py-0" style="font-size:10px">Download</a>
+                                                                        </div>
+                                                                    </div>
+                                                            <?php endif;
+                                                            endforeach; ?>
                                                         </div>
 
                                                     </div>
-
                                                 </div>
                                             </div>
-                                        </div>
+                                        <?php endif; ?>
 
                                         <!-- ==========================
                              STEP 4: OWNERSHIP TRANSFER
@@ -1283,173 +975,172 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                         <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
                                             <h2 class="accordion-header">
                                                 <button class="accordion-button collapsed fw-bold text-uppercase text-dark py-3"
-                                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapseTransfer">
+                                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapseTransfer_<?= $row['id']; ?>">
                                                     <i class="ph-bold ph-arrows-left-right me-2 text-primary fs-5"></i>
                                                     Ownership Transfer
                                                 </button>
                                             </h2>
-                                            <div id="collapseTransfer" class="accordion-collapse collapse"
+                                            <div id="collapseTransfer_<?= $row['id']; ?>" class="accordion-collapse collapse"
                                                 data-bs-parent="#dealDetailsAccordion">
                                                 <div class="accordion-body bg-white p-4 border-top">
 
-                                                    <!-- Basic Transfer Info -->
                                                     <div class="row g-3 mb-4">
                                                         <div class="col-12 col-md-6">
-                                                            <small class="text-muted fw-bold text-uppercase"
-                                                                style="font-size:10px">Transfer Name To</small>
-                                                            <div class="fw-bold text-dark">Sneha Gupta</div>
+                                                            <small class="text-muted fw-bold text-uppercase" style="font-size:10px">Transfer Name To</small>
+                                                            <div class="fw-bold text-dark"><?= $row['ot_name_transfer'] ?? '-'; ?></div>
                                                         </div>
                                                         <div class="col-6 col-md-6">
-                                                            <small class="text-muted fw-bold text-uppercase"
-                                                                style="font-size:10px">Vehicle Number</small>
-                                                            <div class="fw-bold text-dark">WB 12 AB 9999</div>
+                                                            <small class="text-muted fw-bold text-uppercase" style="font-size:10px">Vehicle Number</small>
+                                                            <div class="fw-bold text-dark text-uppercase"><?= $row['ot_vehicle_number'] ?? '-'; ?></div>
                                                         </div>
                                                         <div class="col-6 col-md-6">
-                                                            <small class="text-muted fw-bold text-uppercase"
-                                                                style="font-size:10px">RTO
-                                                                Location</small>
-                                                            <div class="fw-bold text-dark">Asansol</div>
+                                                            <small class="text-muted fw-bold text-uppercase" style="font-size:10px">RTO Location</small>
+                                                            <div class="fw-bold text-dark"><?= $row['ot_rto_name'] ?? '-'; ?></div>
                                                         </div>
                                                         <div class="col-12 col-md-6">
-                                                            <small class="text-muted fw-bold text-uppercase"
-                                                                style="font-size:10px">Vendor Name</small>
-                                                            <div class="fw-bold text-primary">RTO Services Pvt Ltd</div>
+                                                            <small class="text-muted fw-bold text-uppercase" style="font-size:10px">Vendor Name</small>
+                                                            <div class="fw-bold text-primary"><?= $row['ot_vendor_name'] ?? '-'; ?></div>
                                                         </div>
                                                     </div>
 
-                                                    <!-- Vendor Payment Table -->
                                                     <div class="border rounded-4 overflow-hidden mb-4">
                                                         <div class="bg-light px-3 py-2 border-bottom">
-                                                            <h6 class="fw-bold mb-0 small text-uppercase">Vendor Payment
-                                                                Details
-                                                            </h6>
+                                                            <h6 class="fw-bold mb-0 small text-uppercase">Vendor Payment Details</h6>
                                                         </div>
-                                                        <table class="table table-sm align-middle mb-0 text-center">
-                                                            <thead>
-                                                                <tr class="text-muted small">
-                                                                    <th class="py-2 text-start ps-3">Type</th>
-                                                                    <th class="py-2">Amt</th>
-                                                                    <th class="py-2">Date</th>
-                                                                    <th class="py-2">Status</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td class="text-start ps-3 small fw-bold">Transfer</td>
-                                                                    <td>₹1,200</td>
-                                                                    <td class="small text-muted">Nov 28</td>
-                                                                    <td><span
-                                                                            class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="text-start ps-3 small fw-bold">HPA</td>
-                                                                    <td>₹500</td>
-                                                                    <td class="small text-muted">Nov 28</td>
-                                                                    <td><span
-                                                                            class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="text-start ps-3 small fw-bold">HP</td>
-                                                                    <td>₹200</td>
-                                                                    <td class="small text-muted">--</td>
-                                                                    <td><span
-                                                                            class="badge bg-danger-subtle text-danger border border-danger-subtle">Due</span>
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
+                                                        <div class="table-responsive">
+                                                            <table class="table table-sm align-middle mb-0 text-center">
+                                                                <thead>
+                                                                    <tr class="text-muted small">
+                                                                        <th class="py-2 text-start ps-3">Type</th>
+                                                                        <th class="py-2">Amt</th>
+                                                                        <th class="py-2">Date</th>
+                                                                        <th class="py-2">Status</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <?php
+                                                                    // Define rows mapping
+                                                                    $otFees = [
+                                                                        'Transfer' => ['amt' => 'ot_transfer_amount', 'date' => 'ot_transfer_date', 'status' => 'ot_transfer_status'],
+                                                                        'HPA'      => ['amt' => 'ot_hpa_amount',      'date' => 'ot_hpa_date',      'status' => 'ot_hpa_status'],
+                                                                        'HP'       => ['amt' => 'ot_hp_amount',       'date' => 'ot_hp_date',       'status' => 'ot_hp_status'],
+                                                                    ];
 
-                                                    <!-- Insurance Details (New Field) -->
-                                                    <div class="p-3 border rounded-4 bg-light mb-4 position-relative">
-                                                        <span
-                                                            class="position-absolute top-0 start-50 translate-middle badge bg-dark text-white border-light border">
-                                                            Insurance Details
-                                                        </span>
+                                                                    foreach ($otFees as $label => $cols):
+                                                                        if (($row[$cols['amt']] ?? 0) > 0): // Only show if amount > 0
+                                                                    ?>
+                                                                            <tr>
+                                                                                <td class="text-start ps-3 small fw-bold"><?= $label; ?></td>
+                                                                                <td>₹<?= number_format($row[$cols['amt']]); ?></td>
+                                                                                <td class="small text-muted"><?= (!empty($row[$cols['date']])) ? date('M d', strtotime($row[$cols['date']])) : '-'; ?></td>
+                                                                                <td>
+                                                                                    <?php if ($row[$cols['status']] == 'Paid'): ?>
+                                                                                        <span class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
+                                                                                    <?php else: ?>
+                                                                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Due</span>
+                                                                                    <?php endif; ?>
+                                                                                </td>
+                                                                            </tr>
+                                                                    <?php endif;
+                                                                    endforeach; ?>
 
-                                                        <div class="row g-2 mt-1">
-
-                                                            <!-- Provider -->
-                                                            <div class="col-12">
-                                                                <div class="d-flex justify-content-between">
-                                                                    <span class="small text-muted">Provider:</span>
-                                                                    <span class="fw-bold">Tata AIG Insurance</span>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Policy Number -->
-                                                            <!-- <div class="col-12">
-                                                        <div class="d-flex justify-content-between">
-                                                            <span class="small text-muted">Policy No:</span>
-                                                            <span class="fw-bold font-monospace">3005/A/123456</span>
-                                                        </div>
-                                                    </div> -->
-
-                                                            <!-- Payment Status -->
-                                                            <div class="col-12">
-                                                                <div class="d-flex justify-content-between">
-                                                                    <span class="small text-muted">Payment Status:</span>
-                                                                    <span class="fw-bold text-success">PAID</span>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Amount -->
-                                                            <div class="col-12">
-                                                                <div class="d-flex justify-content-between">
-                                                                    <span class="small text-muted">Amount:</span>
-                                                                    <span class="fw-bold">₹ 1,800</span>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Today Date -->
-                                                            <div class="col-12">
-                                                                <div class="d-flex justify-content-between">
-                                                                    <span class="small text-muted">Issued On:</span>
-                                                                    <span class="fw-bold">2025-11-26</span>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Expiry Date -->
-                                                            <div class="col-12">
-                                                                <div class="d-flex justify-content-between">
-                                                                    <span class="small text-muted">Expiry Date:</span>
-                                                                    <span class="fw-bold text-danger">2026-11-26</span>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Validity Text -->
-                                                            <div class="col-12">
-                                                                <div class="d-flex justify-content-between">
-                                                                    <span class="small text-muted">Validity:</span>
-                                                                    <span class="fw-bold text-primary">1 Year</span>
-                                                                </div>
-                                                            </div>
-
+                                                                    <?php if (($row['ot_transfer_amount'] + $row['ot_hpa_amount'] + $row['ot_hp_amount']) == 0): ?>
+                                                                        <tr>
+                                                                            <td colspan="4" class="text-muted small py-2">No vendor payments recorded.</td>
+                                                                        </tr>
+                                                                    <?php endif; ?>
+                                                                </tbody>
+                                                            </table>
                                                         </div>
                                                     </div>
 
-                                                    <!-- Signatures -->
+                                                    <?php if (!empty($row['ot_insurance_name'])):
+                                                        // Calculate Validity
+                                                        $otInsStart = new DateTime($row['ot_insurance_start_date']);
+                                                        $otInsEnd   = new DateTime($row['ot_insurance_end_date']);
+                                                        $otInterval = $otInsStart->diff($otInsEnd);
+                                                        $otValidity = $otInterval->y . " Year" . ($otInterval->y > 1 ? 's' : '');
+                                                    ?>
+                                                        <div class="p-3 border rounded-4 bg-light mb-4 position-relative">
+                                                            <span class="position-absolute top-0 start-50 translate-middle badge bg-dark text-white border-light border">
+                                                                Insurance Details
+                                                            </span>
+
+                                                            <div class="row g-2 mt-1">
+                                                                <div class="col-12">
+                                                                    <div class="d-flex justify-content-between">
+                                                                        <span class="small text-muted">Provider:</span>
+                                                                        <span class="fw-bold"><?= $row['ot_insurance_name']; ?></span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <div class="d-flex justify-content-between">
+                                                                        <span class="small text-muted">Payment Status:</span>
+                                                                        <span class="fw-bold <?= ($row['ot_insurance_payment_status'] == 'paid') ? 'text-success' : 'text-danger'; ?>">
+                                                                            <?= strtoupper($row['ot_insurance_payment_status']); ?>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <div class="d-flex justify-content-between">
+                                                                        <span class="small text-muted">Amount:</span>
+                                                                        <span class="fw-bold">₹ <?= number_format($row['ot_insurance_amount']); ?></span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <div class="d-flex justify-content-between">
+                                                                        <span class="small text-muted">Issued On:</span>
+                                                                        <span class="fw-bold"><?= $row['ot_insurance_start_date']; ?></span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <div class="d-flex justify-content-between">
+                                                                        <span class="small text-muted">Expiry Date:</span>
+                                                                        <span class="fw-bold text-danger"><?= $row['ot_insurance_end_date']; ?></span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <div class="d-flex justify-content-between">
+                                                                        <span class="small text-muted">Validity:</span>
+                                                                        <span class="fw-bold text-primary"><?= $otValidity; ?></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    <?php endif; ?>
+
                                                     <div class="row g-2">
                                                         <div class="col-6">
                                                             <div class="p-3 border rounded-3 text-center bg-light h-100">
                                                                 <i class="ph-fill ph-pen-nib text-primary mb-2 fs-5"></i>
                                                                 <div class="small fw-bold text-muted mb-1">Purchaser</div>
-                                                                <span class="badge bg-success mb-1">Signed</span>
-                                                                <div class="small text-muted" style="font-size:10px">
-                                                                    2025-11-26
-                                                                </div>
+
+                                                                <?php if ($row['ot_purchaser_sign_status'] == 'Yes'): ?>
+                                                                    <span class="badge bg-success mb-1">Signed</span>
+                                                                    <div class="small text-muted" style="font-size:10px">
+                                                                        <?= date('d-M-Y', strtotime($row['ot_purchaser_sign_date'])); ?>
+                                                                    </div>
+                                                                <?php else: ?>
+                                                                    <span class="badge bg-warning text-dark mb-1">Pending</span>
+                                                                    <div class="small text-muted" style="font-size:10px">--</div>
+                                                                <?php endif; ?>
                                                             </div>
                                                         </div>
+
                                                         <div class="col-6">
                                                             <div class="p-3 border rounded-3 text-center bg-light h-100">
                                                                 <i class="ph-fill ph-pen-nib text-primary mb-2 fs-5"></i>
                                                                 <div class="small fw-bold text-muted mb-1">Seller</div>
-                                                                <span class="badge bg-success mb-1">Signed</span>
-                                                                <div class="small text-muted" style="font-size:10px">
-                                                                    2025-11-26
-                                                                </div>
+
+                                                                <?php if ($row['ot_seller_sign_status'] == 'Yes'): ?>
+                                                                    <span class="badge bg-success mb-1">Signed</span>
+                                                                    <div class="small text-muted" style="font-size:10px">
+                                                                        <?= date('d-M-Y', strtotime($row['ot_seller_sign_date'])); ?>
+                                                                    </div>
+                                                                <?php else: ?>
+                                                                    <span class="badge bg-warning text-dark mb-1">Pending</span>
+                                                                    <div class="small text-muted" style="font-size:10px">--</div>
+                                                                <?php endif; ?>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1457,6 +1148,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                 </div>
                                             </div>
                                         </div>
+
 
                                     </div>
                                 </div>
