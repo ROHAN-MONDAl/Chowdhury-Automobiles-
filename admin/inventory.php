@@ -251,6 +251,8 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                 // 1. SQL Query (Joins all tables and selects ALL columns)
                 // ⭐ FIX: We must use vs.* and vp.* to get paper details, payments, etc.
                 $sql = "SELECT 
+            v.id as vehicle_prim_id, 
+            v.*,
             v.*, 
             vs.*, 
             vp.*, 
@@ -323,7 +325,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                     </div>
 
                                     <div class="d-flex gap-2 mt-3">
-                                        <a href="edit_inventory.php?id=<?= $row['id']; ?>"
+                                        <a href="edit_inventory.php?id=<?= $row['vehicle_prim_id']; ?>"
                                             class="btn btn-sm btn-dark fw-bold flex-grow-1 rounded-pill py-2">
                                             <i class="ph-bold ph-pencil-simple text-white me-1"></i> Edit
                                         </a>
@@ -338,6 +340,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                             </div>
                         </div>
                     </div>
+
 
                     <!-- View Vehicle Modal -->
                     <div class="modal fade p-0" id="<?= $modalID; ?>" tabindex="-1" aria-hidden="true">
