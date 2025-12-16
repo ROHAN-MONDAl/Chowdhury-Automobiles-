@@ -56,11 +56,10 @@ if ($id == 0) {
     <!-- Bootstrap Bundle JS (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Custom JS -->
-    <script src="script.js" defer></script>
+
 </head>
 
-<body class="bg-light vh-100 d-flex flex-column overflow-hidden">
+<body class="vh-100 d-flex flex-column overflow-hidden">
 
     <nav class="navbar bg-white border-bottom shadow-sm py-3 flex-shrink-0">
         <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between">
@@ -105,20 +104,32 @@ if ($id == 0) {
 
                 <div class="p-3 overflow-y-auto flex-grow-1 bg-white">
                     <div class="d-flex flex-column gap-2">
-                        <?php foreach ($wizard_steps as $step_key => $label): ?>
-                            <div class="step-item d-flex align-items-center gap-3 p-3 rounded-3 border-start border-4 border-transparent hover-bg-light"
+                        <?php foreach ($wizard_steps as $step_key => $label):
+                            // Check if this is the first step to set initial "Active" styling
+                            $isActive = ($step_key == 1);
+                        ?>
+
+                            <div id="sidebar-item-<?= $step_key ?>"
+                                class="step-item d-flex align-items-center gap-3 p-3 rounded-3 border-start border-4 hover-bg-light <?= $isActive ? 'border-primary bg-light' : 'border-transparent' ?>"
                                 data-step="<?= $step_key ?>"
+                                onclick="goToStep(<?= $step_key ?>)"
                                 style="cursor: pointer; transition: all 0.2s ease;">
 
-                                <div class="step-circle text-light border rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                <div id="sidebar-circle-<?= $step_key ?>"
+                                    class="step-circle border rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 <?= $isActive ? 'bg-primary text-white' : 'bg-light text-secondary' ?>"
                                     style="width: 32px; height: 32px;">
                                     <span class="small fw-bold"><?= $step_key ?></span>
                                 </div>
 
                                 <div class="d-flex flex-column">
-                                    <span class="step-label text-dark fw-medium" style="font-size: 0.95rem;"><?= $label ?></span>
+                                    <span id="sidebar-text-<?= $step_key ?>"
+                                        class="step-label fw-medium <?= $isActive ? 'text-primary fw-bold' : 'text-secondary' ?>"
+                                        style="font-size: 0.95rem;">
+                                        <?= $label ?>
+                                    </span>
                                 </div>
                             </div>
+
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -184,11 +195,11 @@ if ($id == 0) {
 
 
             <div class="col-12 col-lg-10 h-100 d-flex flex-column bg-light position-relative">
-                <form action="vechicle_update_form.php" id="dealForm" method="POST" class="d-flex flex-column h-100" enctype="multipart/form-data">
+                <form id="updateForm" class="d-flex flex-column h-100" enctype="multipart/form-data">
 
                     <input type="hidden" name="vehicle_id" value="<?php echo $vehicle['id']; ?>">
-                    <input type="hidden" name="step" value="1">
-                    <input type="hidden" name="action" value="save_next">
+
+                    <input type="hidden" name="action" id="action_input">
 
                     <div class="d-lg-none bg-white px-4 py-3 border-bottom shadow-sm z-2">
                         <div class="d-flex justify-content-between align-items-end mb-1">
@@ -222,7 +233,7 @@ if ($id == 0) {
                                             $photoFields = ['photo1', 'photo2', 'photo3', 'photo4'];
                                             foreach ($photoFields as $key):
 
-                                                // 1. Logic: Use DB image if exists, otherwise use default
+                                                // Logic: Use DB image if exists, otherwise use default
                                                 if (!empty($vehicle[$key])) {
                                                     $imgSrc = "../images/" . $vehicle[$key];
                                                     $isDefault = false;
@@ -232,16 +243,17 @@ if ($id == 0) {
                                                 }
                                             ?>
                                                 <div class="col-6 col-md-3">
-                                                    <div class="photo-upload-box position-relative" style="cursor: pointer;" onclick="document.getElementById('file_<?= $key ?>').click();">
+                                                    <label for="file_<?= $key ?>" class="photo-upload-box position-relative d-block" style="cursor: pointer;">
 
                                                         <?php if ($isDefault): ?>
-                                                            <i class="ph-bold ph-camera fs-3 text-secondary position-absolute top-50 start-50 translate-middle" style="z-index: 5;"></i>
+                                                            <i id="icon_<?= $key ?>" class="ph-bold ph-camera fs-3 text-secondary position-absolute top-50 start-50 translate-middle" style="z-index: 5;"></i>
                                                         <?php endif; ?>
 
-                                                        <img src="<?= $imgSrc ?>" class="w-100 h-100 object-fit-cover rounded-3" style="display:block; min-height: 100px; background: #f8f9fa;">
+                                                        <img id="preview_<?= $key ?>" src="<?= $imgSrc ?>" class="w-100 h-100 object-fit-cover rounded-3" style="display:block; min-height: 100px; background: #f8f9fa; border: 1px solid #ddd;">
 
-                                                        <input type="file" id="file_<?= $key ?>" name="<?= $key ?>" accept="image/*" hidden onchange="previewImage(this)">
-                                                    </div>
+                                                    </label>
+
+                                                    <input type="file" id="file_<?= $key ?>" name="<?= $key ?>" accept="image/*" hidden onchange="previewImage(this, '<?= $key ?>')">
                                                 </div>
                                             <?php endforeach; ?>
                                         </div>
@@ -399,80 +411,74 @@ if ($id == 0) {
                                     <div class="row g-3 mb-3">
                                         <div class="col-12 col-md-4">
                                             <label>Date</label>
-                                            <input type="date" name="seller_date" class="form-control">
+                                            <input type="date" name="seller_date" class="form-control" value="<?= $vehicle['seller_date'] ?? '' ?>">
                                         </div>
 
                                         <div class="col-12 col-md-4">
                                             <label>Vehicle No</label>
                                             <input type="text" name="seller_vehicle_number"
                                                 class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000"
-                                                value="WB ">
+                                                value="<?= !empty($vehicle['seller_vehicle_number']) ? $vehicle['seller_vehicle_number'] : 'WB ' ?>">
                                         </div>
 
                                         <div class="col-12 col-md-4">
                                             <label>Bike Name</label>
-                                            <input type="text" name="seller_bike_name" class="form-control text-uppercase">
+                                            <input type="text" name="seller_bike_name" class="form-control text-uppercase" value="<?= $vehicle['seller_bike_name'] ?? '' ?>">
                                         </div>
 
                                         <div class="col-12 col-md-6">
                                             <label>Chassis No</label>
-                                            <input type="text" name="seller_chassis_no" class="form-control text-uppercase">
+                                            <input type="text" name="seller_chassis_no" class="form-control text-uppercase" value="<?= $vehicle['seller_chassis_no'] ?? '' ?>">
                                         </div>
 
                                         <div class="col-12 col-md-6">
                                             <label>Engine No</label>
-                                            <input type="text" name="seller_engine_no" class="form-control text-uppercase">
+                                            <input type="text" name="seller_engine_no" class="form-control text-uppercase" value="<?= $vehicle['seller_engine_no'] ?? '' ?>">
                                         </div>
 
                                         <div class="col-12">
                                             <label>Seller Name</label>
-                                            <input type="text" name="seller_name" class="form-control text-uppercase">
+                                            <input type="text" name="seller_name" class="form-control text-uppercase" value="<?= $vehicle['seller_name'] ?? '' ?>">
                                         </div>
 
                                         <div class="col-12">
                                             <label>Address</label>
-                                            <textarea name="seller_address" class="form-control text-uppercase" rows="2"></textarea>
+                                            <textarea name="seller_address" class="form-control text-uppercase" rows="2"><?= $vehicle['seller_address'] ?? '' ?></textarea>
                                         </div>
                                     </div>
 
                                     <label class="mb-2">Mobile Numbers</label>
                                     <div class="row g-2 mb-3">
-                                        <div class="col-12"><input type="tel" name="seller_mobile1" class="form-control" placeholder="Mob 1"></div>
-                                        <div class="col-12"><input type="tel" name="seller_mobile2" class="form-control" placeholder="Mob 2"></div>
-                                        <div class="col-12"><input type="tel" name="seller_mobile3" class="form-control" placeholder="Mob 3"></div>
+                                        <div class="col-12"><input type="tel" name="seller_mobile1" class="form-control" placeholder="Mob 1" value="<?= $vehicle['seller_mobile1'] ?? '' ?>"></div>
+                                        <div class="col-12"><input type="tel" name="seller_mobile2" class="form-control" placeholder="Mob 2" value="<?= $vehicle['seller_mobile2'] ?? '' ?>"></div>
+                                        <div class="col-12"><input type="tel" name="seller_mobile3" class="form-control" placeholder="Mob 3" value="<?= $vehicle['seller_mobile3'] ?? '' ?>"></div>
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="mb-2">Purchaser Documents (In Seller Step)</label>
                                         <div class="row g-2">
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <span class="small text-muted fw-bold">Aadhar Front</span>
-                                                    <img src="">
-                                                    <input type="file" name="doc_aadhar_front" accept="image/*" hidden>
+                                            <?php
+                                            $docs = [
+                                                'doc_aadhar_front' => 'Aadhar Front',
+                                                'doc_aadhar_back' => 'Aadhar Back',
+                                                'doc_voter_front' => 'Voter Front',
+                                                'doc_voter_back' => 'Voter Back'
+                                            ];
+                                            foreach ($docs as $key => $label):
+                                                $src = !empty($vehicle[$key]) ? "../images/" . $vehicle[$key] : "";
+                                                $display = !empty($src) ? "block" : "none";
+                                            ?>
+                                                <div class="col-6 col-md-3">
+                                                    <div class="photo-upload-box position-relative" style="cursor: pointer;" onclick="document.getElementById('<?= $key ?>').click();">
+                                                        <span class="small text-muted fw-bold"><?= $label ?></span>
+                                                        <img id="preview_<?= $key ?>" src="<?= $src ?>" class="w-100 mt-1 rounded border" style="height: 80px; object-fit: cover; display: <?= $display ?>; background: #f8f9fa;">
+                                                        <?php if (empty($src)): ?>
+                                                            <div id="icon_<?= $key ?>" class="text-center py-3 text-secondary"><i class="ph-bold ph-camera fs-3"></i></div>
+                                                        <?php endif; ?>
+                                                        <input type="file" id="<?= $key ?>" name="<?= $key ?>" accept="image/*" hidden onchange="previewImage(this)">
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <span class="small text-muted fw-bold">Aadhar Back</span>
-                                                    <img src="">
-                                                    <input type="file" name="doc_aadhar_back" accept="image/*" hidden>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <span class="small text-muted fw-bold">Voter Front</span>
-                                                    <img src="">
-                                                    <input type="file" name="doc_voter_front" accept="image/*" hidden>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="photo-upload-box">
-                                                    <span class="small text-muted fw-bold">Voter Back</span>
-                                                    <img src="">
-                                                    <input type="file" name="doc_voter_back" accept="image/*" hidden>
-                                                </div>
-                                            </div>
+                                            <?php endforeach; ?>
                                         </div>
                                     </div>
 
@@ -480,70 +486,81 @@ if ($id == 0) {
                                         <label class="mb-2 fw-bold">Papers Received</label>
                                         <div class="d-flex flex-wrap gap-3">
                                             <div class="form-check">
-                                                <input type="checkbox" name="pr_rc" class="form-check-input" id="pr_rc" data-bs-toggle="collapse" data-bs-target="#rcUploadBox">
+                                                <input type="checkbox" name="pr_rc" class="form-check-input" id="pr_rc"
+                                                    <?= (isset($vehicle['pr_rc']) && $vehicle['pr_rc'] == 1) ? 'checked' : '' ?>
+                                                    data-bs-toggle="collapse" data-bs-target="#rcUploadBox">
                                                 <label class="fw-bold" for="pr_rc">RC</label>
                                             </div>
                                             <div class="form-check">
-                                                <input type="checkbox" name="pr_tax" class="form-check-input" id="pr_tax">
+                                                <input type="checkbox" name="pr_tax" class="form-check-input" id="pr_tax"
+                                                    <?= (isset($vehicle['pr_tax']) && $vehicle['pr_tax'] == 1) ? 'checked' : '' ?>>
                                                 <label class="fw-bold" for="pr_tax">Tax Token</label>
                                             </div>
                                             <div class="form-check">
-                                                <input type="checkbox" name="pr_insurance" class="form-check-input" id="pr_ins">
+                                                <input type="checkbox" name="pr_insurance" class="form-check-input" id="pr_ins"
+                                                    <?= (isset($vehicle['pr_insurance']) && $vehicle['pr_insurance'] == 1) ? 'checked' : '' ?>>
                                                 <label class="fw-bold" for="pr_ins">Insurance</label>
                                             </div>
                                             <div class="form-check">
-                                                <input type="checkbox" name="pr_pucc" class="form-check-input" id="pr_puc">
+                                                <input type="checkbox" name="pr_pucc" class="form-check-input" id="pr_puc"
+                                                    <?= (isset($vehicle['pr_pucc']) && $vehicle['pr_pucc'] == 1) ? 'checked' : '' ?>>
                                                 <label class="fw-bold" for="pr_puc">PUCC</label>
                                             </div>
                                             <div class="form-check">
-                                                <input type="checkbox" name="pr_noc" class="form-check-input" id="pr_noc" data-bs-toggle="collapse" data-bs-target="#nocUploadBox">
+                                                <input type="checkbox" name="pr_noc" class="form-check-input" id="pr_noc"
+                                                    <?= (isset($vehicle['pr_noc']) && $vehicle['pr_noc'] == 1) ? 'checked' : '' ?>
+                                                    data-bs-toggle="collapse" data-bs-target="#nocUploadBox">
                                                 <label class="fw-bold" for="pr_noc">NOC</label>
                                             </div>
                                         </div>
 
-                                        <div class="collapse mt-3" id="rcUploadBox">
+                                        <div class="collapse mt-3 <?= (isset($vehicle['pr_rc']) && $vehicle['pr_rc'] == 1) ? 'show' : '' ?>" id="rcUploadBox">
                                             <label class="fw-bold small">RC Upload</label>
                                             <div class="row g-2">
-                                                <div class="col-6">
-                                                    <div class="border rounded p-2 text-center bg-white">
-                                                        <small class="fw-bold d-block mb-1" style="font-size:10px">RC FRONT</small>
-                                                        <input type="file" name="rc_front" class="form-control form-control-sm mt-1">
+                                                <?php
+                                                $rcs = ['rc_front' => 'RC FRONT', 'rc_back' => 'RC BACK'];
+                                                foreach ($rcs as $k => $l):
+                                                    $src = !empty($vehicle[$k]) ? "../images/" . $vehicle[$k] : "";
+                                                ?>
+                                                    <div class="col-6">
+                                                        <div class="border rounded p-2 text-center bg-white" style="cursor: pointer;" onclick="document.getElementById('<?= $k ?>').click();">
+                                                            <small class="fw-bold d-block mb-1" style="font-size:10px"><?= $l ?></small>
+                                                            <?php if ($src): ?><img src="<?= $src ?>" class="w-100 mb-1" style="height:50px; object-fit: contain;"><?php endif; ?>
+                                                            <input type="file" id="<?= $k ?>" name="<?= $k ?>" class="form-control form-control-sm mt-1">
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-6">
-                                                    <div class="border rounded p-2 text-center bg-white">
-                                                        <small class="fw-bold d-block mb-1" style="font-size:10px">RC BACK</small>
-                                                        <input type="file" name="rc_back" class="form-control form-control-sm mt-1">
-                                                    </div>
-                                                </div>
+                                                <?php endforeach; ?>
                                             </div>
                                         </div>
 
-                                        <div class="collapse mt-3" id="nocUploadBox">
+                                        <div class="collapse mt-3 <?= (isset($vehicle['pr_noc']) && $vehicle['pr_noc'] == 1) ? 'show' : '' ?>" id="nocUploadBox">
                                             <label class="fw-bold small">NOC Status</label>
                                             <div class="d-flex justify-content-center">
                                                 <div class="btn-group w-75 btn-group-sm mb-3 mx-auto" role="group">
-                                                    <input type="radio" name="noc_status" class="btn-check" id="noc_paid" value="paid" checked>
+                                                    <input type="radio" name="noc_status" class="btn-check" id="noc_paid" value="paid"
+                                                        <?= (!isset($vehicle['noc_status']) || $vehicle['noc_status'] == 'paid') ? 'checked' : '' ?>>
                                                     <label class="btn btn-outline-success" for="noc_paid">Paid</label>
 
-                                                    <input type="radio" name="noc_status" class="btn-check" id="noc_due" value="due">
+                                                    <input type="radio" name="noc_status" class="btn-check" id="noc_due" value="due"
+                                                        <?= (isset($vehicle['noc_status']) && $vehicle['noc_status'] == 'due') ? 'checked' : '' ?>>
                                                     <label class="btn btn-outline-danger" for="noc_due">Due</label>
                                                 </div>
                                             </div>
 
                                             <div class="row g-2">
-                                                <div class="col-6">
-                                                    <div class="border rounded small-box text-center p-2">
-                                                        <span class="small text-muted fw-bold">NOC Front</span>
-                                                        <input type="file" name="noc_front" class="form-control form-control-sm mt-1">
+                                                <?php
+                                                $nocs = ['noc_front' => 'NOC Front', 'noc_back' => 'NOC Back'];
+                                                foreach ($nocs as $k => $l):
+                                                    $src = !empty($vehicle[$k]) ? "../images/" . $vehicle[$k] : "";
+                                                ?>
+                                                    <div class="col-6">
+                                                        <div class="border rounded small-box text-center p-2" style="cursor: pointer;" onclick="document.getElementById('<?= $k ?>').click();">
+                                                            <span class="small text-muted fw-bold"><?= $l ?></span>
+                                                            <?php if ($src): ?><img src="<?= $src ?>" class="w-100 mb-1" style="height:50px; object-fit: contain;"><?php endif; ?>
+                                                            <input type="file" id="<?= $k ?>" name="<?= $k ?>" class="form-control form-control-sm mt-1">
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-6">
-                                                    <div class="border rounded small-box text-center p-2">
-                                                        <span class="small text-muted fw-bold">NOC Back</span>
-                                                        <input type="file" name="noc_back" class="form-control form-control-sm mt-1">
-                                                    </div>
-                                                </div>
+                                                <?php endforeach; ?>
                                             </div>
                                         </div>
                                     </div>
@@ -552,52 +569,50 @@ if ($id == 0) {
                                         <div class="col-12 col-md-6">
                                             <label class="fw-bold mb-2">Payment Type</label>
                                             <div class="d-flex gap-2 mb-3">
-                                                <input type="radio" name="seller_payment_type" class="btn-check" id="pay_cash" value="cash" checked data-bs-toggle="collapse" data-bs-target="#cashBox">
+                                                <input type="radio" name="seller_payment_type" class="btn-check" id="pay_cash" value="cash"
+                                                    <?= (!isset($vehicle['seller_payment_type']) || $vehicle['seller_payment_type'] == 'cash') ? 'checked' : '' ?>
+                                                    data-bs-toggle="collapse" data-bs-target="#cashBox">
                                                 <label class="btn btn-outline-success" for="pay_cash">Cash</label>
 
-                                                <input type="radio" name="seller_payment_type" class="btn-check" id="pay_online" value="online" data-bs-toggle="collapse" data-bs-target="#onlineBox">
+                                                <input type="radio" name="seller_payment_type" class="btn-check" id="pay_online" value="online"
+                                                    <?= (isset($vehicle['seller_payment_type']) && $vehicle['seller_payment_type'] == 'online') ? 'checked' : '' ?>
+                                                    data-bs-toggle="collapse" data-bs-target="#onlineBox">
                                                 <label class="btn btn-outline-primary" for="pay_online">Online</label>
                                             </div>
 
                                             <div id="payAccordion">
-                                                <div id="cashBox" class="collapse show" data-bs-parent="#payAccordion">
+                                                <div id="cashBox" class="collapse <?= (!isset($vehicle['seller_payment_type']) || $vehicle['seller_payment_type'] == 'cash') ? 'show' : '' ?>" data-bs-parent="#payAccordion">
                                                     <div class="p-3 bg-white border rounded shadow-sm">
                                                         <label class="fw-bold small mb-1">Price</label>
                                                         <div class="input-group">
                                                             <span class="input-group-text bg-white border-end-0">₹</span>
-                                                            <input type="number" name="seller_cash_price" class="form-control border-start-0 ps-0" placeholder="Enter Price">
+                                                            <input type="number" name="seller_cash_price" class="form-control border-start-0 ps-0" placeholder="Enter Price" value="<?= $vehicle['seller_cash_price'] ?? '' ?>">
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div id="onlineBox" class="collapse" data-bs-parent="#payAccordion">
+                                                <div id="onlineBox" class="collapse <?= (isset($vehicle['seller_payment_type']) && $vehicle['seller_payment_type'] == 'online') ? 'show' : '' ?>" data-bs-parent="#payAccordion">
                                                     <div class="p-3 bg-white border rounded shadow-sm">
                                                         <label class="fw-bold small mb-2">Online Method</label>
                                                         <div class="d-flex flex-wrap gap-3 mb-3">
-                                                            <label class="form-check">
-                                                                <input type="radio" name="seller_online_method" class="form-check-input" value="gpay">
-                                                                <span class="form-check-label fw-bold">Google Pay</span>
-                                                            </label>
-                                                            <label class="form-check">
-                                                                <input type="radio" name="seller_online_method" class="form-check-input" value="paytm">
-                                                                <span class="form-check-label fw-bold">Paytm</span>
-                                                            </label>
-                                                            <label class="form-check">
-                                                                <input type="radio" name="seller_online_method" class="form-check-input" value="phonepe">
-                                                                <span class="form-check-label fw-bold">PhonePe</span>
-                                                            </label>
-                                                            <label class="form-check">
-                                                                <input type="radio" name="seller_online_method" class="form-check-input" value="bharatpe">
-                                                                <span class="form-check-label fw-bold">BharatPe</span>
-                                                            </label>
+                                                            <?php
+                                                            $methods = ['gpay' => 'Google Pay', 'paytm' => 'Paytm', 'phonepe' => 'PhonePe', 'bharatpe' => 'BharatPe'];
+                                                            foreach ($methods as $val => $label):
+                                                            ?>
+                                                                <label class="form-check">
+                                                                    <input type="radio" name="seller_online_method" class="form-check-input" value="<?= $val ?>"
+                                                                        <?= (isset($vehicle['seller_online_method']) && $vehicle['seller_online_method'] == $val) ? 'checked' : '' ?>>
+                                                                    <span class="form-check-label fw-bold"><?= $label ?></span>
+                                                                </label>
+                                                            <?php endforeach; ?>
                                                         </div>
 
-                                                        <input type="text" name="seller_online_transaction_id" class="form-control form-control-sm mb-3 text-uppercase" placeholder="Transaction / UPI Reference ID">
+                                                        <input type="text" name="seller_online_transaction_id" class="form-control form-control-sm mb-3 text-uppercase" placeholder="Transaction / UPI Reference ID" value="<?= $vehicle['seller_online_transaction_id'] ?? '' ?>">
 
                                                         <label class="fw-bold small mb-1">Price</label>
                                                         <div class="input-group">
                                                             <span class="input-group-text bg-white border-end-0">₹</span>
-                                                            <input type="number" name="seller_online_price" class="form-control border-start-0 ps-0" placeholder="Enter Price">
+                                                            <input type="number" name="seller_online_price" class="form-control border-start-0 ps-0" placeholder="Enter Price" value="<?= $vehicle['seller_online_price'] ?? '' ?>">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -608,21 +623,23 @@ if ($id == 0) {
                                     <div class="row g-3 mb-3">
                                         <div class="col-12 col-md-6">
                                             <label>Exchange Showroom Name</label>
-                                            <input type="text" name="exchange_showroom_name" class="form-control text-uppercase" placeholder="Showroom Name">
+                                            <input type="text" name="exchange_showroom_name" class="form-control text-uppercase" placeholder="Showroom Name" value="<?= $vehicle['exchange_showroom_name'] ?? '' ?>">
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label>Staff Name</label>
-                                            <input type="text" name="staff_name" class="form-control text-uppercase" placeholder="Staff Name">
+                                            <input type="text" name="staff_name" class="form-control text-uppercase" placeholder="Staff Name" value="<?= $vehicle['staff_name'] ?? '' ?>">
                                         </div>
                                     </div>
 
                                     <div class="bg-light p-3 rounded-4 border">
                                         <label class="text-primary">Payment Calculation</label>
                                         <div class="row g-2">
-                                            <div class="col-12"><input type="number" name="total_amount" class="form-control" placeholder="Total" id="s_total"></div>
-                                            <div class="col-12"><input type="number" name="paid_amount" class="form-control" placeholder="Paid" id="s_paid"></div>
-                                            <div class="col-12"><input type="number" name="due_amount" class="form-control bg-white fw-bold text-danger" placeholder="Due" id="s_due" readonly></div>
-                                            <div class="col-12"><input type="text" name="due_reason" class="form-control d-none mt-1" id="s_due_reason" placeholder="Reason for due amount..."></div>
+                                            <div class="col-12"><input type="number" name="total_amount" class="form-control" placeholder="Total" id="s_total" value="<?= $vehicle['total_amount'] ?? '' ?>"></div>
+                                            <div class="col-12"><input type="number" name="paid_amount" class="form-control" placeholder="Paid" id="s_paid" value="<?= $vehicle['paid_amount'] ?? '' ?>"></div>
+                                            <div class="col-12"><input type="number" name="due_amount" class="form-control bg-white fw-bold text-danger" placeholder="Due" id="s_due" readonly value="<?= $vehicle['due_amount'] ?? '' ?>"></div>
+                                            <div class="col-12">
+                                                <input type="text" name="due_reason" class="form-control <?= (!empty($vehicle['due_amount']) && $vehicle['due_amount'] > 0) ? '' : 'd-none' ?> mt-1" id="s_due_reason" placeholder="Reason for due amount..." value="<?= $vehicle['due_reason'] ?? '' ?>">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1109,52 +1126,165 @@ if ($id == 0) {
                         </div>
                     </div>
 
-                    <div class="pt-2 border-top d-flex align-items-center justify-content-between shadow-lg z-3 position-sticky bottom-0 w-100">
-
-                        <!-- Back Button -->
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Back Button (LEFT) -->
                         <button type="button"
-                            class="btn btn-outline-light px-4 py-2 fw-bold"
+                            class="btn btn-outline-primary px-4 py-2 fw-bold"
                             id="prevBtn"
                             style="display:none;"
                             onclick="prevStep()">
                             <i class="ph-bold ph-arrow-left me-2"></i>Back
                         </button>
-
-                        <div class="d-flex gap-3 ms-auto">
-
-                            <!-- Save Draft -->
+                        <!-- Spacer pushes next buttons to right -->
+                        <div class="ms-auto d-flex gap-2">
                             <button type="button"
-                                id="btn-save-draft"
-                                class="btn btn-warning fw-bold px-3 py-2 text-dark shadow-sm"
-                                onclick="saveData('save_only')">
-                                <i class="ph-bold ph-floppy-disk me-1"></i>
+                                class="btn btn-warning px-4"
+                                onclick="submitAjax('save_only')">
                                 <span class="d-none d-sm-inline">Save Draft</span>
                             </button>
-
-                            <!-- Save & Next -->
                             <button type="button"
                                 id="btn-next"
-                                class="btn btn-primary px-4 fw-bold shadow py-2"
-                                onclick="saveData('save_next')">
+                                class="btn btn-primary px-4"
+                                onclick="submitAjax('save_next')">
                                 Save & Next <i class="ph-bold ph-caret-right ms-2"></i>
                             </button>
-
-                            <!-- Finish -->
                             <button type="button"
                                 id="btn-finish"
-                                class="btn btn-success px-5 fw-bold text-white shadow-lg py-2 d-none"
-                                onclick="saveData('finish')">
+                                class="btn btn-success px-4 d-none"
+                                onclick="submitAjax('finish')">
                                 Finish <i class="ph-bold ph-check-circle ms-2"></i>
                             </button>
-
                         </div>
                     </div>
-
                 </form>
             </div>
         </div>
     </div>
+    <script>
+        var currentStep = 1;
+        var totalSteps = 4;
+        var vehicleId = "<?= $id ?>";
 
+        $(document).ready(function() {
+            updateUI();
+
+            // Auto-Calculate Due Amounts (Seller)
+            $('#s_total, #s_paid').on('input', function() {
+                var total = parseFloat($('#s_total').val()) || 0;
+                var paid = parseFloat($('#s_paid').val()) || 0;
+                $('#s_due').val(total - paid);
+            });
+
+            // Auto-Calculate Due Amounts (Purchaser)
+            $('#p_total, #p_paid').on('input', function() {
+                var total = parseFloat($('#p_total').val()) || 0;
+                var paid = parseFloat($('#p_paid').val()) || 0;
+                $('#p_due').val(total - paid);
+            });
+        });
+
+        // 1. Image Preview
+        window.previewImage = function(input, key) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#preview_' + key).attr('src', e.target.result).show();
+                    $('#icon_' + key).hide();
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        // 2. Navigation Logic
+        window.nextStep = function() {
+            if (currentStep < totalSteps) goToStep(currentStep + 1);
+        };
+
+        window.prevStep = function() {
+            if (currentStep > 1) goToStep(currentStep - 1);
+        };
+
+        window.goToStep = function(stepNumber) {
+            // Hide current
+            $('#step-' + currentStep).addClass('d-none').removeClass('fade-in-animation');
+
+            // Show new
+            currentStep = stepNumber;
+            $('#step-' + currentStep).removeClass('d-none').addClass('fade-in-animation');
+
+            updateUI();
+        };
+
+        function updateUI() {
+            // Button visibility
+            $('#prevBtn').toggle(currentStep > 1);
+            if (currentStep === totalSteps) {
+                $('#btn-next').addClass('d-none');
+                $('#btn-finish').removeClass('d-none');
+            } else {
+                $('#btn-next').removeClass('d-none');
+                $('#btn-finish').addClass('d-none');
+            }
+
+            // Mobile Progress
+            var percentage = (currentStep / totalSteps) * 100;
+            $('#mobile-progress-bar').css('width', percentage + '%');
+            $('#mobile-current-step').text(currentStep);
+
+            // Desktop Sidebar
+            $('.step-item').removeClass('bg-light border-primary').addClass('border-transparent');
+            $('.step-circle').removeClass('bg-primary text-white').addClass('bg-light text-secondary');
+            $('.step-label').removeClass('text-primary fw-bold').addClass('text-secondary');
+
+            var $active = $('#sidebar-item-' + currentStep);
+            $active.addClass('bg-light border-primary').removeClass('border-transparent');
+            $active.find('.step-circle').addClass('bg-primary text-white').removeClass('bg-light text-secondary');
+            $active.find('.step-label').addClass('text-primary fw-bold').removeClass('text-secondary');
+        }
+
+        // 3. AJAX Logic
+        window.submitAjax = function(actionType) {
+            var form = $('#updateForm')[0];
+            var formData = new FormData(form);
+
+            formData.append('action', actionType);
+            formData.append('step_number', currentStep);
+
+            var $btn = (currentStep === totalSteps) ? $('#btn-finish') : $('#btn-next');
+            var originalText = $btn.html();
+            $btn.html('<span class="spinner-border spinner-border-sm"></span> Processing...').prop('disabled', true);
+
+            $.ajax({
+                url: 'vechicle_update_form.php', // Ensure this file exists on server
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function(data) {
+                    if (data.status === 'success') {
+                        if (actionType === 'save_only') {
+                            alert("Draft Saved!");
+                        } else if (actionType === 'save_next') {
+                            nextStep();
+                        } else if (actionType === 'finish') {
+                            alert("Vehicle updated successfully!");
+                            window.location.href = "inventory.php";
+                        }
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                },
+                error: function(xhr) {
+                    console.error(xhr.responseText);
+                    alert("System Error. Check console for details.");
+                },
+                complete: function() {
+                    $btn.html(originalText).prop('disabled', false);
+                }
+            });
+        };
+    </script>
 </body>
 
 </html>
