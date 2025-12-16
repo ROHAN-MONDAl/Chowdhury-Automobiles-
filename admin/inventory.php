@@ -14,6 +14,7 @@ $query->bind_param("i", $id);
 $query->execute();
 $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 ?>
+
 <!-- Inventory Dashboard Page for Chowdhury Automobile Management System -->
 <!DOCTYPE html>
 <html lang="en">
@@ -65,6 +66,9 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
         <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
         <div class="mt-3 fw-bold text-secondary" style="letter-spacing: 1px;">LOADING...</div>
     </div>
+
+    <!-- global Messages -->
+    <?php include_once "global_message.php" ?>
 
     <!-- Main Dashboard Section - Contains the navigation bar and overall layout structure -->
     <section id="dashboard-section">
@@ -242,6 +246,9 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
             </div>
         </div>
 
+
+
+
         <!-- Vehicle Data Grid - Displays inventory vehicles in a responsive card layout with availability status and action buttons -->
         <div class="position-relative" style="min-height: 400px;">
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -324,17 +331,31 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                         </span>
                                     </div>
 
-                                    <div class="d-flex gap-2 mt-3">
+                                    <div class="d-flex gap-2 mt-3 align-items-center">
+
+                                        <!-- Edit -->
                                         <a href="edit_inventory.php?id=<?= $row['vehicle_prim_id']; ?>"
-                                            class="btn btn-sm btn-dark fw-bold flex-grow-1 rounded-pill py-2">
+                                            class="btn btn-sm btn-dark fw-bold flex-grow-1 rounded-pill py-2 text-center">
                                             <i class="ph-bold ph-pencil-simple text-white me-1"></i> Edit
                                         </a>
 
-                                        <button class="btn btn-sm btn-outline-dark fw-bold flex-grow-1 rounded-pill py-2"
-                                            data-bs-toggle="modal" data-bs-target="#<?= $modalID; ?>">
-                                            View Details
+                                        <!-- Delete -->
+                                        <a href="delete_vehicle.php?id=<?= $row['vehicle_prim_id']; ?>"
+                                            class="btn btn-sm btn-danger fw-bold flex-grow-1 rounded-pill py-2 text-center"
+                                            onclick="return confirmDeleteVehicle();">
+                                            <i class="bi bi-trash me-1"></i> Delete
+                                        </a>
+
+                                        <!-- View -->
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-dark fw-bold flex-grow-1 rounded-pill py-2 text-center"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#<?= $modalID; ?>">
+                                            View
                                         </button>
+
                                     </div>
+
                                 </div>
 
                             </div>

@@ -61,6 +61,10 @@ if ($id == 0) {
 
 <body class="vh-100 d-flex flex-column overflow-hidden">
 
+  <!-- global Messages -->
+    <?php include_once "global_message.php" ?>
+
+
     <nav class="navbar bg-white border-bottom shadow-sm py-3 flex-shrink-0">
         <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between">
             <a class="navbar-brand d-flex align-items-center gap-2" href="dashboard.php">

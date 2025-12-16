@@ -71,7 +71,8 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
     <!-- Universal Messages -->
     <?php include "universal_message.php" ?>
-
+  <!-- global Messages -->
+    <?php include_once "global_message.php" ?>
 
     <!-- DASHBOARD SECTION -->
     <section id="dashboard-section" class="pb-5">

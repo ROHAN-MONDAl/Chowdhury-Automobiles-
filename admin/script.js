@@ -328,18 +328,39 @@ $(document).on('change', '.photo-upload-box input[type="file"]', function () {
 
 // Delete Lead Action
 $('.delete-lead').on('click', function (e) {
-    e.preventDefault(); // Prevent default button behavior
+    e.preventDefault();
+
     var leadId = $(this).data('id');
 
-    if (confirm("Are you sure you want to delete this lead?")) {
-        $.post('delete_lead.php', { delete_lead_id: leadId }, function (response) {
-            // Remove the lead card from DOM
-            $('#lead-' + leadId).remove();
-        }).fail(function () {
-            alert('Failed to delete lead. Please try again.');
-        });
-    }
+    if (!confirm("Are you sure you want to delete this lead?")) return;
+
+    $.ajax({
+        url: 'delete_lead.php',
+        type: 'POST',
+        dataType: 'json', // 🚨 force JSON
+        data: { delete_lead_id: leadId },
+        success: function (res) {
+            console.log(res); // 🔍 DEBUG
+
+            if (res.status === 'success') {
+                window.location.href = 'dashboard.php';
+            } else {
+                alert(res.message || 'Delete failed');
+            }
+        },
+        error: function (xhr) {
+            console.error(xhr.responseText); // 🔥 THIS WILL SHOW ERROR
+            alert('Server error. Please try again.');
+        }
+    });
 });
+
+
+
+function confirmDeleteVehicle() {
+    return confirm("⚠️ Are you sure you want to delete this vehicle?\n\nThis action cannot be undone.");
+}
+
 
 
 
