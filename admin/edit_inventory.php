@@ -61,7 +61,7 @@ if ($id == 0) {
 
 <body class="vh-100 d-flex flex-column overflow-hidden">
 
-  <!-- global Messages -->
+    <!-- global Messages -->
     <?php include_once "global_message.php" ?>
 
 
@@ -1144,7 +1144,9 @@ if ($id == 0) {
                             <button type="button"
                                 class="btn btn-warning px-4"
                                 onclick="submitAjax('save_only')">
-                                <span class="d-none d-sm-inline">Save Draft</span>
+
+
+                                <span>Draft <i class="ph-bold ph-floppy-disk me-2"></i></span>
                             </button>
                             <button type="button"
                                 id="btn-next"
