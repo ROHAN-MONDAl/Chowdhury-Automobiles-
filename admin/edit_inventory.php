@@ -14,7 +14,7 @@ $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 // Condition 1: ID is invalid (0 or missing)
 if ($id == 0) {
-    header("Location: index.php");
+    header("Location: 404.php");
     exit();
 }
 
@@ -27,7 +27,7 @@ $stmt->store_result();
 
 if ($stmt->num_rows === 0) {
     // ID was a number, but it doesn't exist in the DB (User edited URL to a fake ID)
-    header("Location: index.php");
+    header("Location: 404.php");
     exit();
 }
 $stmt->close();
