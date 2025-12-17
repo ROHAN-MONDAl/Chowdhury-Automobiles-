@@ -256,7 +256,7 @@ include 'admin/db.php';
                                     <!-- META INFO -->
                                     <div class="bike-meta mb-2">
                                         <?= date('Y', strtotime($row['register_date'])); ?> •
-                                        <?= (int)$row['owner_serial']; ?> Owner
+                                        <?= (int) $row['owner_serial']; ?> Owner
                                     </div>
 
                                     <!-- PRICE + ACTION -->
@@ -265,8 +265,7 @@ include 'admin/db.php';
                                             ₹<?= number_format($row['cash_price']); ?>
                                         </span>
 
-                                        <button class="btn btn-dark btn-sm rounded-pill"
-                                            data-bs-toggle="modal"
+                                        <button class="btn btn-dark btn-sm rounded-pill" data-bs-toggle="modal"
                                             data-bs-target="#<?= $modalID; ?>">
                                             View <i class="fa-solid fa-arrow-right ms-1"></i>
                                         </button>
@@ -308,9 +307,11 @@ include 'admin/db.php';
                                 style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                         <div class="lh-1">
-                            <h5 class="modal-title fw-bold text-dark mb-1"><?php echo htmlspecialchars($row['vehicle_number']); ?></h5>
+                            <h5 class="modal-title fw-bold text-dark mb-1">
+                                <?php echo htmlspecialchars($row['vehicle_number']); ?></h5>
                             <div class="d-flex align-items-center gap-2 small text-muted">
-                                <span class="fw-bold text-uppercase"><?php echo htmlspecialchars($row['name']); ?></span>
+                                <span
+                                    class="fw-bold text-uppercase"><?php echo htmlspecialchars($row['name']); ?></span>
                                 <i class="ph-fill ph-dot text-muted" style="font-size: 8px;"></i>
                                 <span
                                     class="badge <?php echo $row['sold_out'] ? 'bg-danger' : 'bg-success'; ?> text-white border border-danger-subtle rounded-pill"><?php echo $row['sold_out'] ? 'Sold Out' : 'Available'; ?></span>
@@ -351,7 +352,9 @@ include 'admin/db.php';
                                                     <div class="ratio ratio-1x1 rounded-4 overflow-hidden border mb-2 bg-light">
                                                         <img src="<?= $imgSrc; ?>" class="object-fit-cover">
                                                     </div>
-                                                    <a href="<?= $imgSrc; ?>" download class="btn btn-sm btn-dark rounded-pill w-100 fw-bold py-1" style="font-size: 11px;">Download</a>
+                                                    <a href="<?= $imgSrc; ?>" download
+                                                        class="btn btn-sm btn-dark rounded-pill w-100 fw-bold py-1"
+                                                        style="font-size: 11px;">Download</a>
                                                 </div>
                                         <?php endif;
                                         endfor; ?>
@@ -364,32 +367,43 @@ include 'admin/db.php';
                                     <div class="p-3 bg-light rounded-4 border mb-3">
                                         <div class="row g-3">
                                             <div class="col-6 col-md-4">
-                                                <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Register Date</small>
-                                                <div class="fw-bold text-dark"><?= date('d-M-Y', strtotime($row['register_date'])); ?></div>
+                                                <small class="text-muted text-uppercase fw-bold"
+                                                    style="font-size: 10px;">Register Date</small>
+                                                <div class="fw-bold text-dark">
+                                                    <?= date('d-M-Y', strtotime($row['register_date'])); ?></div>
                                             </div>
                                             <div class="col-6 col-md-4">
-                                                <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Vehicle Type</small>
+                                                <small class="text-muted text-uppercase fw-bold"
+                                                    style="font-size: 10px;">Vehicle Type</small>
                                                 <div class="fw-bold text-dark"><?= $row['vehicle_type']; ?></div>
                                             </div>
                                             <div class="col-6 col-md-4">
-                                                <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Owner Serial</small>
+                                                <small class="text-muted text-uppercase fw-bold"
+                                                    style="font-size: 10px;">Owner Serial</small>
                                                 <div class="fw-bold text-dark"><?= $row['owner_serial']; ?></div>
                                             </div>
                                             <div class="col-12 col-md-12">
-                                                <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Bike Name</small>
+                                                <small class="text-muted text-uppercase fw-bold"
+                                                    style="font-size: 10px;">Bike Name</small>
                                                 <div class="fw-bold text-dark"><?= $row['name']; ?></div>
                                             </div>
                                             <div class="col-12 col-md-12">
-                                                <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Vehicle Number</small>
-                                                <div class="fw-bold text-dark text-uppercase"><?= $row['vehicle_number']; ?></div>
+                                                <small class="text-muted text-uppercase fw-bold"
+                                                    style="font-size: 10px;">Vehicle Number</small>
+                                                <div class="fw-bold text-dark text-uppercase">
+                                                    <?= $row['vehicle_number']; ?></div>
                                             </div>
                                             <div class="col-12 col-md-12">
-                                                <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Chassis Number</small>
-                                                <div class="fw-bold text-dark font-monospace"><?= $row['chassis_number']; ?></div>
+                                                <small class="text-muted text-uppercase fw-bold"
+                                                    style="font-size: 10px;">Chassis Number</small>
+                                                <div class="fw-bold text-dark font-monospace">
+                                                    <?= $row['chassis_number']; ?></div>
                                             </div>
                                             <div class="col-12 col-md-12">
-                                                <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Engine Number</small>
-                                                <div class="fw-bold text-dark font-monospace"><?= $row['engine_number']; ?></div>
+                                                <small class="text-muted text-uppercase fw-bold"
+                                                    style="font-size: 10px;">Engine Number</small>
+                                                <div class="fw-bold text-dark font-monospace">
+                                                    <?= $row['engine_number']; ?></div>
                                             </div>
                                         </div>
                                     </div>
@@ -404,7 +418,8 @@ include 'admin/db.php';
                                         <div>
                                             <small class="text-muted text-uppercase fw-bold">Payment Mode</small>
                                             <div class="fw-bold text-primary">
-                                                <i class="ph-bold <?= $isOnline ? 'ph-globe' : 'ph-money'; ?> me-1"></i> <?= $method; ?>
+                                                <i class="ph-bold <?= $isOnline ? 'ph-globe' : 'ph-money'; ?> me-1"></i>
+                                                <?= $method; ?>
                                             </div>
                                         </div>
                                         <div class="text-end">
@@ -423,9 +438,12 @@ include 'admin/db.php';
                                     <?php endif; ?>
 
                                     <div class="border rounded-4 overflow-hidden">
-                                        <div class="bg-light px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
-                                            <h6 class="fw-bold text-danger mb-0 small text-uppercase">Police Challan Details</h6>
-                                            <span class="badge <?= ($row['police_challan'] == 'Yes') ? 'bg-danger' : 'bg-success'; ?>">
+                                        <div
+                                            class="bg-light px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
+                                            <h6 class="fw-bold text-danger mb-0 small text-uppercase">Police Challan
+                                                Details</h6>
+                                            <span
+                                                class="badge <?= ($row['police_challan'] == 'Yes') ? 'bg-danger' : 'bg-success'; ?>">
                                                 <?= $row['police_challan']; ?>
                                             </span>
                                         </div>
@@ -458,9 +476,11 @@ include 'admin/db.php';
                                                                     <td class="fw-bold">₹<?= $cAmt; ?></td>
                                                                     <td>
                                                                         <?php if ($cStatus == 'Paid'): ?>
-                                                                            <span class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
+                                                                            <span
+                                                                                class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
                                                                         <?php else: ?>
-                                                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Pending</span>
+                                                                            <span
+                                                                                class="badge bg-danger-subtle text-danger border border-danger-subtle">Pending</span>
                                                                         <?php endif; ?>
                                                                     </td>
                                                                 </tr>
@@ -483,8 +503,9 @@ include 'admin/db.php';
                              ========================== -->
                         <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
                             <h2 class="accordion-header">
-                                <button class="accordion-button collapsed fw-bold text-uppercase text-dark py-3" type="button"
-                                    data-bs-toggle="collapse" data-bs-target="#collapseSeller_<?= $row['id']; ?>">
+                                <button class="accordion-button collapsed fw-bold text-uppercase text-dark py-3"
+                                    type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseSeller_<?= $row['id']; ?>">
                                     <i class="ph-bold ph-user-circle me-2 text-primary fs-5"></i> Seller Details
                                 </button>
                             </h2>
@@ -508,7 +529,8 @@ include 'admin/db.php';
                                     <div class="row g-2 mb-3">
                                         <div class="col-12">
                                             <small class="text-muted fw-bold" style="font-size:10px;">VEHICLE NO</small>
-                                            <div class="fw-bold text-dark small text-uppercase"><?= $row['seller_vehicle_number']; ?></div>
+                                            <div class="fw-bold text-dark small text-uppercase">
+                                                <?= $row['seller_vehicle_number']; ?></div>
                                         </div>
                                         <div class="col-12">
                                             <small class="text-muted fw-bold" style="font-size:10px;">BIKE NAME</small>
@@ -516,11 +538,13 @@ include 'admin/db.php';
                                         </div>
                                         <div class="col-12">
                                             <small class="text-muted fw-bold" style="font-size:10px;">CHASSIS NO</small>
-                                            <div class="fw-bold text-dark font-monospace small"><?= $row['seller_chassis_no']; ?></div>
+                                            <div class="fw-bold text-dark font-monospace small">
+                                                <?= $row['seller_chassis_no']; ?></div>
                                         </div>
                                         <div class="col-12">
                                             <small class="text-muted fw-bold" style="font-size:10px;">ENGINE NO</small>
-                                            <div class="fw-bold text-dark font-monospace small"><?= $row['seller_engine_no']; ?></div>
+                                            <div class="fw-bold text-dark font-monospace small">
+                                                <?= $row['seller_engine_no']; ?></div>
                                         </div>
                                     </div>
 
@@ -534,7 +558,8 @@ include 'admin/db.php';
                                                 $mob = $row['seller_mobile' . $m];
                                                 if (!empty($mob)):
                                             ?>
-                                                    <a href="tel:<?= $mob; ?>" class="badge bg-white text-dark border text-decoration-none py-2">
+                                                    <a href="tel:<?= $mob; ?>"
+                                                        class="badge bg-white text-dark border text-decoration-none py-2">
                                                         <i class="ph-fill ph-phone me-1"></i> <?= $mob; ?>
                                                     </a>
                                             <?php endif;
@@ -548,9 +573,9 @@ include 'admin/db.php';
                                         // Array to map DB columns to Display Labels
                                         $docs = [
                                             'doc_aadhar_front' => 'AADHAR FRONT',
-                                            'doc_aadhar_back'  => 'AADHAR BACK',
-                                            'doc_voter_front'  => 'VOTER FRONT',
-                                            'doc_voter_back'   => 'VOTER BACK'
+                                            'doc_aadhar_back' => 'AADHAR BACK',
+                                            'doc_voter_front' => 'VOTER FRONT',
+                                            'doc_voter_back' => 'VOTER BACK'
                                         ];
 
                                         foreach ($docs as $col => $label):
@@ -559,12 +584,17 @@ include 'admin/db.php';
                                         ?>
                                                 <div class="col-6 col-md-3">
                                                     <div class="border rounded p-2 text-center bg-white h-100">
-                                                        <small class="fw-bold d-block mb-1" style="font-size:10px"><?= $label; ?></small>
+                                                        <small class="fw-bold d-block mb-1"
+                                                            style="font-size:10px"><?= $label; ?></small>
                                                         <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
                                                             <img src="<?= $imgSrc; ?>" class="object-fit-cover">
                                                         </div>
-                                                        <a href="<?= $imgSrc; ?>" target="_blank" class="btn btn-dark btn-sm w-100 py-0 mb-1" style="font-size:10px">View</a>
-                                                        <a href="<?= $imgSrc; ?>" download class="btn btn-secondary btn-sm w-100 py-0" style="font-size:10px">Download</a>
+                                                        <a href="<?= $imgSrc; ?>" target="_blank"
+                                                            class="btn btn-dark btn-sm w-100 py-0 mb-1"
+                                                            style="font-size:10px">View</a>
+                                                        <a href="<?= $imgSrc; ?>" download
+                                                            class="btn btn-secondary btn-sm w-100 py-0"
+                                                            style="font-size:10px">Download</a>
                                                     </div>
                                                 </div>
                                         <?php endif;
@@ -575,20 +605,28 @@ include 'admin/db.php';
                                         <div class="col-12">
                                             <label class="small text-muted fw-bold mb-1">PAPERS RECEIVED</label>
                                             <div class="d-flex flex-wrap gap-2">
-                                                <span class="badge <?= ($row['pr_rc'] == 1) ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border text-decoration-line-through'; ?>">RC</span>
-                                                <span class="badge <?= ($row['pr_tax'] == 1) ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border text-decoration-line-through'; ?>">Tax Token</span>
-                                                <span class="badge <?= ($row['pr_insurance'] == 1) ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border text-decoration-line-through'; ?>">Insurance</span>
-                                                <span class="badge <?= ($row['pr_pucc'] == 1) ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border text-decoration-line-through'; ?>">PUCC</span>
-                                                <span class="badge <?= ($row['pr_noc'] == 1) ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border text-decoration-line-through'; ?>">NOC</span>
+                                                <span
+                                                    class="badge <?= ($row['pr_rc'] == 1) ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border text-decoration-line-through'; ?>">RC</span>
+                                                <span
+                                                    class="badge <?= ($row['pr_tax'] == 1) ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border text-decoration-line-through'; ?>">Tax
+                                                    Token</span>
+                                                <span
+                                                    class="badge <?= ($row['pr_insurance'] == 1) ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border text-decoration-line-through'; ?>">Insurance</span>
+                                                <span
+                                                    class="badge <?= ($row['pr_pucc'] == 1) ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border text-decoration-line-through'; ?>">PUCC</span>
+                                                <span
+                                                    class="badge <?= ($row['pr_noc'] == 1) ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border text-decoration-line-through'; ?>">NOC</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <?php if (!empty($row['noc_front']) || !empty($row['noc_back'])): ?>
                                         <div class="border rounded-3 p-3 mb-3 bg-white">
-                                            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                            <div
+                                                class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                                                 <span class="fw-bold text-dark">NOC Status</span>
-                                                <span class="badge <?= ($row['noc_status'] == 'Paid') ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'; ?> border border-current">
+                                                <span
+                                                    class="badge <?= ($row['noc_status'] == 'Paid') ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'; ?> border border-current">
                                                     <?= $row['noc_status']; ?>
                                                 </span>
                                             </div>
@@ -603,18 +641,24 @@ include 'admin/db.php';
                                                         <div class="d-flex align-items-center border rounded p-2">
                                                             <div class="flex-shrink-0">
                                                                 <a href="<?= $imgSrc; ?>" target="_blank">
-                                                                    <img src="<?= $imgSrc; ?>" class="rounded border object-fit-cover" style="width: 60px; height: 60px;">
+                                                                    <img src="<?= $imgSrc; ?>"
+                                                                        class="rounded border object-fit-cover"
+                                                                        style="width: 60px; height: 60px;">
                                                                 </a>
                                                             </div>
 
                                                             <div class="flex-grow-1 ms-3">
-                                                                <h6 class="mb-1 text-secondary" style="font-size: 0.85rem;"><?= $label; ?></h6>
+                                                                <h6 class="mb-1 text-secondary" style="font-size: 0.85rem;">
+                                                                    <?= $label; ?></h6>
                                                                 <div class="d-flex gap-2">
-                                                                    <a href="<?= $imgSrc; ?>" target="_blank" class="text-decoration-none" style="font-size: 0.8rem;">
+                                                                    <a href="<?= $imgSrc; ?>" target="_blank"
+                                                                        class="text-decoration-none" style="font-size: 0.8rem;">
                                                                         View
                                                                     </a>
                                                                     <span class="text-muted">|</span>
-                                                                    <a href="<?= $imgSrc; ?>" download class="fw-bold text-dark text-decoration-none" style="font-size: 0.8rem;">
+                                                                    <a href="<?= $imgSrc; ?>" download
+                                                                        class="fw-bold text-dark text-decoration-none"
+                                                                        style="font-size: 0.8rem;">
                                                                         Download
                                                                     </a>
                                                                 </div>
@@ -643,19 +687,23 @@ include 'admin/db.php';
                                                 ?>
                                                         <div class="d-flex align-items-center border rounded p-2">
                                                             <div class="flex-shrink-0">
-                                                                <div class="ratio ratio-1x1 rounded border overflow-hidden" style="width: 60px;">
+                                                                <div class="ratio ratio-1x1 rounded border overflow-hidden"
+                                                                    style="width: 60px;">
                                                                     <img src="<?= $imgSrc; ?>" class="object-fit-cover">
                                                                 </div>
                                                             </div>
 
                                                             <div class="flex-grow-1 ms-3">
-                                                                <h6 class="mb-1 text-secondary" style="font-size: 0.85rem;"><?= $label; ?></h6>
+                                                                <h6 class="mb-1 text-secondary" style="font-size: 0.85rem;">
+                                                                    <?= $label; ?></h6>
                                                                 <div class="d-flex gap-2">
-                                                                    <a href="<?= $imgSrc; ?>" target="_blank" class="text-decoration-none small text-primary">
+                                                                    <a href="<?= $imgSrc; ?>" target="_blank"
+                                                                        class="text-decoration-none small text-primary">
                                                                         <i class="bi bi-eye"></i> View
                                                                     </a>
                                                                     <span class="text-muted small">|</span>
-                                                                    <a href="<?= $imgSrc; ?>" download class="text-decoration-none small fw-bold text-dark">
+                                                                    <a href="<?= $imgSrc; ?>" download
+                                                                        class="text-decoration-none small fw-bold text-dark">
                                                                         <i class="bi bi-download"></i> Download
                                                                     </a>
                                                                 </div>
@@ -686,18 +734,21 @@ include 'admin/db.php';
                                         <?php if ($row['seller_payment_type'] == 'Online'): ?>
                                             <div class="d-flex justify-content-between mb-3">
                                                 <span class="small text-muted">Txn ID:</span>
-                                                <span class="fw-bold font-monospace small text-break"><?= $row['seller_online_transaction_id']; ?></span>
+                                                <span
+                                                    class="fw-bold font-monospace small text-break"><?= $row['seller_online_transaction_id']; ?></span>
                                             </div>
                                         <?php endif; ?>
 
                                         <div class="d-flex text-center border rounded overflow-hidden bg-white">
                                             <div class="flex-fill p-2 border-end">
                                                 <div class="small text-muted fw-bold" style="font-size:10px">TOTAL</div>
-                                                <div class="fw-bold">₹<?= number_format($row['total_amount'], 0); ?></div>
+                                                <div class="fw-bold">₹<?= number_format($row['total_amount'], 0); ?>
+                                                </div>
                                             </div>
                                             <div class="flex-fill p-2 border-end bg-success-subtle text-success">
                                                 <div class="small fw-bold" style="font-size:10px">PAID</div>
-                                                <div class="fw-bold">₹<?= number_format($row['paid_amount'], 0); ?></div>
+                                                <div class="fw-bold">₹<?= number_format($row['paid_amount'], 0); ?>
+                                                </div>
                                             </div>
                                             <div class="flex-fill p-2 bg-danger-subtle text-danger">
                                                 <div class="small fw-bold" style="font-size:10px">DUE</div>
@@ -715,7 +766,8 @@ include 'admin/db.php';
                                     <div class="row g-2">
                                         <div class="col-6">
                                             <small class="text-muted fw-bold" style="font-size:10px">SHOWROOM</small>
-                                            <div class="fw-bold small"><?= $row['exchange_showroom_name'] ?? '-'; ?></div>
+                                            <div class="fw-bold small"><?= $row['exchange_showroom_name'] ?? '-'; ?>
+                                            </div>
                                         </div>
                                         <div class="col-6">
                                             <small class="text-muted fw-bold" style="font-size:10px">STAFF</small>
@@ -733,7 +785,8 @@ include 'admin/db.php';
                         <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
                             <h2 class="accordion-header">
                                 <button class="accordion-button collapsed fw-bold text-uppercase text-dark py-3"
-                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapsePurchaser_<?= $row['id']; ?>">
+                                    type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapsePurchaser_<?= $row['id']; ?>">
                                     <i class="ph-bold ph-shopping-bag me-2 text-primary fs-5"></i> Purchaser Details
                                 </button>
                             </h2>
@@ -745,7 +798,8 @@ include 'admin/db.php';
                                         <div class="col-12">
                                             <small class="text-muted text-uppercase fw-bold">Purchaser Name</small>
                                             <div class="fs-5 fw-bold text-dark"><?= $row['purchaser_name']; ?></div>
-                                            <small class="text-muted">Date: <?= date('d-M-Y', strtotime($row['purchaser_date'])); ?></small>
+                                            <small class="text-muted">Date:
+                                                <?= date('d-M-Y', strtotime($row['purchaser_date'])); ?></small>
                                         </div>
                                         <div class="col-12">
                                             <div class="bg-light p-3 rounded border">
@@ -759,7 +813,8 @@ include 'admin/db.php';
                                         </div>
                                         <div class="col-6">
                                             <small class="text-muted fw-bold" style="font-size:10px;">VEHICLE NO</small>
-                                            <div class="fw-bold text-dark text-uppercase"><?= $row['purchaser_vehicle_no']; ?></div>
+                                            <div class="fw-bold text-dark text-uppercase">
+                                                <?= $row['purchaser_vehicle_no']; ?></div>
                                         </div>
                                     </div>
 
@@ -781,8 +836,8 @@ include 'admin/db.php';
                                                     <?php
                                                     $fees = [
                                                         'Transfer' => ['amt' => 'purchaser_transfer_amount', 'date' => 'purchaser_transfer_date', 'status' => 'purchaser_transfer_status'],
-                                                        'HPA'      => ['amt' => 'purchaser_hpa_amount',      'date' => 'purchaser_hpa_date',      'status' => 'purchaser_hpa_status'],
-                                                        'HP'       => ['amt' => 'purchaser_hp_amount',       'date' => 'purchaser_hp_date',       'status' => 'purchaser_hp_status'],
+                                                        'HPA' => ['amt' => 'purchaser_hpa_amount', 'date' => 'purchaser_hpa_date', 'status' => 'purchaser_hpa_status'],
+                                                        'HP' => ['amt' => 'purchaser_hp_amount', 'date' => 'purchaser_hp_date', 'status' => 'purchaser_hp_status'],
                                                     ];
                                                     foreach ($fees as $label => $cols):
                                                         if ($row[$cols['amt']] > 0): // Only show if amount exists
@@ -790,12 +845,16 @@ include 'admin/db.php';
                                                             <tr>
                                                                 <td class="text-start ps-3 small fw-bold"><?= $label; ?></td>
                                                                 <td>₹<?= number_format($row[$cols['amt']]); ?></td>
-                                                                <td class="small text-muted"><?= (!empty($row[$cols['date']])) ? date('M d', strtotime($row[$cols['date']])) : '-'; ?></td>
+                                                                <td class="small text-muted">
+                                                                    <?= (!empty($row[$cols['date']])) ? date('M d', strtotime($row[$cols['date']])) : '-'; ?>
+                                                                </td>
                                                                 <td>
                                                                     <?php if ($row[$cols['status']] == 'Paid'): ?>
-                                                                        <span class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
+                                                                        <span
+                                                                            class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
                                                                     <?php else: ?>
-                                                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Due</span>
+                                                                        <span
+                                                                            class="badge bg-danger-subtle text-danger border border-danger-subtle">Due</span>
                                                                     <?php endif; ?>
                                                                 </td>
                                                             </tr>
@@ -809,25 +868,28 @@ include 'admin/db.php';
                                     <?php if (!empty($row['purchaser_insurance_name'])):
                                         // Calculate Validity
                                         $insStart = new DateTime($row['purchaser_insurance_issue_date']);
-                                        $insEnd   = new DateTime($row['purchaser_insurance_expiry_date']);
+                                        $insEnd = new DateTime($row['purchaser_insurance_expiry_date']);
                                         $interval = $insStart->diff($insEnd);
                                         $validity = $interval->y . " Year" . ($interval->y > 1 ? 's' : '');
                                     ?>
                                         <div class="p-3 border rounded-4 bg-light mb-4 position-relative">
-                                            <span class="position-absolute top-0 start-50 translate-middle badge bg-dark text-white border-light border">
+                                            <span
+                                                class="position-absolute top-0 start-50 translate-middle badge bg-dark text-white border-light border">
                                                 Insurance Details
                                             </span>
                                             <div class="row g-2 mt-1">
                                                 <div class="col-12">
                                                     <div class="d-flex justify-content-between">
                                                         <span class="small text-muted">Provider:</span>
-                                                        <span class="fw-bold"><?= $row['purchaser_insurance_name']; ?></span>
+                                                        <span
+                                                            class="fw-bold"><?= $row['purchaser_insurance_name']; ?></span>
                                                     </div>
                                                 </div>
                                                 <div class="col-12">
                                                     <div class="d-flex justify-content-between">
                                                         <span class="small text-muted">Payment Status:</span>
-                                                        <span class="fw-bold <?= ($row['purchaser_insurance_payment_status'] == 'paid') ? 'text-success' : 'text-danger'; ?>">
+                                                        <span
+                                                            class="fw-bold <?= ($row['purchaser_insurance_payment_status'] == 'paid') ? 'text-success' : 'text-danger'; ?>">
                                                             <?= strtoupper($row['purchaser_insurance_payment_status']); ?>
                                                         </span>
                                                     </div>
@@ -835,19 +897,22 @@ include 'admin/db.php';
                                                 <div class="col-12">
                                                     <div class="d-flex justify-content-between">
                                                         <span class="small text-muted">Amount:</span>
-                                                        <span class="fw-bold">₹ <?= number_format($row['purchaser_insurance_amount']); ?></span>
+                                                        <span class="fw-bold">₹
+                                                            <?= number_format($row['purchaser_insurance_amount']); ?></span>
                                                     </div>
                                                 </div>
                                                 <div class="col-12">
                                                     <div class="d-flex justify-content-between">
                                                         <span class="small text-muted">Issued On:</span>
-                                                        <span class="fw-bold"><?= $row['purchaser_insurance_issue_date']; ?></span>
+                                                        <span
+                                                            class="fw-bold"><?= $row['purchaser_insurance_issue_date']; ?></span>
                                                     </div>
                                                 </div>
                                                 <div class="col-12">
                                                     <div class="d-flex justify-content-between">
                                                         <span class="small text-muted">Expiry Date:</span>
-                                                        <span class="fw-bold text-danger"><?= $row['purchaser_insurance_expiry_date']; ?></span>
+                                                        <span
+                                                            class="fw-bold text-danger"><?= $row['purchaser_insurance_expiry_date']; ?></span>
                                                     </div>
                                                 </div>
                                                 <div class="col-12">
@@ -862,32 +927,42 @@ include 'admin/db.php';
 
                                     <?php if ($row['purchaser_payment_mode'] == 'Finance'): ?>
                                         <div class="alert alert-primary border-primary mb-3">
-                                            <div class="d-flex justify-content-between align-items-center border-bottom border-primary-subtle pb-2 mb-2">
+                                            <div
+                                                class="d-flex justify-content-between align-items-center border-bottom border-primary-subtle pb-2 mb-2">
                                                 <span class="badge bg-primary">Finance Mode</span>
                                                 <small class="fw-bold text-primary">HPA Active</small>
                                             </div>
                                             <div class="row g-2">
                                                 <div class="col-12">
-                                                    <small class="text-primary-emphasis fw-bold" style="font-size:10px">FINANCE COMPANY</small>
-                                                    <div class="fw-bold text-dark"><?= $row['purchaser_fin_hpa_with']; ?></div>
+                                                    <small class="text-primary-emphasis fw-bold"
+                                                        style="font-size:10px">FINANCE COMPANY</small>
+                                                    <div class="fw-bold text-dark"><?= $row['purchaser_fin_hpa_with']; ?>
+                                                    </div>
                                                 </div>
                                                 <div class="col-12">
                                                     <div class="d-flex justify-content-between align-items-center">
                                                         <div>
-                                                            <small class="text-primary-emphasis fw-bold" style="font-size:10px">DISBURSED AMT</small>
-                                                            <div class="fw-bold text-dark">₹<?= number_format($row['purchaser_fin_disburse_amount']); ?></div>
+                                                            <small class="text-primary-emphasis fw-bold"
+                                                                style="font-size:10px">DISBURSED AMT</small>
+                                                            <div class="fw-bold text-dark">
+                                                                ₹<?= number_format($row['purchaser_fin_disburse_amount']); ?>
+                                                            </div>
                                                         </div>
-                                                        <span class="badge <?= ($row['purchaser_fin_disburse_status'] == 'Paid') ? 'bg-success' : 'bg-warning text-dark'; ?>">
+                                                        <span
+                                                            class="badge <?= ($row['purchaser_fin_disburse_status'] == 'Paid') ? 'bg-success' : 'bg-warning text-dark'; ?>">
                                                             <?= $row['purchaser_fin_disburse_status']; ?>
                                                         </span>
                                                     </div>
                                                 </div>
                                                 <div class="col-12 mt-2 pt-2 border-top border-primary-subtle">
-                                                    <small class="text-primary-emphasis fw-bold d-block mb-1" style="font-size:12px">REGISTERED MOBILES</small>
+                                                    <small class="text-primary-emphasis fw-bold d-block mb-1"
+                                                        style="font-size:12px">REGISTERED MOBILES</small>
                                                     <div class="d-flex gap-3 flex-wrap">
-                                                        <?php for ($m = 1; $m <= 3; $m++): $pmob = $row['purchaser_fin_mobile' . $m];
+                                                        <?php for ($m = 1; $m <= 3; $m++):
+                                                            $pmob = $row['purchaser_fin_mobile' . $m];
                                                             if (!empty($pmob)): ?>
-                                                                <a href="tel:<?= $pmob; ?>" class="badge bg-white text-dark border text-decoration-none">
+                                                                <a href="tel:<?= $pmob; ?>"
+                                                                    class="badge bg-white text-dark border text-decoration-none">
                                                                     <i class="ph-fill ph-phone"></i> <?= $pmob; ?>
                                                                 </a>
                                                         <?php endif;
@@ -927,21 +1002,27 @@ include 'admin/db.php';
                                         <?php
                                         $pDocs = [
                                             'purchaser_doc_aadhar_front' => 'AADHAR FRONT',
-                                            'purchaser_doc_aadhar_back'  => 'AADHAR BACK',
-                                            'purchaser_doc_voter_front'  => 'VOTER FRONT',
-                                            'purchaser_doc_voter_back'   => 'VOTER BACK'
+                                            'purchaser_doc_aadhar_back' => 'AADHAR BACK',
+                                            'purchaser_doc_voter_front' => 'VOTER FRONT',
+                                            'purchaser_doc_voter_back' => 'VOTER BACK'
                                         ];
                                         foreach ($pDocs as $col => $label):
-                                            if (!empty($row[$col])): $imgSrc = "images/" . $row[$col];
+                                            if (!empty($row[$col])):
+                                                $imgSrc = "images/" . $row[$col];
                                         ?>
                                                 <div class="col-6 col-md-3">
                                                     <div class="border rounded p-2 text-center bg-white h-100">
-                                                        <small class="fw-bold d-block mb-1" style="font-size:10px"><?= $label; ?></small>
+                                                        <small class="fw-bold d-block mb-1"
+                                                            style="font-size:10px"><?= $label; ?></small>
                                                         <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden">
                                                             <img src="<?= $imgSrc; ?>" class="w-100 h-100 object-fit-cover">
                                                         </div>
-                                                        <a href="<?= $imgSrc; ?>" target="_blank" class="btn btn-dark btn-sm w-100 py-0 mb-1" style="font-size:10px">View</a>
-                                                        <a href="<?= $imgSrc; ?>" download class="btn btn-secondary btn-sm w-100 py-0" style="font-size:10px">Download</a>
+                                                        <a href="<?= $imgSrc; ?>" target="_blank"
+                                                            class="btn btn-dark btn-sm w-100 py-0 mb-1"
+                                                            style="font-size:10px">View</a>
+                                                        <a href="<?= $imgSrc; ?>" download
+                                                            class="btn btn-secondary btn-sm w-100 py-0"
+                                                            style="font-size:10px">Download</a>
                                                     </div>
                                                 </div>
                                         <?php endif;
@@ -959,7 +1040,8 @@ include 'admin/db.php';
                         <div class="accordion-item rounded-4 shadow-sm border-0 mb-3 overflow-hidden">
                             <h2 class="accordion-header">
                                 <button class="accordion-button collapsed fw-bold text-uppercase text-dark py-3"
-                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapseTransfer_<?= $row['id']; ?>">
+                                    type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseTransfer_<?= $row['id']; ?>">
                                     <i class="ph-bold ph-arrows-left-right me-2 text-primary fs-5"></i>
                                     Ownership Transfer
                                 </button>
@@ -970,20 +1052,26 @@ include 'admin/db.php';
 
                                     <div class="row g-3 mb-4">
                                         <div class="col-12 col-md-6">
-                                            <small class="text-muted fw-bold text-uppercase" style="font-size:10px">Transfer Name To</small>
+                                            <small class="text-muted fw-bold text-uppercase"
+                                                style="font-size:10px">Transfer Name To</small>
                                             <div class="fw-bold text-dark"><?= $row['ot_name_transfer'] ?? '-'; ?></div>
                                         </div>
                                         <div class="col-6 col-md-6">
-                                            <small class="text-muted fw-bold text-uppercase" style="font-size:10px">Vehicle Number</small>
-                                            <div class="fw-bold text-dark text-uppercase"><?= $row['ot_vehicle_number'] ?? '-'; ?></div>
+                                            <small class="text-muted fw-bold text-uppercase"
+                                                style="font-size:10px">Vehicle Number</small>
+                                            <div class="fw-bold text-dark text-uppercase">
+                                                <?= $row['ot_vehicle_number'] ?? '-'; ?></div>
                                         </div>
                                         <div class="col-6 col-md-6">
-                                            <small class="text-muted fw-bold text-uppercase" style="font-size:10px">RTO Location</small>
+                                            <small class="text-muted fw-bold text-uppercase" style="font-size:10px">RTO
+                                                Location</small>
                                             <div class="fw-bold text-dark"><?= $row['ot_rto_name'] ?? '-'; ?></div>
                                         </div>
                                         <div class="col-12 col-md-6">
-                                            <small class="text-muted fw-bold text-uppercase" style="font-size:10px">Vendor Name</small>
-                                            <div class="fw-bold text-primary"><?= $row['ot_vendor_name'] ?? '-'; ?></div>
+                                            <small class="text-muted fw-bold text-uppercase"
+                                                style="font-size:10px">Vendor Name</small>
+                                            <div class="fw-bold text-primary"><?= $row['ot_vendor_name'] ?? '-'; ?>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -1006,8 +1094,8 @@ include 'admin/db.php';
                                                     // Define rows mapping
                                                     $otFees = [
                                                         'Transfer' => ['amt' => 'ot_transfer_amount', 'date' => 'ot_transfer_date', 'status' => 'ot_transfer_status'],
-                                                        'HPA'      => ['amt' => 'ot_hpa_amount',      'date' => 'ot_hpa_date',      'status' => 'ot_hpa_status'],
-                                                        'HP'       => ['amt' => 'ot_hp_amount',       'date' => 'ot_hp_date',       'status' => 'ot_hp_status'],
+                                                        'HPA' => ['amt' => 'ot_hpa_amount', 'date' => 'ot_hpa_date', 'status' => 'ot_hpa_status'],
+                                                        'HP' => ['amt' => 'ot_hp_amount', 'date' => 'ot_hp_date', 'status' => 'ot_hp_status'],
                                                     ];
 
                                                     foreach ($otFees as $label => $cols):
@@ -1016,12 +1104,16 @@ include 'admin/db.php';
                                                             <tr>
                                                                 <td class="text-start ps-3 small fw-bold"><?= $label; ?></td>
                                                                 <td>₹<?= number_format($row[$cols['amt']]); ?></td>
-                                                                <td class="small text-muted"><?= (!empty($row[$cols['date']])) ? date('M d', strtotime($row[$cols['date']])) : '-'; ?></td>
+                                                                <td class="small text-muted">
+                                                                    <?= (!empty($row[$cols['date']])) ? date('M d', strtotime($row[$cols['date']])) : '-'; ?>
+                                                                </td>
                                                                 <td>
                                                                     <?php if ($row[$cols['status']] == 'Paid'): ?>
-                                                                        <span class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
+                                                                        <span
+                                                                            class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
                                                                     <?php else: ?>
-                                                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Due</span>
+                                                                        <span
+                                                                            class="badge bg-danger-subtle text-danger border border-danger-subtle">Due</span>
                                                                     <?php endif; ?>
                                                                 </td>
                                                             </tr>
@@ -1030,7 +1122,8 @@ include 'admin/db.php';
 
                                                     <?php if (($row['ot_transfer_amount'] + $row['ot_hpa_amount'] + $row['ot_hp_amount']) == 0): ?>
                                                         <tr>
-                                                            <td colspan="4" class="text-muted small py-2">No vendor payments recorded.</td>
+                                                            <td colspan="4" class="text-muted small py-2">No vendor payments
+                                                                recorded.</td>
                                                         </tr>
                                                     <?php endif; ?>
                                                 </tbody>
@@ -1041,12 +1134,13 @@ include 'admin/db.php';
                                     <?php if (!empty($row['ot_insurance_name'])):
                                         // Calculate Validity
                                         $otInsStart = new DateTime($row['ot_insurance_start_date']);
-                                        $otInsEnd   = new DateTime($row['ot_insurance_end_date']);
+                                        $otInsEnd = new DateTime($row['ot_insurance_end_date']);
                                         $otInterval = $otInsStart->diff($otInsEnd);
                                         $otValidity = $otInterval->y . " Year" . ($otInterval->y > 1 ? 's' : '');
                                     ?>
                                         <div class="p-3 border rounded-4 bg-light mb-4 position-relative">
-                                            <span class="position-absolute top-0 start-50 translate-middle badge bg-dark text-white border-light border">
+                                            <span
+                                                class="position-absolute top-0 start-50 translate-middle badge bg-dark text-white border-light border">
                                                 Insurance Details
                                             </span>
 
@@ -1060,7 +1154,8 @@ include 'admin/db.php';
                                                 <div class="col-12">
                                                     <div class="d-flex justify-content-between">
                                                         <span class="small text-muted">Payment Status:</span>
-                                                        <span class="fw-bold <?= ($row['ot_insurance_payment_status'] == 'paid') ? 'text-success' : 'text-danger'; ?>">
+                                                        <span
+                                                            class="fw-bold <?= ($row['ot_insurance_payment_status'] == 'paid') ? 'text-success' : 'text-danger'; ?>">
                                                             <?= strtoupper($row['ot_insurance_payment_status']); ?>
                                                         </span>
                                                     </div>
@@ -1068,7 +1163,8 @@ include 'admin/db.php';
                                                 <div class="col-12">
                                                     <div class="d-flex justify-content-between">
                                                         <span class="small text-muted">Amount:</span>
-                                                        <span class="fw-bold">₹ <?= number_format($row['ot_insurance_amount']); ?></span>
+                                                        <span class="fw-bold">₹
+                                                            <?= number_format($row['ot_insurance_amount']); ?></span>
                                                     </div>
                                                 </div>
                                                 <div class="col-12">
@@ -1080,7 +1176,8 @@ include 'admin/db.php';
                                                 <div class="col-12">
                                                     <div class="d-flex justify-content-between">
                                                         <span class="small text-muted">Expiry Date:</span>
-                                                        <span class="fw-bold text-danger"><?= $row['ot_insurance_end_date']; ?></span>
+                                                        <span
+                                                            class="fw-bold text-danger"><?= $row['ot_insurance_end_date']; ?></span>
                                                     </div>
                                                 </div>
                                                 <div class="col-12">
@@ -1138,8 +1235,7 @@ include 'admin/db.php';
                 </div>
 
                 <div class="modal-footer border-top bg-white px-4 py-3">
-                    <button type="button"
-                        class="btn btn-light border fw-bold rounded-pill px-4 shadow-sm w-100"
+                    <button type="button" class="btn btn-light border fw-bold rounded-pill px-4 shadow-sm w-100"
                         data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -1187,8 +1283,10 @@ include 'admin/db.php';
                     safe, legal, and reliable.
                 </p>
                 <div class="d-flex gap-3">
-                    <a href="#" class="btn btn-dark rounded-circle" style="width: 40px; height: 40px;"><i
-                            class="fa-brands fa-whatsapp mt-1"></i></a>
+                    <a href="https://wa.me/917047649289" target="_blank" class="btn btn-dark rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px;">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </a>
                     <a href="#" class="btn btn-dark rounded-circle" style="width: 40px; height: 40px;"><i
                             class="fa-brands fa-facebook-f mt-1"></i></a>
                     <a href="#" class="btn btn-dark rounded-circle" style="width: 40px; height: 40px;"><i
@@ -1205,7 +1303,7 @@ include 'admin/db.php';
                     </div>
                     <div>
                         <span class="fw-bold small d-block">Showroom</span>
-                        <span class="small text-secondary">123, G.T. Road, Howrah - 711101, West Bengal.</span>
+                        <span class="small text-secondary">Beliatore (Opposite of WBSEDCL office),pin :- 722203.</span>
                     </div>
                 </div>
                 <div class="d-flex gap-3">
@@ -1214,9 +1312,13 @@ include 'admin/db.php';
                         <i class="fa-solid fa-phone"></i>
                     </div>
                     <div>
-                        <a href="tel:+919876543210" class="text-decoration-none">
+                        <a href="tel:+919332072223" class="text-decoration-none">
                             <span class="fw-bold text-white small d-block">Call Us</span>
-                            <span class="small text-secondary">+91 98765 43210</span>
+                            <span class="small text-secondary">+91 93320 72223</span>
+                        </a>
+                        <a href="tel:+917047649289" class="text-decoration-none">
+                            <span class="fw-bold text-white small d-block">Call Us</span>
+                            <span class="small text-secondary">+91 70476 49289</span>
                         </a>
                     </div>
                 </div>
@@ -1226,7 +1328,7 @@ include 'admin/db.php';
                 <div class="overflow-hidden rounded-4 border border-secondary border-opacity-25"
                     style="height: 100%; min-height: 250px;">
                     <iframe class="footer-map-frame"
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14736.313495863266!2d88.3308930740924!3d22.57615024479383!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a0277bd76922b03%3A0x6b4478206d9101d2!2sHowrah%2C%20West%20Bengal!5e0!3m2!1sen!2sin!4v1701358327495!5m2!1sen!2sin"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3663.9166233335636!2d87.21558441011682!3d23.318783705123142!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f7a1a94a63818b%3A0xc439f4a9fb186f34!2sBeliatore%20CCC(WBSEDCL)!5e0!3m2!1sen!2sin!4v1766005607136!5m2!1sen!2sin"
                         allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
                     </iframe>
                 </div>
