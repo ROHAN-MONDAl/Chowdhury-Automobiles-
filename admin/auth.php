@@ -139,13 +139,9 @@ $action = $_REQUEST["action"] ?? "";
 if ($action === 'login') {
 
     // 1. GET DATA
-    // Retrieve the CAPTCHA response from the POST data.
-    // This is required to prevent automated login attempts.
     $response = $_POST["g-recaptcha-response"] ?? "";
 
     // --- CAPTCHA CHECKS ---
-    // Ensure the CAPTCHA response is not empty.
-    // If empty, prompt the user to complete the CAPTCHA.
     if (empty($response)) {
         $_SESSION['login_message'] = "Please click the CAPTCHA box.";
         $_SESSION['login_message_type'] = "warning";
@@ -153,13 +149,10 @@ if ($action === 'login') {
         exit();
     }
 
-    // Verify the CAPTCHA response with Google's reCAPTCHA API.
-    // Uses a secret key to authenticate the request.
-    $secret = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe";
+    $secret = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"; 
     $verify = @file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secret&response=$response");
     $captcha = json_decode($verify, true);
 
-    // If CAPTCHA verification fails, display an error and redirect.
     if (empty($captcha['success']) || $captcha['success'] === false) {
         $_SESSION['login_message'] = "CAPTCHA verification failed.";
         $_SESSION['login_message_type'] = "error";
@@ -168,15 +161,11 @@ if ($action === 'login') {
     }
 
     // --- INPUT CHECKS ---
-    // Retrieve and sanitize user input: role, user ID, and password.
-    // Role determines access level (e.g., admin, user).
     $role = $_POST["role"] ?? "";
     $id = trim($_POST["user_id"] ?? "");
     $pass = $_POST["password"] ?? "";
 
     // 2. CHECK IF USER EXISTS
-    // Fetch user data from the database using the provided user ID.
-    // If no user is found, display a generic error to avoid revealing valid IDs.
     $user = getUserByID($conn, $id);
 
     if (!$user) {
@@ -186,123 +175,119 @@ if ($action === 'login') {
         exit();
     }
 
-    // 3. CHECK LOCKOUT STATUS (Column: locked_until)
-    // Check if the account is currently locked due to previous failed attempts.
-    // If locked, calculate remaining time and inform the user.
-    $current_time = date('Y-m-d H:i:s');
+    // 3. VERIFY PASSWORD
+    // We check the password FIRST. If it matches, we unlock the account.
+    if (password_verify($pass, $user["password_hash"])) {
 
-    if ($user['locked_until'] && $current_time < $user['locked_until']) {
-        $diff = strtotime($user['locked_until']) - time();
-        $minutes_left = ceil($diff / 60);
+        // ======================================================
+        // SUCCESS: PASSWORD IS CORRECT
+        // ======================================================
 
-        $_SESSION['login_message'] = "Account locked due to too many failed attempts. Try again in $minutes_left minute(s).";
-        $_SESSION['login_message_type'] = "error";
-        header("Location: index.php");
+        // Check Role
+        if ($user["role"] !== $role) {
+            $_SESSION['login_message'] = "Access denied for this role.";
+            $_SESSION['login_message_type'] = "error";
+            header("Location: index.php");
+            exit();
+        }
+
+        // *** THIS IS THE FIX ***
+        // The user proved their identity with the correct password (or temp password).
+        // We MUST reset 'failed_attempts' to 0 AND 'locked_until' to NULL immediately.
+        
+        $stmt = $conn->prepare("UPDATE users SET failed_attempts=0, locked_until=NULL WHERE user_id=?");
+        $stmt->bind_param("s", $user["user_id"]);
+        $stmt->execute();
+
+        // Set Session Variables
+        $_SESSION["user_id"] = $user["user_id"];
+        $_SESSION["role"] = $user["role"];
+        $_SESSION["id"] = $user["id"];
+
+        // Remember Me Logic
+        if (isset($_POST["remember"])) {
+            $token = bin2hex(random_bytes(32));
+            $hash = password_hash($token, PASSWORD_DEFAULT);
+            $stmt = $conn->prepare("UPDATE users SET remember_token_hash=? WHERE user_id=?");
+            $stmt->bind_param("ss", $hash, $id);
+            $stmt->execute();
+            setcookie("remember_me", "$id:$token", time() + (86400 * 30), "/", "", true, true);
+        }
+
+        header("Location: dashboard.php");
         exit();
-    }
 
-    // 4. VERIFY PASSWORD
-    // Compare the provided password with the stored hash using password_verify.
-    // If incorrect, handle failed attempt counters and potential lockout.
-    if (!password_verify($pass, $user["password_hash"])) {
+    } else {
 
-        // --- FIX: Ensure attempts is treated as an integer ---
-        $current_attempts = (int) $user['failed_attempts'];
+        // ======================================================
+        // FAILURE: PASSWORD INCORRECT
+        // ======================================================
+
+        // 1. Check if the account is ALREADY permanently locked
+        if (!empty($user['locked_until'])) {
+            $lock_time = new DateTime($user['locked_until']);
+            $current_time = new DateTime();
+
+            if ($current_time < $lock_time) {
+                // It is locked, and they typed the WRONG password.
+                $_SESSION['login_message'] = "ACCOUNT LOCKED: Please check your email for the temporary password.";
+                $_SESSION['login_message_type'] = "error";
+                header("Location: index.php");
+                exit();
+            }
+        }
+
+        // 2. Account is not locked yet (or lock expired), process the failure
+        $current_attempts = (int)$user['failed_attempts'];
         $attempts = $current_attempts + 1;
         $remaining = 5 - $attempts;
 
-        // --- SECURITY PROTOCOL: CHECK ATTEMPTS ---
-        if ($attempts >= 5) {
-            // ======================================================
-            // ACTION: PERMANENT LOCK & AUTO-RESET
-            // ======================================================
+        // CHECK: LIMIT REACHED?
+        if ($attempts == 5) {
+            
+            // --- LOCK ACCOUNT PERMANENTLY ---
 
-            // 1. Generate new secure password (invalidating the old one)
-            $new_temp_pass = substr(secureToken(12), 0, 10);
+            // Generate New Temporary Password
+            $new_temp_pass = bin2hex(random_bytes(5));
             $new_hash = password_hash($new_temp_pass, PASSWORD_DEFAULT);
 
-            // 2. Update Database (Reset attempts, remove lock timer, set NEW password)
-            // CRITICAL FIX: Use $user['user_id'] (from DB) not $id (from Input)
-            $stmt = $conn->prepare("UPDATE users SET failed_attempts=0, locked_until=NULL, password_hash=? WHERE user_id=?");
-            $stmt->bind_param("ss", $new_hash, $user['user_id']);
+            // Set Lock Date (+10 Years)
+            $locked_until_val = date('Y-m-d H:i:s', strtotime('+10 years'));
+
+            // Update Database
+            $stmt = $conn->prepare("UPDATE users SET failed_attempts=?, password_hash=?, locked_until=? WHERE user_id=?");
+            $stmt->bind_param("isss", $attempts, $new_hash, $locked_until_val, $user['user_id']);
 
             if ($stmt->execute()) {
-                // 3. Send Security Alert Email
+                // Send Email
                 $email = $user['email'];
-                $subject = "URGENT: Suspicious Login Activity";
-                $body = "Your account was locked due to 5 failed login attempts. <br>Your new temporary password is: <b>$new_temp_pass</b>";
+                $subject = "URGENT: Account Locked & Password Reset";
+                $body = "Your account has been locked due to 5 failed login attempts.<br>
+                         A temporary password is: <b>$new_temp_pass</b><br>
+                         Use this password to login and unlock your account.";
                 sendMail($email, $subject, $body);
 
-                // 4. Set Session Message
-                $_SESSION['login_message'] = "SECURITY ALERT: Too many failed attempts. Your account has been locked and a new password sent to your email.";
-                $_SESSION['login_message_type'] = "error";
-            } else {
-                $_SESSION['login_message'] = "System Error: Could not lock account.";
-                $_SESSION['login_message_type'] = "error";
+                $_SESSION['login_message'] = "ACCOUNT LOCKED: New password sent to email.";
+                $_SESSION['login_message_type'] = "error"; 
             }
 
+        } elseif ($attempts > 5) {
+            // Already locked (safeguard)
+            $_SESSION['login_message'] = "ACCOUNT LOCKED.";
+            $_SESSION['login_message_type'] = "error";
         } else {
-            // ======================================================
-            // ACTION: INCREMENT COUNTER
-            // ======================================================
-
-            // Update the failed attempts counter
-            // CRITICAL FIX: Use $user['user_id'] to ensure the row is found
+            // Warning Stage (1-4)
             $stmt = $conn->prepare("UPDATE users SET failed_attempts=? WHERE user_id=?");
             $stmt->bind_param("is", $attempts, $user['user_id']);
             $stmt->execute();
 
-            // Set Session Message
-            $_SESSION['login_message'] = "Incorrect Password. Warning: You have $remaining attempt(s) left before permanent lockout.";
+            $_SESSION['login_message'] = "Incorrect Password. $remaining attempt(s) remaining.";
             $_SESSION['login_message_type'] = "warning";
         }
 
         header("Location: index.php");
         exit();
     }
-
-    // 5. SUCCESSFUL LOGIN (PASSWORD CORRECT)
-
-    // Check Role
-    // Ensure the user's role matches the selected role during login.
-    // This prevents unauthorized access to role-specific areas.
-    if ($user["role"] !== $role) {
-        $_SESSION['login_message'] = "Access denied for this role.";
-        $_SESSION['login_message_type'] = "error";
-        header("Location: index.php");
-        exit();
-    }
-
-    // Reset Lockout Counters (User proved identity, so we forgive past mistakes)
-    // Clear failed attempts and lockout status since authentication succeeded.
-    $stmt = $conn->prepare("UPDATE users SET failed_attempts=0, locked_until=NULL WHERE user_id=?");
-    $stmt->bind_param("s", $user["user_id"]);
-    $stmt->execute();
-
-    // Set Session
-    // Store user information in the session for authenticated access.
-    // Includes user ID, role, and database auto-increment ID.
-    $_SESSION["user_id"] = $user["user_id"];
-    $_SESSION["role"] = $user["role"];
-    $_SESSION["id"] = $user["id"]; // The auto-increment ID
-
-    // Remember Me
-    // If the user checked "Remember Me", create a secure token for persistent login.
-    // Store a hashed token in the database and set a cookie for future sessions.
-    if (isset($_POST["remember"])) {
-        $token = bin2hex(random_bytes(32));
-        $hash = password_hash($token, PASSWORD_DEFAULT);
-
-        // Column: remember_token_hash
-        $stmt = $conn->prepare("UPDATE users SET remember_token_hash=? WHERE user_id=?");
-        $stmt->bind_param("ss", $hash, $id);
-        $stmt->execute();
-
-        setcookie("remember_me", "$id:$token", time() + (86400 * 30), "/", "", true, true);
-    }
-
-    header("Location: dashboard.php");
-    exit();
 }
 
 /* =======================================================================
@@ -346,7 +331,6 @@ if ($action === "send_otp") {
     // Redirect back to the login page after processing.
     header("Location: index.php");
     exit();
-
 } elseif ($action === "verify_otp") {
     // Handle the OTP verification for password reset.
     // Retrieves email and OTP from POST data, verifies the user, and checks OTP validity.
@@ -402,4 +386,3 @@ if ($action === "send_otp") {
 // If no valid action is provided, redirect to the login page as a safety measure.
 header("Location: index.php");
 exit();
-?>

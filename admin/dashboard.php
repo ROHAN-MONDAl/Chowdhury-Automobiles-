@@ -71,7 +71,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
     <!-- Universal Messages -->
     <?php include "universal_message.php" ?>
-  <!-- global Messages -->
+    <!-- global Messages -->
     <?php include_once "global_message.php" ?>
 
     <!-- DASHBOARD SECTION -->
@@ -731,7 +731,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                                 <label class="fw-bold small mb-2">Online Method</label>
                                                                 <div class="d-flex flex-wrap gap-3 mb-3">
                                                                     <label class="form-check">
-                                                                        <input type="radio" name="seller_online_method" class="form-check-input" value="gpay">
+                                                                        <input type="radio" name="seller_online_method" class="form-check-input" value="Google Pay">
                                                                         <span class="form-check-label fw-bold">Google Pay</span>
                                                                     </label>
                                                                     <label class="form-check">

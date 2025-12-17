@@ -1,7 +1,7 @@
 <?php
 // 1. SETUP JSON ENVIRONMENT
-header('Content-Type: application/json'); 
-error_reporting(0); 
+header('Content-Type: application/json');
+error_reporting(0);
 
 // 2. DATABASE CONNECTION
 include 'db.php';
@@ -10,14 +10,17 @@ include 'db.php';
 //  HELPER FUNCTIONS
 // ---------------------------------------------------------
 
-function handleUpload($inputName) {
+function handleUpload($inputName)
+{
     if (isset($_FILES[$inputName]) && $_FILES[$inputName]['error'] == 0) {
         $target_dir = "../images/";
-        if (!is_dir($target_dir)) { mkdir($target_dir, 0777, true); }
-        
+        if (!is_dir($target_dir)) {
+            mkdir($target_dir, 0777, true);
+        }
+
         $fileType = strtolower(pathinfo($_FILES[$inputName]["name"], PATHINFO_EXTENSION));
         $allowed = ['jpg', 'jpeg', 'png', 'pdf'];
-        
+
         if (in_array($fileType, $allowed)) {
             $new_filename = time() . "_" . basename($_FILES[$inputName]["name"]);
             if (move_uploaded_file($_FILES[$inputName]["tmp_name"], $target_dir . $new_filename)) {
@@ -25,14 +28,22 @@ function handleUpload($inputName) {
             }
         }
     }
-    return ""; 
+    return "";
 }
 
-function cleanInput($data) { global $conn; return mysqli_real_escape_string($conn, trim($data ?? '')); }
-function checkVal($name) { return isset($_POST[$name]) ? 1 : 0; }
+function cleanInput($data)
+{
+    global $conn;
+    return mysqli_real_escape_string($conn, trim($data ?? ''));
+}
+function checkVal($name)
+{
+    return isset($_POST[$name]) ? 1 : 0;
+}
 
 // ⭐ FUNCTION: Get Master Data
-function getMasterVehicleData($id) {
+function getMasterVehicleData($id)
+{
     global $conn;
     $sql = "SELECT vehicle_number, chassis_number, engine_number FROM vehicle WHERE id = '$id'";
     $result = $conn->query($sql);
@@ -40,7 +51,8 @@ function getMasterVehicleData($id) {
 }
 
 // ⭐ FUNCTION: Propagate Data
-function syncAllTables($vehicle_id) {
+function syncAllTables($vehicle_id)
+{
     global $conn;
     $master = getMasterVehicleData($vehicle_id);
     if (!$master) return;
@@ -68,17 +80,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // 1️⃣ STEP 1: VEHICLE (MASTER DATA ENTRY)
     // ======================================================
     if ($current_step == 1) {
-        
+
         // 1. Collect Data
         $v_no = cleanInput($_POST['vehicle_number']); // ⭐ Collect this early for checking
-        
+
         // ⭐⭐ DUPLICATE CHECK START ⭐⭐
         // If updating, ignore current ID. If inserting, check all.
         $dup_sql = "SELECT id FROM vehicle WHERE vehicle_number = '$v_no'";
         if ($vehicle_id > 0) {
             $dup_sql .= " AND id != '$vehicle_id'";
         }
-        
+
         $dup_res = $conn->query($dup_sql);
         if ($dup_res->num_rows > 0) {
             echo json_encode(['status' => 'error', 'message' => '⚠️ Vehicle Number Already Exists!']);
@@ -87,39 +99,64 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // ⭐⭐ DUPLICATE CHECK END ⭐⭐
 
         $v_type = cleanInput($_POST['vehicle_type']);
-        $name = cleanInput($_POST['name']); 
+        $name = cleanInput($_POST['name']);
         $reg_date = cleanInput($_POST['register_date']);
         $own_ser = cleanInput($_POST['owner_serial']);
-        $chas_no = cleanInput($_POST['chassis_number']); 
-        $eng_no = cleanInput($_POST['engine_number']); 
-        
+        $chas_no = cleanInput($_POST['chassis_number']);
+        $eng_no = cleanInput($_POST['engine_number']);
+
         $pay_type = cleanInput($_POST['payment_type']);
         $c_price = cleanInput($_POST['cash_price']) ?: 0;
         $on_method = cleanInput($_POST['online_method']);
         $on_txn = cleanInput($_POST['online_transaction_id']);
         $on_price = cleanInput($_POST['online_price']) ?: 0;
-        
+
         $pol_chal = cleanInput($_POST['police_challan']);
-        $c1_n = cleanInput($_POST['challan1_number']); $c1_a = cleanInput($_POST['challan1_amount']) ?: 0; $c1_s = cleanInput($_POST['challan1_status']);
-        $c2_n = cleanInput($_POST['challan2_number']); $c2_a = cleanInput($_POST['challan2_amount']) ?: 0; $c2_s = cleanInput($_POST['challan2_status']);
-        $c3_n = cleanInput($_POST['challan3_number']); $c3_a = cleanInput($_POST['challan3_amount']) ?: 0; $c3_s = cleanInput($_POST['challan3_status']);
-        
+        $c1_n = cleanInput($_POST['challan1_number']);
+        $c1_a = cleanInput($_POST['challan1_amount']) ?: 0;
+        $c1_s = cleanInput($_POST['challan1_status']);
+        $c2_n = cleanInput($_POST['challan2_number']);
+        $c2_a = cleanInput($_POST['challan2_amount']) ?: 0;
+        $c2_s = cleanInput($_POST['challan2_status']);
+        $c3_n = cleanInput($_POST['challan3_number']);
+        $c3_a = cleanInput($_POST['challan3_amount']) ?: 0;
+        $c3_s = cleanInput($_POST['challan3_status']);
+
         $sold_out = checkVal('sold_out');
-        $p1 = handleUpload('photo1'); $p2 = handleUpload('photo2');
-        $p3 = handleUpload('photo3'); $p4 = handleUpload('photo4');
+        $p1 = handleUpload('photo1');
+        $p2 = handleUpload('photo2');
+        $p3 = handleUpload('photo3');
+        $p4 = handleUpload('photo4');
 
         if ($vehicle_id > 0) {
+            // --- FIX: Added Photo Columns with Smart Update Logic ---
             $sql = "UPDATE vehicle SET 
-                    vehicle_type='$v_type', name='$name', vehicle_number='$v_no', register_date='$reg_date', 
-                    owner_serial='$own_ser', chassis_number='$chas_no', engine_number='$eng_no',
-                    payment_type='$pay_type', cash_price='$c_price', online_method='$on_method', 
-                    online_transaction_id='$on_txn', online_price='$on_price', police_challan='$pol_chal',
+                    vehicle_type='$v_type', 
+                    name='$name', 
+                    vehicle_number='$v_no', 
+                    register_date='$reg_date', 
+                    owner_serial='$own_ser', 
+                    chassis_number='$chas_no', 
+                    engine_number='$eng_no',
+                    payment_type='$pay_type', 
+                    cash_price='$c_price', 
+                    online_method='$on_method', 
+                    online_transaction_id='$on_txn', 
+                    online_price='$on_price', 
+                    police_challan='$pol_chal',
                     challan1_number='$c1_n', challan1_amount='$c1_a', challan1_status='$c1_s',
                     challan2_number='$c2_n', challan2_amount='$c2_a', challan2_status='$c2_s',
                     challan3_number='$c3_n', challan3_amount='$c3_a', challan3_status='$c3_s',
-                    sold_out='$sold_out'
+                    sold_out='$sold_out',
+
+                    photo1 = CASE WHEN '$p1' != '' THEN '$p1' ELSE photo1 END,
+                    photo2 = CASE WHEN '$p2' != '' THEN '$p2' ELSE photo2 END,
+                    photo3 = CASE WHEN '$p3' != '' THEN '$p3' ELSE photo3 END,
+                    photo4 = CASE WHEN '$p4' != '' THEN '$p4' ELSE photo4 END
+
                     WHERE id=$vehicle_id";
         } else {
+            // ... (Your existing INSERT query is fine, no changes needed there) ...
             $sql = "INSERT INTO vehicle (
                 vehicle_type, name, vehicle_number, register_date, owner_serial, chassis_number, engine_number,
                 payment_type, cash_price, online_method, online_transaction_id, online_price,
@@ -153,40 +190,103 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // 2️⃣ STEP 2: SELLER
     // ======================================================
     elseif ($current_step == 2) {
-        if ($vehicle_id == 0) { echo json_encode(['status' => 'error', 'message' => 'Missing ID']); exit(); }
+        if ($vehicle_id == 0) {
+            echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
+            exit();
+        }
 
+        // 1. Fetch & Clean Data
         $masterData = getMasterVehicleData($vehicle_id);
-        $s_vno  = cleanInput($masterData['vehicle_number']); 
-        $s_chas = cleanInput($masterData['chassis_number']); 
-        $s_eng  = cleanInput($masterData['engine_number']);  
-        $s_bike = cleanInput($_POST['seller_bike_name']);           
+        $s_vno  = cleanInput($masterData['vehicle_number']);
+        $s_chas = cleanInput($masterData['chassis_number']);
+        $s_eng  = cleanInput($masterData['engine_number']);
+        $s_bike = cleanInput($_POST['seller_bike_name']);
 
         $s_date = cleanInput($_POST['seller_date']);
         $s_name = cleanInput($_POST['seller_name']);
         $s_addr = cleanInput($_POST['seller_address']);
-        $s_m1 = cleanInput($_POST['seller_mobile1']); $s_m2 = cleanInput($_POST['seller_mobile2']); $s_m3 = cleanInput($_POST['seller_mobile3']);
-        $pr_rc = checkVal('pr_rc'); $pr_tax = checkVal('pr_tax'); $pr_ins = checkVal('pr_insurance'); 
-        $pr_puc = checkVal('pr_pucc'); $pr_noc = checkVal('pr_noc'); $noc_st = cleanInput($_POST['noc_status']);
+        $s_m1 = cleanInput($_POST['seller_mobile1']);
+        $s_m2 = cleanInput($_POST['seller_mobile2']);
+        $s_m3 = cleanInput($_POST['seller_mobile3']);
+
+        $pr_rc = checkVal('pr_rc');
+        $pr_tax = checkVal('pr_tax');
+        $pr_ins = checkVal('pr_insurance');
+        $pr_puc = checkVal('pr_pucc');
+        $pr_noc = checkVal('pr_noc');
+        $noc_st = cleanInput($_POST['noc_status']);
+
         $s_ptype = cleanInput($_POST['seller_payment_type']);
         $s_cprice = cleanInput($_POST['seller_cash_price']) ?: 0;
         $s_omethod = cleanInput($_POST['seller_online_method']);
         $s_otxn = cleanInput($_POST['seller_online_transaction_id']);
         $s_oprice = cleanInput($_POST['seller_online_price']) ?: 0;
-        $ex_show = cleanInput($_POST['exchange_showroom_name']); $st_name = cleanInput($_POST['staff_name']);
-        $tot_amt = cleanInput($_POST['total_amount']) ?: 0; $pd_amt = cleanInput($_POST['paid_amount']) ?: 0; $due_amt = cleanInput($_POST['due_amount']) ?: 0; $due_rsn = cleanInput($_POST['due_reason']);
-        $doc_af = handleUpload('doc_aadhar_front'); $doc_ab = handleUpload('doc_aadhar_back');
-        $doc_vf = handleUpload('doc_voter_front'); $doc_vb = handleUpload('doc_voter_back');
-        $rc_f = handleUpload('rc_front'); $rc_b = handleUpload('rc_back');
-        $noc_f = handleUpload('noc_front'); $noc_b = handleUpload('noc_back');
 
+        $ex_show = cleanInput($_POST['exchange_showroom_name']);
+        $st_name = cleanInput($_POST['staff_name']);
+
+        $tot_amt = cleanInput($_POST['total_amount']) ?: 0;
+        $pd_amt = cleanInput($_POST['paid_amount']) ?: 0;
+        $due_amt = cleanInput($_POST['due_amount']) ?: 0;
+        $due_rsn = cleanInput($_POST['due_reason']);
+
+        // 2. Handle Uploads
+        $doc_af = handleUpload('doc_aadhar_front');
+        $doc_ab = handleUpload('doc_aadhar_back');
+        $doc_vf = handleUpload('doc_voter_front');
+        $doc_vb = handleUpload('doc_voter_back');
+        $rc_f = handleUpload('rc_front');
+        $rc_b = handleUpload('rc_back');
+        $noc_f = handleUpload('noc_front');
+        $noc_b = handleUpload('noc_back');
+
+        // 3. Check for Existing Record
         $check = $conn->query("SELECT id FROM vehicle_seller WHERE vehicle_id = $vehicle_id");
+
         if ($check->num_rows > 0) {
+            // --- FIX: UPDATED QUERY TO INCLUDE ALL FIELDS ---
+            // note: The CASE WHEN logic prevents erasing images if no new file is uploaded
             $sql = "UPDATE vehicle_seller SET 
-                    seller_vehicle_number='$s_vno', seller_chassis_no='$s_chas', seller_engine_no='$s_eng',
-                    seller_bike_name='$s_bike', 
-                    seller_name='$s_name', seller_mobile1='$s_m1', total_amount='$tot_amt', paid_amount='$pd_amt', due_amount='$due_amt'
-                    WHERE vehicle_id=$vehicle_id";
+                seller_date='$s_date',
+                seller_vehicle_number='$s_vno', 
+                seller_chassis_no='$s_chas', 
+                seller_engine_no='$s_eng',
+                seller_bike_name='$s_bike', 
+                seller_name='$s_name', 
+                seller_address='$s_addr',
+                seller_mobile1='$s_m1',
+                seller_mobile2='$s_m2',
+                seller_mobile3='$s_m3',
+                pr_rc='$pr_rc', 
+                pr_tax='$pr_tax', 
+                pr_insurance='$pr_ins', 
+                pr_pucc='$pr_puc', 
+                pr_noc='$pr_noc', 
+                noc_status='$noc_st',
+                seller_payment_type='$s_ptype', 
+                seller_cash_price='$s_cprice', 
+                seller_online_method='$s_omethod', 
+                seller_online_transaction_id='$s_otxn', 
+                seller_online_price='$s_oprice',
+                exchange_showroom_name='$ex_show', 
+                staff_name='$st_name',
+                total_amount='$tot_amt', 
+                paid_amount='$pd_amt', 
+                due_amount='$due_amt', 
+                due_reason='$due_rsn',
+                
+                doc_aadhar_front = CASE WHEN '$doc_af' != '' THEN '$doc_af' ELSE doc_aadhar_front END,
+                doc_aadhar_back = CASE WHEN '$doc_ab' != '' THEN '$doc_ab' ELSE doc_aadhar_back END,
+                doc_voter_front = CASE WHEN '$doc_vf' != '' THEN '$doc_vf' ELSE doc_voter_front END,
+                doc_voter_back = CASE WHEN '$doc_vb' != '' THEN '$doc_vb' ELSE doc_voter_back END,
+                rc_front = CASE WHEN '$rc_f' != '' THEN '$rc_f' ELSE rc_front END,
+                rc_back = CASE WHEN '$rc_b' != '' THEN '$rc_b' ELSE rc_back END,
+                noc_front = CASE WHEN '$noc_f' != '' THEN '$noc_f' ELSE noc_front END,
+                noc_back = CASE WHEN '$noc_b' != '' THEN '$noc_b' ELSE noc_back END
+
+                WHERE vehicle_id=$vehicle_id";
         } else {
+            // --- INSERT QUERY (This was already mostly correct) ---
             $sql = "INSERT INTO vehicle_seller (
                 vehicle_id, seller_date, seller_vehicle_number, seller_bike_name, seller_chassis_no, seller_engine_no,
                 seller_name, seller_address, seller_mobile1, seller_mobile2, seller_mobile3,
@@ -203,8 +303,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 '$doc_af', '$doc_ab', '$doc_vf', '$doc_vb', '$rc_f', '$rc_b', '$noc_f', '$noc_b'
             )";
         }
-        if ($conn->query($sql) === TRUE) { echo json_encode(['status' => 'success', 'id' => $vehicle_id, 'message' => 'Seller Saved']); } 
-        else { echo json_encode(['status' => 'error', 'message' => 'DB Error: ' . $conn->error]); }
+
+        if ($conn->query($sql) === TRUE) {
+            echo json_encode(['status' => 'success', 'id' => $vehicle_id, 'message' => 'Seller Saved']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'DB Error: ' . $conn->error]);
+        }
         exit();
     }
 
@@ -212,59 +316,113 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // 3️⃣ STEP 3: PURCHASER
     // ======================================================
     elseif ($current_step == 3) {
-        if ($vehicle_id == 0) { echo json_encode(['status' => 'error', 'message' => 'Missing ID']); exit(); }
+        if ($vehicle_id == 0) {
+            echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
+            exit();
+        }
 
         $masterData = getMasterVehicleData($vehicle_id);
-        $p_vno  = cleanInput($masterData['vehicle_number']); 
-        $p_bike = cleanInput($_POST['purchaser_bike_name']);           
+        $p_vno  = cleanInput($masterData['vehicle_number']);
+        $p_bike = cleanInput($_POST['purchaser_bike_name']);
 
         $p_date = cleanInput($_POST['purchaser_date']);
         $p_name = cleanInput($_POST['purchaser_name']);
         $p_addr = cleanInput($_POST['purchaser_address']);
-        $pt_amt = cleanInput($_POST['purchaser_transfer_amount']) ?: 0; $pt_date = cleanInput($_POST['purchaser_transfer_date']); $pt_stat = cleanInput($_POST['purchaser_transfer_status']);
-        $ph_amt = cleanInput($_POST['purchaser_hpa_amount']) ?: 0; $ph_date = cleanInput($_POST['purchaser_hpa_date']); $ph_stat = cleanInput($_POST['purchaser_hpa_status']);
-        $php_amt = cleanInput($_POST['purchaser_hp_amount']) ?: 0; $php_date = cleanInput($_POST['purchaser_hp_date']); $php_stat = cleanInput($_POST['purchaser_hp_status']);
-        $pi_name = cleanInput($_POST['purchaser_insurance_name']); $pi_stat = cleanInput($_POST['purchaser_insurance_payment_status']);
-        $pi_amt = cleanInput($_POST['purchaser_insurance_amount']) ?: 0; $pi_iss = cleanInput($_POST['purchaser_insurance_issue_date']); $pi_exp = cleanInput($_POST['purchaser_insurance_expiry_date']);
-        $p_tot = cleanInput($_POST['purchaser_total']) ?: 0; $p_pd = cleanInput($_POST['purchaser_paid']) ?: 0; $p_due = cleanInput($_POST['purchaser_due']) ?: 0;
+        $pt_amt = cleanInput($_POST['purchaser_transfer_amount']) ?: 0;
+        $pt_date = cleanInput($_POST['purchaser_transfer_date']);
+        $pt_stat = cleanInput($_POST['purchaser_transfer_status']);
+        $ph_amt = cleanInput($_POST['purchaser_hpa_amount']) ?: 0;
+        $ph_date = cleanInput($_POST['purchaser_hpa_date']);
+        $ph_stat = cleanInput($_POST['purchaser_hpa_status']);
+        $php_amt = cleanInput($_POST['purchaser_hp_amount']) ?: 0;
+        $php_date = cleanInput($_POST['purchaser_hp_date']);
+        $php_stat = cleanInput($_POST['purchaser_hp_status']);
+        $pi_name = cleanInput($_POST['purchaser_insurance_name']);
+        $pi_stat = cleanInput($_POST['purchaser_insurance_payment_status']);
+        $pi_amt = cleanInput($_POST['purchaser_insurance_amount']) ?: 0;
+        $pi_iss = cleanInput($_POST['purchaser_insurance_issue_date']);
+        $pi_exp = cleanInput($_POST['purchaser_insurance_expiry_date']);
+        $p_tot = cleanInput($_POST['purchaser_total']) ?: 0;
+        $p_pd = cleanInput($_POST['purchaser_paid']) ?: 0;
+        $p_due = cleanInput($_POST['purchaser_due']) ?: 0;
         $p_mode = cleanInput($_POST['purchaser_payment_mode']);
         $pc_amt = cleanInput($_POST['purchaser_cash_amount']) ?: 0;
-        $pc_m1 = cleanInput($_POST['purchaser_cash_mobile1']); $pc_m2 = cleanInput($_POST['purchaser_cash_mobile2']); $pc_m3 = cleanInput($_POST['purchaser_cash_mobile3']);
-        $pf_hpa = cleanInput($_POST['purchaser_fin_hpa_with']); $pf_dis = cleanInput($_POST['purchaser_fin_disburse_amount']) ?: 0; $pf_stat = cleanInput($_POST['purchaser_fin_disburse_status']);
-        $pf_m1 = cleanInput($_POST['purchaser_fin_mobile1']); $pf_m2 = cleanInput($_POST['purchaser_fin_mobile2']); $pf_m3 = cleanInput($_POST['purchaser_fin_mobile3']);
+        $pc_m1 = cleanInput($_POST['purchaser_cash_mobile1']);
+        $pc_m2 = cleanInput($_POST['purchaser_cash_mobile2']);
+        $pc_m3 = cleanInput($_POST['purchaser_cash_mobile3']);
+        $pf_hpa = cleanInput($_POST['purchaser_fin_hpa_with']);
+        $pf_dis = cleanInput($_POST['purchaser_fin_disburse_amount']) ?: 0;
+        $pf_stat = cleanInput($_POST['purchaser_fin_disburse_status']);
+        $pf_m1 = cleanInput($_POST['purchaser_fin_mobile1']);
+        $pf_m2 = cleanInput($_POST['purchaser_fin_mobile2']);
+        $pf_m3 = cleanInput($_POST['purchaser_fin_mobile3']);
         $all_paid = checkVal('purchaser_payment_all_paid');
-        $p_af = handleUpload('purchaser_doc_aadhar_front'); $p_ab = handleUpload('purchaser_doc_aadhar_back');
-        $p_vf = handleUpload('purchaser_doc_voter_front'); $p_vb = handleUpload('purchaser_doc_voter_back');
+
+        // Uploads
+        $p_af = handleUpload('purchaser_doc_aadhar_front');
+        $p_ab = handleUpload('purchaser_doc_aadhar_back');
+        $p_vf = handleUpload('purchaser_doc_voter_front');
+        $p_vb = handleUpload('purchaser_doc_voter_back');
 
         $check = $conn->query("SELECT id FROM vehicle_purchaser WHERE vehicle_id = $vehicle_id");
+
         if ($check->num_rows > 0) {
+            // --- FIX: UPDATED QUERY TO INCLUDE ALL FIELDS ---
             $sql = "UPDATE vehicle_purchaser SET 
-                    purchaser_vehicle_no='$p_vno', 
-                    purchaser_bike_name='$p_bike',
-                    purchaser_name='$p_name', purchaser_total='$p_tot' WHERE vehicle_id=$vehicle_id";
+                purchaser_date='$p_date',
+                purchaser_vehicle_no='$p_vno', 
+                purchaser_bike_name='$p_bike',
+                purchaser_name='$p_name', 
+                purchaser_address='$p_addr',
+                
+                purchaser_transfer_amount='$pt_amt', purchaser_transfer_date='$pt_date', purchaser_transfer_status='$pt_stat',
+                purchaser_hpa_amount='$ph_amt', purchaser_hpa_date='$ph_date', purchaser_hpa_status='$ph_stat',
+                purchaser_hp_amount='$php_amt', purchaser_hp_date='$php_date', purchaser_hp_status='$php_stat',
+                
+                purchaser_insurance_name='$pi_name', purchaser_insurance_payment_status='$pi_stat', 
+                purchaser_insurance_amount='$pi_amt', purchaser_insurance_issue_date='$pi_iss', purchaser_insurance_expiry_date='$pi_exp',
+                
+                purchaser_total='$p_tot', purchaser_paid='$p_pd', purchaser_due='$p_due',
+                purchaser_payment_mode='$p_mode', purchaser_payment_all_paid='$all_paid',
+                
+                purchaser_cash_amount='$pc_amt', purchaser_cash_mobile1='$pc_m1', purchaser_cash_mobile2='$pc_m2', purchaser_cash_mobile3='$pc_m3',
+                purchaser_fin_hpa_with='$pf_hpa', purchaser_fin_disburse_amount='$pf_dis', purchaser_fin_disburse_status='$pf_stat', 
+                purchaser_fin_mobile1='$pf_m1', purchaser_fin_mobile2='$pf_m2', purchaser_fin_mobile3='$pf_m3',
+
+                purchaser_doc_aadhar_front = CASE WHEN '$p_af' != '' THEN '$p_af' ELSE purchaser_doc_aadhar_front END,
+                purchaser_doc_aadhar_back = CASE WHEN '$p_ab' != '' THEN '$p_ab' ELSE purchaser_doc_aadhar_back END,
+                purchaser_doc_voter_front = CASE WHEN '$p_vf' != '' THEN '$p_vf' ELSE purchaser_doc_voter_front END,
+                purchaser_doc_voter_back = CASE WHEN '$p_vb' != '' THEN '$p_vb' ELSE purchaser_doc_voter_back END
+
+                WHERE vehicle_id=$vehicle_id";
         } else {
+            // --- INSERT (Unchanged) ---
             $sql = "INSERT INTO vehicle_purchaser (
-                vehicle_id, purchaser_date, purchaser_name, purchaser_address, purchaser_bike_name, purchaser_vehicle_no,
-                purchaser_transfer_amount, purchaser_transfer_date, purchaser_transfer_status,
-                purchaser_hpa_amount, purchaser_hpa_date, purchaser_hpa_status,
-                purchaser_hp_amount, purchaser_hp_date, purchaser_hp_status,
-                purchaser_insurance_name, purchaser_insurance_payment_status, purchaser_insurance_amount, purchaser_insurance_issue_date, purchaser_insurance_expiry_date,
-                purchaser_total, purchaser_paid, purchaser_due,
-                purchaser_payment_mode, purchaser_cash_amount, purchaser_cash_mobile1, purchaser_cash_mobile2, purchaser_cash_mobile3,
-                purchaser_fin_hpa_with, purchaser_fin_disburse_amount, purchaser_fin_disburse_status, purchaser_fin_mobile1, purchaser_fin_mobile2, purchaser_fin_mobile3,
-                purchaser_doc_aadhar_front, purchaser_doc_aadhar_back, purchaser_doc_voter_front, purchaser_doc_voter_back, purchaser_payment_all_paid
-            ) VALUES (
-                '$vehicle_id', '$p_date', '$p_name', '$p_addr', '$p_bike', '$p_vno',
-                '$pt_amt', '$pt_date', '$pt_stat', '$ph_amt', '$ph_date', '$ph_stat', '$php_amt', '$php_date', '$php_stat',
-                '$pi_name', '$pi_stat', '$pi_amt', '$pi_iss', '$pi_exp',
-                '$p_tot', '$p_pd', '$p_due',
-                '$p_mode', '$pc_amt', '$pc_m1', '$pc_m2', '$pc_m3',
-                '$pf_hpa', '$pf_dis', '$pf_stat', '$pf_m1', '$pf_m2', '$pf_m3',
-                '$p_af', '$p_ab', '$p_vf', '$p_vb', '$all_paid'
-            )";
+            vehicle_id, purchaser_date, purchaser_name, purchaser_address, purchaser_bike_name, purchaser_vehicle_no,
+            purchaser_transfer_amount, purchaser_transfer_date, purchaser_transfer_status,
+            purchaser_hpa_amount, purchaser_hpa_date, purchaser_hpa_status,
+            purchaser_hp_amount, purchaser_hp_date, purchaser_hp_status,
+            purchaser_insurance_name, purchaser_insurance_payment_status, purchaser_insurance_amount, purchaser_insurance_issue_date, purchaser_insurance_expiry_date,
+            purchaser_total, purchaser_paid, purchaser_due,
+            purchaser_payment_mode, purchaser_cash_amount, purchaser_cash_mobile1, purchaser_cash_mobile2, purchaser_cash_mobile3,
+            purchaser_fin_hpa_with, purchaser_fin_disburse_amount, purchaser_fin_disburse_status, purchaser_fin_mobile1, purchaser_fin_mobile2, purchaser_fin_mobile3,
+            purchaser_doc_aadhar_front, purchaser_doc_aadhar_back, purchaser_doc_voter_front, purchaser_doc_voter_back, purchaser_payment_all_paid
+        ) VALUES (
+            '$vehicle_id', '$p_date', '$p_name', '$p_addr', '$p_bike', '$p_vno',
+            '$pt_amt', '$pt_date', '$pt_stat', '$ph_amt', '$ph_date', '$ph_stat', '$php_amt', '$php_date', '$php_stat',
+            '$pi_name', '$pi_stat', '$pi_amt', '$pi_iss', '$pi_exp',
+            '$p_tot', '$p_pd', '$p_due',
+            '$p_mode', '$pc_amt', '$pc_m1', '$pc_m2', '$pc_m3',
+            '$pf_hpa', '$pf_dis', '$pf_stat', '$pf_m1', '$pf_m2', '$pf_m3',
+            '$p_af', '$p_ab', '$p_vf', '$p_vb', '$all_paid'
+        )";
         }
-        if ($conn->query($sql) === TRUE) { echo json_encode(['status' => 'success', 'id' => $vehicle_id, 'message' => 'Purchaser Saved']); } 
-        else { echo json_encode(['status' => 'error', 'message' => 'DB Error: ' . $conn->error]); }
+
+        if ($conn->query($sql) === TRUE) {
+            echo json_encode(['status' => 'success', 'id' => $vehicle_id, 'message' => 'Purchaser Saved']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'DB Error: ' . $conn->error]);
+        }
         exit();
     }
 
@@ -272,21 +430,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // 4️⃣ STEP 4: TRANSFER
     // ======================================================
     elseif ($current_step == 4) {
-        if ($vehicle_id == 0) { echo json_encode(['status' => 'error', 'message' => 'Missing ID']); exit(); }
+        if ($vehicle_id == 0) {
+            echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
+            exit();
+        }
 
         $masterData = getMasterVehicleData($vehicle_id);
-        $ot_vno = cleanInput($masterData['vehicle_number']); 
-        $ot_name = cleanInput($_POST['ot_name_transfer']); 
+        $ot_vno = cleanInput($masterData['vehicle_number']);
+        $ot_name = cleanInput($_POST['ot_name_transfer']);
 
         $ot_rto = cleanInput($_POST['ot_rto_name']);
         $ot_vend = cleanInput($_POST['ot_vendor_name']);
-        $ot_t_amt = cleanInput($_POST['ot_transfer_amount']) ?: 0; $ot_t_date = cleanInput($_POST['ot_transfer_date']); $ot_t_stat = cleanInput($_POST['ot_transfer_status']);
-        $ot_h_amt = cleanInput($_POST['ot_hpa_amount']) ?: 0; $ot_h_date = cleanInput($_POST['ot_hpa_date']); $ot_h_stat = cleanInput($_POST['ot_hpa_status']);
-        $ot_hp_amt = cleanInput($_POST['ot_hp_amount']) ?: 0; $ot_hp_date = cleanInput($_POST['ot_hp_date']); $ot_hp_stat = cleanInput($_POST['ot_hp_status']);
-        $ot_i_name = cleanInput($_POST['ot_insurance_name']); $ot_i_stat = cleanInput($_POST['ot_insurance_payment_status']);
-        $ot_i_amt = cleanInput($_POST['ot_insurance_amount']) ?: 0; $ot_i_start = cleanInput($_POST['ot_insurance_start_date']); $ot_i_end = cleanInput($_POST['ot_insurance_end_date']);
-        $ot_p_stat = cleanInput($_POST['ot_purchaser_sign_status']); $ot_p_date = cleanInput($_POST['ot_purchaser_sign_date']);
-        $ot_s_stat = cleanInput($_POST['ot_seller_sign_status']); $ot_s_date = cleanInput($_POST['ot_seller_sign_date']);
+        $ot_t_amt = cleanInput($_POST['ot_transfer_amount']) ?: 0;
+        $ot_t_date = cleanInput($_POST['ot_transfer_date']);
+        $ot_t_stat = cleanInput($_POST['ot_transfer_status']);
+        $ot_h_amt = cleanInput($_POST['ot_hpa_amount']) ?: 0;
+        $ot_h_date = cleanInput($_POST['ot_hpa_date']);
+        $ot_h_stat = cleanInput($_POST['ot_hpa_status']);
+        $ot_hp_amt = cleanInput($_POST['ot_hp_amount']) ?: 0;
+        $ot_hp_date = cleanInput($_POST['ot_hp_date']);
+        $ot_hp_stat = cleanInput($_POST['ot_hp_status']);
+        $ot_i_name = cleanInput($_POST['ot_insurance_name']);
+        $ot_i_stat = cleanInput($_POST['ot_insurance_payment_status']);
+        $ot_i_amt = cleanInput($_POST['ot_insurance_amount']) ?: 0;
+        $ot_i_start = cleanInput($_POST['ot_insurance_start_date']);
+        $ot_i_end = cleanInput($_POST['ot_insurance_end_date']);
+        $ot_p_stat = cleanInput($_POST['ot_purchaser_sign_status']);
+        $ot_p_date = cleanInput($_POST['ot_purchaser_sign_date']);
+        $ot_s_stat = cleanInput($_POST['ot_seller_sign_status']);
+        $ot_s_date = cleanInput($_POST['ot_seller_sign_date']);
 
         $check = $conn->query("SELECT id FROM vehicle_ot WHERE vehicle_id = $vehicle_id");
         if ($check->num_rows > 0) {
@@ -314,7 +486,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         if ($conn->query($sql) === TRUE) {
-            if ($action == 'finish') { $_SESSION['success_message'] = "Vehicle Deal #$vehicle_id Saved Successfully!"; }
+            if ($action == 'finish') {
+                $_SESSION['success_message'] = "Vehicle Deal #$vehicle_id Saved Successfully!";
+            }
             echo json_encode(['status' => 'success', 'id' => $vehicle_id, 'message' => 'Deal Completed']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'DB Error: ' . $conn->error]);
@@ -322,4 +496,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 }
-?>
