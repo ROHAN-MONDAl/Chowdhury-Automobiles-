@@ -106,13 +106,12 @@ $(document).ready(function () {
 
             if (categoryFilter === "all vehicles") {
                 matchesCategory = true;
-            } else if (categoryFilter.includes("motorcycle")) {
-                // Note: Added this because it was missing in your list but exists in HTML
-                matchesCategory = cardText.includes("motorcycle");
             } else if (categoryFilter.includes("scooter")) {
                 matchesCategory = cardText.includes("scooter") || cardText.includes("activa");
-            } else if (categoryFilter.includes("moped")) {
-                matchesCategory = cardText.includes("moped");
+            } else if (categoryFilter.includes("mopeds")) {
+                matchesCategory = cardText.includes("mopeds");
+            } else if (categoryFilter.includes("dirt / off-road bikes")) {
+                matchesCategory = cardText.includes("dirt / off-road bikes");
             } else if (categoryFilter.includes("electric")) {
                 matchesCategory = cardText.includes("electric");
             } else if (categoryFilter.includes("cruiser")) {
