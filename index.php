@@ -142,7 +142,7 @@ include 'admin/db.php';
         </div>
     </section>
 
-    <section class="py-5 bg-white">
+    <section class="py-1">
         <div class="container">
 
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -222,7 +222,7 @@ include 'admin/db.php';
                 ?>
                         <!-- VEHICLE 1 -->
                         <div class="col">
-                            <div class="product-card">
+                            <div class="product-card bikedekho-dark">
 
                                 <!-- STATUS -->
                                 <span class="badge-status <?= ($row['sold_out'] == 0) ? 'bg-available' : 'bg-sold'; ?>">
@@ -230,59 +230,53 @@ include 'admin/db.php';
                                 </span>
 
                                 <!-- IMAGE -->
-                                <div class="product-img-wrapper">
+                                <div class="bike-img">
                                     <img src="<?= !empty($row['photo1']) ? 'images/' . $row['photo1'] : 'images/default.jpg'; ?>"
                                         alt="Bike">
                                 </div>
 
-                                <div class="p-4 pt-3">
+                                <!-- BODY -->
+                                <div class="bike-body">
 
-                                    <!-- CATEGORY / TYPE -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <small class="text-secondary fw-bold text-uppercase" style="font-size: 0.7rem;">
-                                            <?= htmlspecialchars($row['vehicle_type'] ?? 'Bike'); ?>
-                                        </small>
-                                    </div>
+                                    <!-- VEHICLE TYPE -->
+                                    <span class="bike-type fw-bold mb-1 d-inline-block">
+                                        <?= htmlspecialchars($row['vehicle_type'] ?? 'Bike'); ?>
+                                    </span>
 
-                                    <!-- VEHICLE NAME -->
-                                    <h5 class="fw-bold mb-1">
+                                    <!-- TITLE -->
+                                    <h6 class="bike-title mb-1">
                                         <?= htmlspecialchars($row['model_name'] ?? $row['name']); ?>
-                                    </h5>
+                                    </h6>
 
                                     <!-- VEHICLE NUMBER -->
-                                    <p class="text-muted small fw-medium mb-3">
+                                    <p class="bike-number mb-1">
                                         <?= htmlspecialchars($row['vehicle_number']); ?>
                                     </p>
 
-                                    <!-- SPECS -->
-                                    <div class="d-flex gap-2 mb-3">
-                                        <span class="spec-chip">
-                                            Register Year: <?= date('Y', strtotime($row['register_date'])); ?>
-                                        </span>
-                                        <span class="spec-chip">
-                                            <?= (int)$row['owner_serial']; ?><?= ((int)$row['owner_serial'] == 1) ? 'st' : 'th'; ?> Owner
-                                        </span>
+                                    <!-- META INFO -->
+                                    <div class="bike-meta mb-2">
+                                        <?= date('Y', strtotime($row['register_date'])); ?> •
+                                        <?= (int)$row['owner_serial']; ?> Owner
                                     </div>
 
-                                    <!-- PRICE + VIEW -->
-                                    <div class="d-flex align-items-end justify-content-between border-top pt-3">
-                                        <div>
-                                            <small class="text-muted d-block" style="font-size: 0.75rem;">Price</small>
-                                            <span class="fw-bold fs-5">
-                                                ₹<?= number_format($row['cash_price']); ?>
-                                            </span>
-                                        </div>
+                                    <!-- PRICE + ACTION -->
+                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                        <span class="bike-price">
+                                            ₹<?= number_format($row['cash_price']); ?>
+                                        </span>
 
-                                        <button class="btn btn-dark rounded-circle"
-                                            style="width: 40px; height: 40px;"
+                                        <button class="btn btn-dark btn-sm rounded-pill"
                                             data-bs-toggle="modal"
-                                            data-bs-toggle="modal" data-bs-target="#<?= $modalID; ?>">
-                                            <i class="fa-solid fa-arrow-right"></i>
+                                            data-bs-target="#<?= $modalID; ?>">
+                                            View <i class="fa-solid fa-arrow-right ms-1"></i>
                                         </button>
+
                                     </div>
 
                                 </div>
+
                             </div>
+
                         </div>
 
 
@@ -591,56 +585,86 @@ include 'admin/db.php';
                                     </div>
 
                                     <?php if (!empty($row['noc_front']) || !empty($row['noc_back'])): ?>
-                                        <div class="border rounded-4 p-3 mb-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <small class="fw-bold text-uppercase text-muted">NOC Details</small>
-                                                <span class="badge <?= ($row['noc_status'] == 'Paid') ? 'bg-success' : 'bg-danger'; ?>"><?= $row['noc_status']; ?></span>
+                                        <div class="border rounded-3 p-3 mb-3 bg-white">
+                                            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                                <span class="fw-bold text-dark">NOC Status</span>
+                                                <span class="badge <?= ($row['noc_status'] == 'Paid') ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'; ?> border border-current">
+                                                    <?= $row['noc_status']; ?>
+                                                </span>
                                             </div>
-                                            <div class="row g-2">
+
+                                            <div class="d-flex flex-column gap-3">
                                                 <?php
-                                                $nocDocs = ['noc_front' => 'NOC FRONT', 'noc_back' => 'NOC BACK'];
+                                                $nocDocs = ['noc_front' => 'Front Side', 'noc_back' => 'Back Side'];
                                                 foreach ($nocDocs as $col => $label):
-                                                    if (!empty($row[$col])): $imgSrc = "images/" . $row[$col];
+                                                    if (!empty($row[$col])):
+                                                        $imgSrc = "images/" . $row[$col];
                                                 ?>
-                                                        <div class="col-6">
-                                                            <div class="border rounded p-2 text-center bg-white">
-                                                                <small class="fw-bold d-block mb-1" style="font-size:10px"><?= $label; ?></small>
-                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden" style="width:50px; height:50px; margin:auto;">
-                                                                    <img src="<?= $imgSrc; ?>" class="object-fit-cover">
+                                                        <div class="d-flex align-items-center border rounded p-2">
+                                                            <div class="flex-shrink-0">
+                                                                <a href="<?= $imgSrc; ?>" target="_blank">
+                                                                    <img src="<?= $imgSrc; ?>" class="rounded border object-fit-cover" style="width: 60px; height: 60px;">
+                                                                </a>
+                                                            </div>
+
+                                                            <div class="flex-grow-1 ms-3">
+                                                                <h6 class="mb-1 text-secondary" style="font-size: 0.85rem;"><?= $label; ?></h6>
+                                                                <div class="d-flex gap-2">
+                                                                    <a href="<?= $imgSrc; ?>" target="_blank" class="text-decoration-none" style="font-size: 0.8rem;">
+                                                                        View
+                                                                    </a>
+                                                                    <span class="text-muted">|</span>
+                                                                    <a href="<?= $imgSrc; ?>" download class="fw-bold text-dark text-decoration-none" style="font-size: 0.8rem;">
+                                                                        Download
+                                                                    </a>
                                                                 </div>
-                                                                <a href="<?= $imgSrc; ?>" target="_blank" class="btn btn-outline-dark btn-sm w-100 py-0 mb-1" style="font-size:10px">View</a>
-                                                                <a href="<?= $imgSrc; ?>" download class="btn btn-dark btn-sm w-100 py-0" style="font-size:10px">Download</a>
                                                             </div>
                                                         </div>
-                                                <?php endif;
-                                                endforeach; ?>
+                                                <?php
+                                                    endif;
+                                                endforeach;
+                                                ?>
                                             </div>
                                         </div>
                                     <?php endif; ?>
 
                                     <?php if (!empty($row['rc_front']) || !empty($row['rc_back'])): ?>
-                                        <div class="border rounded-4 p-3 mb-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <small class="fw-bold text-uppercase text-muted">RC Details</small>
+                                        <div class="border rounded-3 p-3 mb-3 bg-white">
+                                            <div class="mb-3 border-bottom pb-2">
+                                                <span class="fw-bold text-dark">RC Details</span>
                                             </div>
-                                            <div class="row g-2">
+
+                                            <div class="d-flex flex-column gap-3">
                                                 <?php
-                                                $rcDocs = ['rc_front' => 'RC FRONT', 'rc_back' => 'RC BACK'];
+                                                $rcDocs = ['rc_front' => 'RC Front Side', 'rc_back' => 'RC Back Side'];
                                                 foreach ($rcDocs as $col => $label):
-                                                    if (!empty($row[$col])): $imgSrc = "images/" . $row[$col];
+                                                    if (!empty($row[$col])):
+                                                        $imgSrc = "images/" . $row[$col];
                                                 ?>
-                                                        <div class="col-6">
-                                                            <div class="border rounded p-2 text-center bg-white">
-                                                                <small class="fw-bold d-block mb-1" style="font-size:10px"><?= $label; ?></small>
-                                                                <div class="ratio ratio-1x1 mb-1 border rounded overflow-hidden" style="width:50px; height:50px; margin:auto;">
+                                                        <div class="d-flex align-items-center border rounded p-2">
+                                                            <div class="flex-shrink-0">
+                                                                <div class="ratio ratio-1x1 rounded border overflow-hidden" style="width: 60px;">
                                                                     <img src="<?= $imgSrc; ?>" class="object-fit-cover">
                                                                 </div>
-                                                                <a href="<?= $imgSrc; ?>" target="_blank" class="btn btn-outline-dark btn-sm w-100 py-0 mb-1" style="font-size:10px">View</a>
-                                                                <a href="<?= $imgSrc; ?>" download class="btn btn-dark btn-sm w-100 py-0" style="font-size:10px">Download</a>
+                                                            </div>
+
+                                                            <div class="flex-grow-1 ms-3">
+                                                                <h6 class="mb-1 text-secondary" style="font-size: 0.85rem;"><?= $label; ?></h6>
+                                                                <div class="d-flex gap-2">
+                                                                    <a href="<?= $imgSrc; ?>" target="_blank" class="text-decoration-none small text-primary">
+                                                                        <i class="bi bi-eye"></i> View
+                                                                    </a>
+                                                                    <span class="text-muted small">|</span>
+                                                                    <a href="<?= $imgSrc; ?>" download class="text-decoration-none small fw-bold text-dark">
+                                                                        <i class="bi bi-download"></i> Download
+                                                                    </a>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                <?php endif;
-                                                endforeach; ?>
+                                                <?php
+                                                    endif;
+                                                endforeach;
+                                                ?>
                                             </div>
                                         </div>
                                     <?php endif; ?>
