@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /Freelance_work/Chowdhury-Automobiles-/
+
+    # If the user types a file or folder that does NOT exist...
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # ...redirect them to index.php
+    RewriteRule ^.*$ index.php [L]
+</IfModule>

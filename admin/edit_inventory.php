@@ -2,18 +2,37 @@
 // 1. DATABASE CONNECTION
 require "db.php";
 
-// 2. SECURITY: Check Login & ID
+// 2. SECURITY: Check Login
 if (!isset($_SESSION["user_id"])) {
     header("Location: index.php");
     exit();
 }
 
-// Get ID safely (default to 0 if missing)
+// 3. SECURITY: Validate ID
+// Get ID safely (default to 0 if missing or text)
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
+// Condition 1: ID is invalid (0 or missing)
 if ($id == 0) {
-    die("❌ Error: Invalid or missing Vehicle ID.");
+    header("Location: index.php");
+    exit();
 }
+
+// Condition 2: Check if this specific ID actually exists in the database
+// (Assuming your table is named 'vehicle' or 'inventory' - change this name if needed)
+$stmt = $conn->prepare("SELECT id FROM vehicle WHERE id = ?");
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$stmt->store_result();
+
+if ($stmt->num_rows === 0) {
+    // ID was a number, but it doesn't exist in the DB (User edited URL to a fake ID)
+    header("Location: index.php");
+    exit();
+}
+$stmt->close();
+
+// ... Code continues ...
 ?>
 
 
@@ -82,10 +101,10 @@ if ($id == 0) {
                 </div>
             </a>
 
-            <button id="logoutBtn"
-                class="btn btn-light border fw-bold rounded-pill px-3 py-1 shadow-sm d-none d-md-inline-block">
-                Log Out
-            </button>
+            <!-- Desktop Logout Button -->
+            <a href="logout.php" class="btn logout-btn d-none d-md-inline-block">
+                <i class="ph-bold ph-sign-out me-1"></i> Log Out
+            </a>
 
             <button id="logoutIcon"
                 class="btn btn-light border rounded-circle shadow-sm d-inline-flex d-md-none justify-content-center align-items-center p-2">
