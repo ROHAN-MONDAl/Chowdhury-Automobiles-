@@ -115,30 +115,76 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
         <?php
         // ============================================
-        // FILTER PARAMETERS
+        // 1. FILTER PARAMETERS
         // ============================================
-        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-        $year = isset($_GET['year']) ? trim($_GET['year']) : '';
-        $rto = isset($_GET['rto']) ? trim($_GET['rto']) : '';
-        $status = isset($_GET['status']) ? trim($_GET['status']) : '';
+        $search  = isset($_GET['search']) ? trim($_GET['search']) : '';
+        $year    = isset($_GET['year']) ? trim($_GET['year']) : '';
+        $rto     = isset($_GET['rto']) ? trim($_GET['rto']) : '';
+        $status  = isset($_GET['status']) ? trim($_GET['status']) : '';
         $payment = isset($_GET['payment']) ? trim($_GET['payment']) : '';
 
         // ============================================
-        // FETCH STATS (Total, Available, Sold)
+        // 2. BUILD DYNAMIC QUERY
+        // ============================================
+        $conditions = [];
+        $params = [];
+        $types = "";
+
+        // --- RTO Filter (Checks inside 'vehicle_ot' table) ---
+        if (!empty($rto)) {
+            $conditions[] = "ot.ot_rto_name = ?";
+            $params[] = $rto;
+            $types .= "s";
+        }
+
+        // --- Year Filter (Checks inside 'vehicle' table) ---
+        if (!empty($year)) {
+            $conditions[] = "v.year = ?";
+            $params[] = $year;
+            $types .= "s";
+        }
+
+        // --- Status/Payment Filters (Add these if needed) ---
+        if (!empty($status)) {
+            // Assuming status is in the vehicle table. Adjust if it's elsewhere.
+            $conditions[] = "v.status = ?";
+            $params[] = $status;
+            $types .= "s";
+        }
+
+        // Construct the WHERE clause
+        $whereSQL = "";
+        if (count($conditions) > 0) {
+            $whereSQL = " WHERE " . implode(" AND ", $conditions);
+        }
+
+        // ============================================
+        // 3. FETCH STATS (The Fixed Query)
         // ============================================
         $statsQuery = "SELECT 
-    COUNT(*) as total,
-    SUM(CASE WHEN sold_out = 0 THEN 1 ELSE 0 END) as available,
-    SUM(CASE WHEN sold_out = 1 THEN 1 ELSE 0 END) as sold
-FROM vehicle";
+    COUNT(DISTINCT v.id) as total,
+    COUNT(DISTINCT CASE WHEN v.sold_out = 0 THEN v.id END) as available,
+    COUNT(DISTINCT CASE WHEN v.sold_out = 1 THEN v.id END) as sold
+FROM vehicle v
+LEFT JOIN vehicle_ot ot ON v.id = ot.vehicle_id" . $whereSQL;
 
-        $statsResult = $conn->query($statsQuery);
+        // 4. Prepare and Execute
+        $stmt = $conn->prepare($statsQuery);
+
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
+
+        $stmt->execute();
+        $statsResult = $stmt->get_result();
         $stats = $statsResult->fetch_assoc();
 
-        $totalVehicles = $stats['total'];
-        $availableVehicles = $stats['available'];
-        $soldVehicles = $stats['sold'];
+        // 5. Assign Variables
+        $totalVehicles = $stats['total'] ?? 0;
+        $availableVehicles = $stats['available'] ?? 0;
+        $soldVehicles = $stats['sold'] ?? 0;
         ?>
+
 
         <!-- Inventory Dashboard Page -->
         <div class="container-fluid py-3">
@@ -307,9 +353,10 @@ FROM vehicle";
                 }
 
                 // RTO Filter (assuming RTO is part of vehicle_number like WB-XX-XXXX)
+                // RTO Filter (Now checks the correct 'ot_rto_name' column in the joined table)
                 if (!empty($rto)) {
                     $rtoEscaped = $conn->real_escape_string($rto);
-                    $sql .= " AND v.vehicle_number LIKE '%$rtoEscaped%'";
+                    $sql .= " AND ot.ot_rto_name = '$rtoEscaped'";
                 }
 
                 // Status Filter
