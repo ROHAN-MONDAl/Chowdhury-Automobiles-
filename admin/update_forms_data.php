@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type'])) {
         // If email/user_id is duplicate, execute() will return false (if DB columns are UNIQUE)
         if ($stmt->execute()) {
             $_SESSION["user_id"] = $new_user_id; // Update session
-            flash("Profile updated successfully.", "success");
+            flash("Profile updated.", "success");
         } else {
             flash("Failed to update profile (Username or Email might already be taken).");
         }
@@ -144,7 +144,7 @@ $stmt = $conn->prepare("INSERT INTO leads (name, phone, bike_model) VALUES (?, ?
 $stmt->bind_param("sss", $name, $phone, $bike_model);
 
 if ($stmt->execute()) {
-    flash("Lead saved successfully.", "success");
+    flash("Lead saved.", "success");
 } else {
     flash("Failed to save lead.");
 }

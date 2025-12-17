@@ -75,7 +75,20 @@ $stmt->close();
     <!-- Bootstrap Bundle JS (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-
+    <style>
+        .mobile-sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            /* Vital so transparent text doesn't overlap */
+            z-index: 1050;
+            /* Bootstrap standard high z-index */
+            padding: 15px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 
 <body class="vh-100 d-flex flex-column overflow-hidden">
@@ -251,7 +264,7 @@ $stmt->close();
 
 
             <div class="col-12 col-lg-10 h-100 d-flex flex-column bg-light position-relative">
-                <form id="updateForm" class="d-flex flex-column h-100" enctype="multipart/form-data">
+                <form id="updateForm" class="d-flex flex-column h-100" enctype="multipart/form-data" style="padding-bottom: 80px;">
 
                     <input type="hidden" name="vehicle_id" value="<?php echo $vehicle['id']; ?>">
 
@@ -272,8 +285,8 @@ $stmt->close();
                         <div class="container-fluid p-0" style="max-width: 1000px; margin: 0 auto;">
 
                             <!-- 1st step -->
-                            <div id="step-1" class="wizard-step fade-in-animation">
-                                <div class="card steps-id p-4 border-0 shadow-sm position-relative sold-wrapper rounded-4">
+                            <div id="step-1" class="wizard-step fade-in-animation" style="padding-bottom: 100px;">
+                               <div class="card steps-id border-0 shadow-sm position-relative sold-wrapper rounded-4 p-3 p-md-4" style="padding-bottom: 100px;">
 
                                     <?php if (isset($vehicle['sold_out']) && $vehicle['sold_out'] == 1): ?>
                                         <div class="sold-stamp">SOLD OUT</div>
@@ -460,8 +473,8 @@ $stmt->close();
                                 </div>
                             </div>
                             <!-- 2nd step -->
-                            <div id="step-2" class="wizard-step d-none">
-                                <div class="card steps-id border-0 p-4 shadow-sm rounded-4">
+                            <div id="step-2" class="wizard-step d-none" style="padding-bottom: 100px;">
+                                <div class="card steps-id border-0 shadow-sm position-relative sold-wrapper rounded-4 p-3 p-md-4" style="padding-bottom: 100px;">
                                     <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Seller Details</h6>
 
                                     <input type="hidden" name="vehicle_id" value="<?= $id ?>">
@@ -814,8 +827,8 @@ $stmt->close();
                                 </div>
                             </div>
                             <!-- 3rd step -->
-                            <div id="step-3" class="wizard-step d-none">
-                                <div class="card steps-id border-0 p-4 shadow-sm rounded-4">
+                            <div id="step-3" class="wizard-step d-none" style="padding-bottom: 100px;">
+                                <div class="card steps-id border-0 shadow-sm position-relative sold-wrapper rounded-4 p-3 p-md-4"  style="padding-bottom: 100px;">
                                     <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Purchaser Details</h6>
 
                                     <div class="row g-3 mb-3">
@@ -1128,8 +1141,8 @@ $stmt->close();
                                 </div>
                             </div>
                             <!-- 4rd step -->
-                            <div id="step-4" class="wizard-step d-none">
-                                <div class="card steps-id border-0 shadow-sm rounded-4">
+                            <div id="step-4" class="wizard-step d-none" style="padding-bottom: 100px;">
+                                <div class="card steps-id border-0 shadow-sm position-relative sold-wrapper rounded-4 p-3 p-md-4"  style="padding-bottom: 100px;">
                                     <h6 class="fw-bold text-primary m-4 mb-3 text-uppercase ls-1">Ownership Transfer</h6>
 
                                     <div class="p-3 border rounded-4 mb-4">
@@ -1343,38 +1356,49 @@ $stmt->close();
                         </div>
                     </div>
 
-                    <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2 gap-sm-3 p-2 p-sm-3 bg-white border-top shadow-sm position-fixed bottom-0 start-0 w-100 z-3">
+
                         <!-- Back Button (LEFT) -->
                         <button type="button"
-                            class="btn btn-outline-primary px-4 py-2 fw-bold"
+                            class="btn btn-outline-primary px-3 px-sm-4 py-2 fw-bold d-flex align-items-center d-none"
                             id="prevBtn"
-                            style="display:none;"
                             onclick="prevStep()">
-                            <i class="ph-bold ph-arrow-left me-2"></i>Back
+                            <i class="ph-bold ph-arrow-left me-1"></i>
+                            <span class="d-none d-sm-inline">Back</span>
                         </button>
+
                         <!-- Spacer pushes next buttons to right -->
-                        <div class="ms-auto d-flex gap-2">
+                        <div class="ms-auto d-flex gap-2 gap-sm-3">
+
+                            <!-- Save Draft -->
                             <button type="button"
-                                class="btn btn-warning px-4"
+                                class="btn btn-warning px-3 px-sm-4 d-flex align-items-center justify-content-center"
                                 onclick="submitAjax('save_only')">
-
-
-                                <span>Draft <i class="ph-bold ph-floppy-disk me-2"></i></span>
+                                <i class="ph-bold ph-floppy-disk me-1"></i>
+                                <span>Draft</span>
                             </button>
+
+                            <!-- Save & Next -->
                             <button type="button"
                                 id="btn-next"
-                                class="btn btn-primary px-4"
+                                class="btn btn-primary px-3 px-sm-4 d-flex align-items-center justify-content-center"
                                 onclick="submitAjax('save_next')">
-                                Save & Next <i class="ph-bold ph-caret-right ms-2"></i>
+                                <i class="ph-bold ph-caret-right me-1"></i>
+                                <span>Next</span>
                             </button>
+
+                            <!-- Finish -->
                             <button type="button"
                                 id="btn-finish"
-                                class="btn btn-success px-4 d-none"
+                                class="btn btn-success px-3 px-sm-4 d-flex align-items-center justify-content-center d-none"
                                 onclick="submitAjax('finish')">
-                                Finish <i class="ph-bold ph-check-circle ms-2"></i>
+                                <i class="ph-bold ph-check-circle me-1"></i>
+                                <span>Finish</span>
                             </button>
+
                         </div>
                     </div>
+
                 </form>
             </div>
         </div>
@@ -1438,8 +1462,18 @@ $stmt->close();
         };
 
         function updateUI() {
-            // Button visibility
-            $('#prevBtn').toggle(currentStep > 1);
+            // --- 1. Button Visibility ---
+
+            // Logic for Back Button (Handles both inline styles and Bootstrap classes)
+            if (currentStep > 1) {
+                $('#prevBtn')
+                    .removeClass('d-none') // Removes Bootstrap hidden class
+                    .css('display', ''); // Removes inline 'display:none' style
+            } else {
+                $('#prevBtn').addClass('d-none');
+            }
+
+            // Logic for Next vs Finish Buttons
             if (currentStep === totalSteps) {
                 $('#btn-next').addClass('d-none');
                 $('#btn-finish').removeClass('d-none');
@@ -1448,22 +1482,23 @@ $stmt->close();
                 $('#btn-finish').addClass('d-none');
             }
 
-            // Mobile Progress
+            // --- 2. Mobile Progress ---
             var percentage = (currentStep / totalSteps) * 100;
             $('#mobile-progress-bar').css('width', percentage + '%');
             $('#mobile-current-step').text(currentStep);
 
-            // Desktop Sidebar
+            // --- 3. Desktop Sidebar ---
+            // Reset all steps to default state
             $('.step-item').removeClass('bg-light border-primary').addClass('border-transparent');
             $('.step-circle').removeClass('bg-primary text-white').addClass('bg-light text-secondary');
             $('.step-label').removeClass('text-primary fw-bold').addClass('text-secondary');
 
+            // Highlight current step
             var $active = $('#sidebar-item-' + currentStep);
             $active.addClass('bg-light border-primary').removeClass('border-transparent');
             $active.find('.step-circle').addClass('bg-primary text-white').removeClass('bg-light text-secondary');
             $active.find('.step-label').addClass('text-primary fw-bold').removeClass('text-secondary');
         }
-
         // 3. AJAX Logic
         window.submitAjax = function(actionType) {
             var form = $('#updateForm')[0];
