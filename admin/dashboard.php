@@ -196,7 +196,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
                         <!-- Text Section -->
                         <div>
-                            <h5 class="fw-bold mb-0 fs-5">Update Profile</h5>
+                            <h5 class="fw-bold mb-0 fs-5"> Profile</h5>
                             <span class="text-secondary small fw-bold text-uppercase d-block mb-1">
                                 Configuration
                             </span>
@@ -326,28 +326,28 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                         <div class="photo-upload-box">
                                                             <i class="ph-bold ph-camera fs-3 text-secondary"></i>
                                                             <img src="">
-                                                            <input type="file" name="photo1" accept="image/*" hidden>
+                                                            <input  required type="file" name="photo1" accept="image/*" hidden>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 col-md-3">
                                                         <div class="photo-upload-box">
                                                             <i class="ph-bold ph-camera fs-3 text-secondary"></i>
                                                             <img src="">
-                                                            <input type="file" name="photo2" accept="image/*" hidden>
+                                                            <input  required type="file" name="photo2" accept="image/*" hidden>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 col-md-3">
                                                         <div class="photo-upload-box">
                                                             <i class="ph-bold ph-camera fs-3 text-secondary"></i>
                                                             <img src="">
-                                                            <input type="file" name="photo3" accept="image/*" hidden>
+                                                            <input  required type="file" name="photo3" accept="image/*" hidden>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 col-md-3">
                                                         <div class="photo-upload-box">
                                                             <i class="ph-bold ph-camera fs-3 text-secondary"></i>
                                                             <img src="">
-                                                            <input type="file" name="photo4" accept="image/*" hidden>
+                                                            <input  required type="file" name="photo4" accept="image/*" hidden>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -374,15 +374,15 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                     </div>
                                                     <div class="col-12 col-md-6">
                                                         <label class="fw-bold">Name</label>
-                                                        <input type="text" id="nameField" name="name" class="form-control" placeholder="Enter Name">
+                                                        <input  required type="text" id="nameField" name="name" class="form-control" placeholder="Enter Name">
                                                     </div>
                                                     <div class="col-12 col-md-6">
                                                         <label>Vehicle Number</label>
-                                                        <input type="text" name="vehicle_number" class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000" value="WB ">
+                                                        <input  required type="text" name="vehicle_number" class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000" value="WB ">
                                                     </div>
                                                     <div class="col-12 col-md-6">
                                                         <label>Register Date</label>
-                                                        <input type="date" name="register_date" class="form-control" value="2025-11-26">
+                                                        <input  required type="date" name="register_date" class="form-control" value="2025-11-26">
                                                     </div>
                                                     <div class="col-12 col-md-4">
                                                         <label>Owner Serial</label>
@@ -396,12 +396,12 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                     </div>
                                                     <div class="col-12 col-md-4">
                                                         <label>Chassis Number</label>
-                                                        <input type="text" name="chassis_number" class="form-control text-uppercase">
+                                                        <input  required type="text" name="chassis_number" class="form-control text-uppercase">
                                                     </div>
 
                                                     <div class="col-12 col-md-4">
                                                         <label>Engine Number</label>
-                                                        <input type="text" name="engine_number" class="form-control text-uppercase">
+                                                        <input  required type="text" name="engine_number" class="form-control text-uppercase">
                                                     </div>
                                                 </div>
 
@@ -409,10 +409,10 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                     <div class="col-12 col-md-6">
                                                         <label class="fw-bold mb-2">Payment Type</label>
                                                         <div class="d-flex gap-2 mb-3">
-                                                            <input type="radio" class="btn-check" name="payment_type" id="sp_cash" value="Cash" checked data-bs-toggle="collapse" data-bs-target="#cashBox" aria-controls="cashBox">
+                                                            <input  required type="radio" class="btn-check" name="payment_type" id="sp_cash" value="Cash" checked data-bs-toggle="collapse" data-bs-target="#cashBox" aria-controls="cashBox">
                                                             <label class="btn btn-outline-success" for="sp_cash">Cash</label>
 
-                                                            <input type="radio" class="btn-check" name="payment_type" id="sp_online" value="Online" data-bs-toggle="collapse" data-bs-target="#onlineBox" aria-controls="onlineBox">
+                                                            <input  required type="radio" class="btn-check" name="payment_type" id="sp_online" value="Online" data-bs-toggle="collapse" data-bs-target="#onlineBox" aria-controls="onlineBox">
                                                             <label class="btn btn-outline-primary" for="sp_online">Online</label>
                                                         </div>
 
@@ -420,7 +420,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                             <div id="cashBox" class="collapse show" data-bs-parent="#payBoxes">
                                                                 <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
                                                                     <label class="fw-bold small mb-1">Bike Price</label>
-                                                                    <input type="number" name="cash_price" class="form-control form-control-sm mb-3" placeholder="Enter Amount">
+                                                                    <input  required type="number" name="cash_price" class="form-control form-control-sm mb-3" placeholder="Enter Amount">
                                                                 </div>
                                                             </div>
 
@@ -429,29 +429,29 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                                     <label class="fw-bold small mb-2">Select Online Method</label>
                                                                     <div class="d-flex flex-wrap gap-3 mb-2">
                                                                         <div class="form-check">
-                                                                            <input type="radio" class="form-check-input" name="online_method" id="om_gpay" value="Google Pay">
+                                                                            <input  required type="radio" class="form-check-input"  name="online_method" id="om_gpay" value="Google Pay">
                                                                             <label class="form-check-label small fw-bold" for="om_gpay">Google Pay</label>
                                                                         </div>
                                                                         <div class="form-check">
-                                                                            <input type="radio" class="form-check-input" name="online_method" id="om_paytm" value="Paytm">
+                                                                            <input  required type="radio" class="form-check-input"  name="online_method" id="om_paytm" value="Paytm">
                                                                             <label class="form-check-label small fw-bold" for="om_paytm">Paytm</label>
                                                                         </div>
                                                                         <div class="form-check">
-                                                                            <input type="radio" class="form-check-input" name="online_method" id="om_phonepe" value="PhonePe">
+                                                                            <input  required type="radio" class="form-check-input"  name="online_method" id="om_phonepe" value="PhonePe">
                                                                             <label class="form-check-label small fw-bold" for="om_phonepe">PhonePe</label>
                                                                         </div>
                                                                         <div class="form-check">
-                                                                            <input type="radio" class="form-check-input" name="online_method" id="om_bharatpe" value="BharatPe">
+                                                                            <input  required type="radio" class="form-check-input"  name="online_method" id="om_bharatpe" value="BharatPe">
                                                                             <label class="form-check-label small fw-bold" for="om_bharatpe">BharatPe</label>
                                                                         </div>
                                                                     </div>
 
-                                                                    <input type="text" name="online_transaction_id" class="form-control form-control-sm mb-3 text-uppercase" placeholder="Transaction / UPI Reference ID">
+                                                                    <input  required type="text" name="online_transaction_id" class="form-control form-control-sm mb-3 text-uppercase" placeholder="Transaction / UPI Reference ID">
 
                                                                     <label class="fw-bold small mb-1">Bike Price</label>
                                                                     <div class="input-group">
                                                                         <span class="input-group-text bg-white border-end-0">₹</span>
-                                                                        <input type="number" name="online_price" class="form-control border-start-0 ps-0" placeholder="Enter Price">
+                                                                        <input  required type="number" name="online_price" class="form-control border-start-0 ps-0" placeholder="Enter Price">
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -463,11 +463,11 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                     <label>Police Challan</label>
                                                     <div class="d-flex gap-3 mb-2">
                                                         <div class="form-check">
-                                                            <input class="form-check-input" type="radio" name="police_challan" value="No" checked data-bs-toggle="collapse" data-bs-target="#challan-section">
+                                                            <input  required class="form-check-input"  type="radio" name="police_challan" value="No" checked data-bs-toggle="collapse" data-bs-target="#challan-section">
                                                             <label class="form-check-label fw-bold">No</label>
                                                         </div>
                                                         <div class="form-check">
-                                                            <input class="form-check-input" type="radio" name="police_challan" value="Yes" data-bs-toggle="collapse" data-bs-target="#challan-section">
+                                                            <input  required class="form-check-input"  type="radio" name="police_challan" value="Yes" data-bs-toggle="collapse" data-bs-target="#challan-section">
                                                             <label class="form-check-label fw-bold">Yes</label>
                                                         </div>
                                                     </div>
@@ -477,17 +477,17 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                             <label class="fw-bold small">Challan 1</label>
                                                             <div class="row g-2">
                                                                 <div class="col-md-4">
-                                                                    <input type="text" name="challan1_number" class="form-control text-uppercase" placeholder="Challan Number">
+                                                                    <input  required type="text" name="challan1_number" class="form-control text-uppercase" placeholder="Challan Number">
                                                                 </div>
                                                                 <div class="col-md-4">
-                                                                    <input type="number" name="challan1_amount" class="form-control" placeholder="Amount">
+                                                                    <input  required type="number" name="challan1_amount" class="form-control" placeholder="Amount">
                                                                 </div>
                                                                 <div class="col-md-4">
                                                                     <div class="btn-group w-100 btn-group-sm">
-                                                                        <input type="radio" class="btn-check" name="challan1_status" id="pen1" value="Pending" checked>
+                                                                        <input  required type="radio" class="btn-check" name="challan1_status" id="pen1" value="Pending" checked>
                                                                         <label class="btn btn-outline-danger" for="pen1">Pending</label>
 
-                                                                        <input type="radio" class="btn-check" name="challan1_status" id="paid1" value="Paid">
+                                                                        <input  required type="radio" class="btn-check" name="challan1_status" id="paid1" value="Paid">
                                                                         <label class="btn btn-outline-success" for="paid1">Paid</label>
                                                                     </div>
                                                                 </div>
@@ -498,17 +498,17 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                             <label class="fw-bold small">Challan 2</label>
                                                             <div class="row g-2">
                                                                 <div class="col-md-4">
-                                                                    <input type="text" name="challan2_number" class="form-control text-uppercase" placeholder="Challan Number">
+                                                                    <input  required type="text" name="challan2_number" class="form-control text-uppercase" placeholder="Challan Number">
                                                                 </div>
                                                                 <div class="col-md-4">
-                                                                    <input type="number" name="challan2_amount" class="form-control" placeholder="Amount">
+                                                                    <input  required type="number" name="challan2_amount" class="form-control" placeholder="Amount">
                                                                 </div>
                                                                 <div class="col-md-4">
                                                                     <div class="btn-group w-100 btn-group-sm">
-                                                                        <input type="radio" class="btn-check" name="challan2_status" id="pen2" value="Pending" checked>
+                                                                        <input  required type="radio" class="btn-check" name="challan2_status" id="pen2" value="Pending" checked>
                                                                         <label class="btn btn-outline-danger" for="pen2">Pending</label>
 
-                                                                        <input type="radio" class="btn-check" name="challan2_status" id="paid2" value="Paid">
+                                                                        <input  required type="radio" class="btn-check" name="challan2_status" id="paid2" value="Paid">
                                                                         <label class="btn btn-outline-success" for="paid2">Paid</label>
                                                                     </div>
                                                                 </div>
@@ -519,17 +519,17 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                             <label class="fw-bold small">Challan 3</label>
                                                             <div class="row g-2">
                                                                 <div class="col-md-4">
-                                                                    <input type="text" name="challan3_number" class="form-control text-uppercase" placeholder="Challan Number">
+                                                                    <input  required type="text" name="challan3_number" class="form-control text-uppercase" placeholder="Challan Number">
                                                                 </div>
                                                                 <div class="col-md-4">
-                                                                    <input type="number" name="challan3_amount" class="form-control" placeholder="Amount">
+                                                                    <input  required type="number" name="challan3_amount" class="form-control" placeholder="Amount">
                                                                 </div>
                                                                 <div class="col-md-4">
                                                                     <div class="btn-group w-100 btn-group-sm">
-                                                                        <input type="radio" class="btn-check" name="challan3_status" id="pen3" value="Pending" checked>
+                                                                        <input  required type="radio" class="btn-check" name="challan3_status" id="pen3" value="Pending" checked>
                                                                         <label class="btn btn-outline-danger" for="pen3">Pending</label>
 
-                                                                        <input type="radio" class="btn-check" name="challan3_status" id="paid3" value="Paid">
+                                                                        <input  required type="radio" class="btn-check" name="challan3_status" id="paid3" value="Paid">
                                                                         <label class="btn btn-outline-success" for="paid3">Paid</label>
                                                                     </div>
                                                                 </div>
@@ -541,7 +541,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                 <div class="mt-4 pt-3 border-top d-flex align-items-center justify-content-between">
                                                     <label class="form-check-label fw-bold text-danger mb-0" for="soldToggle">Mark as Sold Out</label>
                                                     <div class="form-check form-switch">
-                                                        <input class="form-check-input" type="checkbox" id="soldToggle" name="sold_out" value="1" style="width: 3em; height: 1.5em;">
+                                                        <input  required class="form-check-input"  type="checkbox" id="soldToggle" name="sold_out" value="1" style="width: 3em; height: 1.5em;">
                                                     </div>
                                                 </div>
                                             </div>
@@ -1462,13 +1462,13 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                 <label class="fw-bold small text-muted">Username / Login ID</label>
                                 <input type="text" name="user_id" class="form-control"
                                     value="<?= $u['user_id'] ?? '' ?>" required>
-                                <small class="text-muted">Used for login.</small>
+                                <small class="text-muted">Used for login / User id.</small>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="fw-bold small text-muted">New Password</label>
-                                    <input type="password" name="password" class="form-control" placeholder="Optional">
+                                    <input type="password" name="password" class="form-control" placeholder="Add a new Password">
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="fw-bold small text-muted">Confirm Password</label>

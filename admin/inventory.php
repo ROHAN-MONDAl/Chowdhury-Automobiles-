@@ -113,13 +113,38 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
     <div class="container pb-5">
 
+        <?php
+        // ============================================
+        // FILTER PARAMETERS
+        // ============================================
+        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+        $year = isset($_GET['year']) ? trim($_GET['year']) : '';
+        $rto = isset($_GET['rto']) ? trim($_GET['rto']) : '';
+        $status = isset($_GET['status']) ? trim($_GET['status']) : '';
+        $payment = isset($_GET['payment']) ? trim($_GET['payment']) : '';
+
+        // ============================================
+        // FETCH STATS (Total, Available, Sold)
+        // ============================================
+        $statsQuery = "SELECT 
+    COUNT(*) as total,
+    SUM(CASE WHEN sold_out = 0 THEN 1 ELSE 0 END) as available,
+    SUM(CASE WHEN sold_out = 1 THEN 1 ELSE 0 END) as sold
+FROM vehicle";
+
+        $statsResult = $conn->query($statsQuery);
+        $stats = $statsResult->fetch_assoc();
+
+        $totalVehicles = $stats['total'];
+        $availableVehicles = $stats['available'];
+        $soldVehicles = $stats['sold'];
+        ?>
+
         <!-- Inventory Dashboard Page -->
         <div class="container-fluid py-3">
-
             <!-- Dashboard Header -->
             <div class="p-2 p-md-3 rounded-4 shadow-sm bg-white mb-3">
-                <div
-                    class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
 
                     <!-- Title and Status -->
                     <div>
@@ -128,15 +153,15 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                             <i class="ph-fill ph-check-circle text-success me-1"></i> Active • Tracking vehicle data
                         </p>
                     </div>
-                    <!-- Inventory Stats -->
-                    <div class="d-flex justify-content-center text-center flex-nowrap overflow-auto"
-                        style="gap:0.8rem;">
+
+                    <!-- Inventory Stats (Dynamic) -->
+                    <div class="d-flex justify-content-center text-center flex-nowrap overflow-auto" style="gap:0.8rem;">
 
                         <!-- Total -->
                         <div class="d-flex flex-column align-items-center">
                             <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center"
                                 style="width:40px; height:40px; font-weight:bold; font-size:0.9rem;">
-                                17
+                                <?= $totalVehicles ?>
                             </div>
                             <small class="mt-1 text-muted">Total</small>
                         </div>
@@ -145,7 +170,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                         <div class="d-flex flex-column align-items-center">
                             <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center"
                                 style="width:40px; height:40px; font-weight:bold; font-size:0.9rem;">
-                                12
+                                <?= $availableVehicles ?>
                             </div>
                             <small class="mt-1 text-muted">Available</small>
                         </div>
@@ -154,7 +179,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                         <div class="d-flex flex-column align-items-center">
                             <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center"
                                 style="width:40px; height:40px; font-weight:bold; font-size:0.9rem;">
-                                5
+                                <?= $soldVehicles ?>
                             </div>
                             <small class="mt-1 text-muted">Sold</small>
                         </div>
@@ -177,89 +202,83 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
             <!-- Mobile Filter Dropdown (Collapsible) -->
             <div class="collapse" id="mobileFilters">
                 <div class="card card-body p-2 p-md-3 mb-3 shadow-sm bg-white rounded-4">
-                    <div class="row g-2">
+                    <form method="GET" action="" id="filterForm">
+                        <div class="row g-2">
 
-                        <div class="col-12 col-sm-6 col-md-4">
-                            <label class="form-label small text-muted fw-bold">Search</label>
-                            <input type="text" class="form-control form-control-sm" placeholder="Name, Bike, Engine...">
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <label class="form-label small text-muted fw-bold">Search</label>
+                                <input type="text" name="search" class="form-control form-control-sm"
+                                    placeholder="Name, Bike, Engine, Vehicle No..."
+                                    value="<?= htmlspecialchars($search) ?>">
+                            </div>
+
+                            <div class="col-6 col-sm-6 col-md-2">
+                                <label class="form-label small text-muted fw-bold">Year</label>
+                                <select name="year" class="form-select form-select-sm">
+                                    <option value="">All Years</option>
+                                    <?php
+                                    $currentYear = date('Y');
+                                    for ($y = $currentYear; $y >= 2010; $y--) {
+                                        $selected = ($year == $y) ? 'selected' : '';
+                                        echo "<option value='$y' $selected>$y</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+
+                            <div class="col-6 col-sm-6 col-md-2">
+                                <label class="form-label small text-muted fw-bold">RTO</label>
+                                <select name="rto" class="form-select form-select-sm">
+                                    <option value="">All RTOs</option>
+                                    <?php
+                                    $rtoList = ['Bankura', 'Bishnupur', 'Durgapur', 'Manbazar', 'Suri', 'Asansol', 'Kalimpong'];
+                                    foreach ($rtoList as $rtoName) {
+                                        $selected = ($rto == $rtoName) ? 'selected' : '';
+                                        echo "<option value='$rtoName' $selected>$rtoName</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+
+                            <div class="col-6 col-sm-6 col-md-2">
+                                <label class="form-label small text-muted fw-bold">Status</label>
+                                <select name="status" class="form-select form-select-sm">
+                                    <option value="">All</option>
+                                    <option value="available" <?= ($status == 'available') ? 'selected' : '' ?> class="text-success fw-bold">Available</option>
+                                    <option value="sold" <?= ($status == 'sold') ? 'selected' : '' ?> class="text-danger fw-bold">Sold Out</option>
+                                </select>
+                            </div>
+
+                            <div class="col-6 col-sm-6 col-md-2">
+                                <label class="form-label small text-muted fw-bold">Payment</label>
+                                <select name="payment" class="form-select form-select-sm">
+                                    <option value="">All</option>
+                                    <option value="Cash" <?= ($payment == 'Cash') ? 'selected' : '' ?> class="text-success fw-bold">Cash</option>
+                                    <option value="Online" <?= ($payment == 'Online') ? 'selected' : '' ?> class="text-primary fw-bold">Online</option>
+                                </select>
+                            </div>
+
                         </div>
 
-                        <div class="col-6 col-sm-6 col-md-2">
-                            <label class="form-label small text-muted fw-bold">Year</label>
-                            <select class="form-select form-select-sm">
-                                <option value="">All Years</option>
-                                <option>2025</option>
-                                <option>2024</option>
-                                <option>2023</option>
-                                <option>2022</option>
-                                <option>2021</option>
-                                <option>2020</option>
-                                <option>2019</option>
-                                <option>2018</option>
-                                <option>2017</option>
-                                <option>2016</option>
-                                <!-- Add more years as needed -->
-                            </select>
+                        <div class="mt-2 text-end">
+                            <a href="?" class="btn btn-sm btn-secondary me-2">Reset</a>
+                            <button class="btn btn-sm btn-danger" type="submit">Apply Filters</button>
                         </div>
-
-
-                        <div class="col-6 col-sm-6 col-md-2">
-                            <label class="form-label small text-muted fw-bold">RTO</label>
-                            <select class="form-select form-select-sm">
-                                <option>All RTOs</option>
-                                <option>Bankura</option>
-                                <option>Bishnupur</option>
-                                <option>Durgapur</option>
-                                <option>Manbazar</option>
-                                <option>Suri</option>
-                                <option>Asansol</option>
-                                <option>Kalimpong</option>
-                            </select>
-                        </div>
-
-                        <div class="col-6 col-sm-6 col-md-2">
-                            <label class="form-label small text-muted fw-bold">Status</label>
-                            <select class="form-select form-select-sm">
-                                <option>All</option>
-                                <option class="text-success fw-bold">Available</option>
-                                <option class="text-danger fw-bold">Sold Out</option>
-                            </select>
-                        </div>
-
-                        <div class="col-6 col-sm-6 col-md-2">
-                            <label class="form-label small text-muted fw-bold">Payment</label>
-                            <select class="form-select form-select-sm">
-                                <option>All</option>
-                                <option class="text-success fw-bold">Cash</option>
-                                <option class="text-primary fw-bold">Online</option>
-                            </select>
-                        </div>
-
-                    </div>
-
-                    <div class="mt-2 text-end">
-                        <button class="btn btn-sm btn-secondary me-2" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#mobileFilters">Close</button>
-                        <button class="btn btn-sm btn-danger" type="button">Apply</button>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
 
-
-
-
-        <!-- Vehicle Data Grid - Displays inventory vehicles in a responsive card layout with availability status and action buttons -->
+        <!-- Vehicle Data Grid -->
         <div class="position-relative" style="min-height: 400px;">
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
 
-
                 <?php
-                // 1. SQL Query (Joins all tables and selects ALL columns)
-                // ⭐ FIX: We must use vs.* and vp.* to get paper details, payments, etc.
+                // ============================================
+                // BUILD DYNAMIC SQL QUERY WITH FILTERS
+                // ============================================
                 $sql = "SELECT 
             v.id as vehicle_prim_id, 
-            v.*,
             v.*, 
             vs.*, 
             vp.*, 
@@ -268,102 +287,134 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
         LEFT JOIN vehicle_seller vs ON v.id = vs.vehicle_id
         LEFT JOIN vehicle_purchaser vp ON v.id = vp.vehicle_id
         LEFT JOIN vehicle_ot ot ON v.id = ot.vehicle_id
-        ORDER BY v.id DESC";
+        WHERE 1=1";
+
+                // Search Filter (Name, Vehicle Number, Engine, Chassis)
+                if (!empty($search)) {
+                    $searchEscaped = $conn->real_escape_string($search);
+                    $sql .= " AND (
+                v.name LIKE '%$searchEscaped%' OR 
+                v.vehicle_number LIKE '%$searchEscaped%' OR 
+                v.engine_number LIKE '%$searchEscaped%' OR 
+                v.chassis_number LIKE '%$searchEscaped%'
+            )";
+                }
+
+                // Year Filter
+                if (!empty($year)) {
+                    $yearEscaped = $conn->real_escape_string($year);
+                    $sql .= " AND YEAR(v.register_date) = '$yearEscaped'";
+                }
+
+                // RTO Filter (assuming RTO is part of vehicle_number like WB-XX-XXXX)
+                if (!empty($rto)) {
+                    $rtoEscaped = $conn->real_escape_string($rto);
+                    $sql .= " AND v.vehicle_number LIKE '%$rtoEscaped%'";
+                }
+
+                // Status Filter
+                if ($status === 'available') {
+                    $sql .= " AND v.sold_out = 0";
+                } elseif ($status === 'sold') {
+                    $sql .= " AND v.sold_out = 1";
+                }
+
+                // Payment Type Filter
+                if (!empty($payment)) {
+                    $paymentEscaped = $conn->real_escape_string($payment);
+                    $sql .= " AND v.payment_type = '$paymentEscaped'";
+                }
+
+                $sql .= " ORDER BY v.id DESC";
 
                 $result = $conn->query($sql);
 
-                while ($row = $result->fetch_assoc()):
+                if ($result->num_rows > 0):
+                    while ($row = $result->fetch_assoc()):
 
-                    // ⭐ IMAGE LOGIC: Fix path issues
-                    if (!empty($row['photo1'])) {
-                        $imageSrc = "../images/" . $row['photo1'];
-                    } else {
-                        $imageSrc = "../images/default.jpg";
-                    }
+                        // Image Logic
+                        if (!empty($row['photo1'])) {
+                            $imageSrc = "../images/" . $row['photo1'];
+                        } else {
+                            $imageSrc = "../images/default.jpg";
+                        }
 
-                    // ⭐ STATUS LOGIC
-                    $isAvailable = ($row['sold_out'] == 0);
-                    $statusText = $isAvailable ? "AVAILABLE" : "SOLD OUT";
-                    $statusClass = $isAvailable ? "text-success" : "text-danger";
+                        // Status Logic
+                        $isAvailable = ($row['sold_out'] == 0);
+                        $statusText = $isAvailable ? "AVAILABLE" : "SOLD OUT";
+                        $statusClass = $isAvailable ? "text-success" : "text-danger";
 
-                    // ⭐ UNIQUE MODAL ID
-                    $modalID = "viewModal_" . $row['id'];
+                        // Unique Modal ID
+                        $modalID = "viewModal_" . $row['vehicle_prim_id'];
 
-                    // ⭐ PREVENT WARNINGS: Set defaults for keys that might be null
-                    $row['pr_rc'] = $row['pr_rc'] ?? 0;
-                    $row['pr_noc'] = $row['pr_noc'] ?? 0;
-                    $row['seller_payment_type'] = $row['seller_payment_type'] ?? '';
+                        // Prevent Warnings
+                        $row['pr_rc'] = $row['pr_rc'] ?? 0;
+                        $row['pr_noc'] = $row['pr_noc'] ?? 0;
+                        $row['seller_payment_type'] = $row['seller_payment_type'] ?? '';
                 ?>
 
-                    <div class="col">
-                        <div class="card border-0 inventory-card h-100">
-                            <div class="hover-card position-relative overflow-hidden">
+                             <div class="col">
+                    <div class="card border-0 inventory-card h-100">
+                        <div class="hover-card position-relative overflow-hidden">
 
-                                <img src="<?= $imageSrc; ?>" class="d-block w-100 h-100 object-fit-cover" loading="lazy"
-                                    style="height: 300px !important;" alt="Bike">
+                            <img src="<?= $imageSrc; ?>" class="d-block w-100 h-100 object-fit-cover" loading="lazy"
+                                style="height: 300px !important;" alt="Bike">
 
-                                <div class="position-absolute top-0 end-0 p-3 z-2 mt-2">
-                                    <span
-                                        class="badge status-badge <?= $statusClass ?> fw-bold bg-white shadow-sm rounded-pill px-3 py-2"
-                                        style="font-size: 11px; letter-spacing: 0.5px;">
-                                        <i class="ph-fill ph-circle me-1"></i> <?= $statusText ?>
+                            <div class="position-absolute top-0 end-0 p-3 z-2 mt-2">
+                                <span class="badge status-badge <?= $statusClass ?> fw-bold bg-white shadow-sm rounded-pill px-3 py-2"
+                                    style="font-size: 11px; letter-spacing: 0.5px;">
+                                    <i class="ph-fill ph-circle me-1"></i> <?= $statusText ?>
+                                </span>
+                            </div>
+
+                            <div class="info-overlay d-flex flex-column gap-2">
+                                <div class="d-flex justify-content-between align-items-end">
+                                    <div>
+                                        <h6 class="fw-bold mb-1 text-dark fs-5"><?= $row['vehicle_number']; ?></h6>
+                                        <small class="text-muted"><?= $row['name']; ?></small>
+                                    </div>
+                                    <div class="fw-bold text-primary fs-4">₹ <?= number_format($row['cash_price']); ?></div>
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2 mt-2">
+                                    <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
+                                        <?= date('Y', strtotime($row['register_date'])); ?>
+                                    </span>
+                                    <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
+                                        <?= $row['owner_serial']; ?> Owner
                                     </span>
                                 </div>
 
-                                <div class="info-overlay d-flex flex-column gap-2">
-                                    <div class="d-flex justify-content-between align-items-end">
-                                        <div>
-                                            <h6 class="fw-bold mb-1 text-dark fs-5"><?= $row['vehicle_number']; ?></h6>
-                                            <small class="text-muted"><?= $row['name']; ?></small>
-                                        </div>
-                                        <div class="fw-bold text-primary fs-4">₹ <?= number_format($row['cash_price']); ?>
-                                        </div>
-                                    </div>
+                                <div class="d-flex gap-2 mt-3 align-items-center">
+                                    <!-- Edit -->
+                                    <a href="edit_inventory.php?id=<?= $row['vehicle_prim_id']; ?>"
+                                        class="btn btn-sm btn-dark fw-bold flex-grow-1 rounded-pill py-2 text-center">
+                                        <i class="ph-bold ph-pencil-simple text-white me-1"></i> Edit
+                                    </a>
 
-                                    <div class="d-flex flex-wrap gap-2 mt-2">
-                                        <span
-                                            class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
-                                            <?= date('Y', strtotime($row['register_date'])); ?>
-                                        </span>
-                                        <span
-                                            class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
-                                            <?= $row['owner_serial']; ?> Owner
-                                        </span>
-                                    </div>
+                                    <!-- Delete -->
+                                    <a href="delete_vehicle.php?id=<?= $row['vehicle_prim_id']; ?>"
+                                        class="btn btn-sm btn-danger fw-bold flex-grow-1 rounded-pill py-2 text-center"
+                                        onclick="return confirmDeleteVehicle();">
+                                        <i class="bi bi-trash me-1"></i> Delete
+                                    </a>
 
-                                    <div class="d-flex gap-2 mt-3 align-items-center">
-
-                                        <!-- Edit -->
-                                        <a href="edit_inventory.php?id=<?= $row['vehicle_prim_id']; ?>"
-                                            class="btn btn-sm btn-dark fw-bold flex-grow-1 rounded-pill py-2 text-center">
-                                            <i class="ph-bold ph-pencil-simple text-white me-1"></i> Edit
-                                        </a>
-
-                                        <!-- Delete -->
-                                        <a href="delete_vehicle.php?id=<?= $row['vehicle_prim_id']; ?>"
-                                            class="btn btn-sm btn-danger fw-bold flex-grow-1 rounded-pill py-2 text-center"
-                                            onclick="return confirmDeleteVehicle();">
-                                            <i class="bi bi-trash me-1"></i> Delete
-                                        </a>
-
-                                        <!-- View -->
-                                        <button type="button"
-                                            class="btn btn-sm btn-outline-dark fw-bold flex-grow-1 rounded-pill py-2 text-center"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#<?= $modalID; ?>">
-                                            View
-                                        </button>
-
-                                    </div>
-
+                                    <!-- View -->
+                                    <button type="button"
+                                        class="btn btn-sm btn-outline-dark fw-bold flex-grow-1 rounded-pill py-2 text-center"
+                                        data-bs-toggle="modal" data-bs-target="#<?= $modalID; ?>">
+                                        View
+                                    </button>
                                 </div>
 
                             </div>
+
                         </div>
                     </div>
+                </div>
 
 
-                    <!-- View Vehicle Modal -->
+                         <!-- View Vehicle Modal -->
                     <div class="modal fade p-0" id="<?= $modalID; ?>" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-fullscreen m-0">
                             <div class="modal-content rounded-0 border-0 h-100">
@@ -1186,19 +1237,23 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                         </div>
                     </div>
 
-                <?php endwhile; ?>
 
 
-
-
-
-
+                    <?php
+                    endwhile;
+                else:
+                    ?>
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            <i class="ph-bold ph-info fs-1 d-block mb-2"></i>
+                            <h5>No vehicles found</h5>
+                            <p class="mb-0">Try adjusting your filters or <a href="?">reset them</a> to see all vehicles.</p>
+                        </div>
+                    </div>
+                <?php endif; ?>
 
             </div>
         </div>
-        <!-- END OF Vehicle Data Grid -->
-
-
 
     </div>
     <script>

@@ -81,8 +81,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // ======================================================
     if ($current_step == 1) {
 
-        // 1. Collect Data
-        $v_no = cleanInput($_POST['vehicle_number']); // ⭐ Collect this early for checking
+        // ============================================
+        // 1. MANDATORY FIELD VALIDATION
+        // ============================================
+        $required_fields = [
+            'vehicle_type' => 'Vehicle Type',
+            'name' => 'Vehicle Name',
+            'vehicle_number' => 'Vehicle Number',
+            'register_date' => 'Registration Date',
+            'owner_serial' => 'Owner Serial',
+            'chassis_number' => 'Chassis Number',
+            'engine_number' => 'Engine Number',
+            'payment_type' => 'Payment Type'
+        ];
+
+        $missing_fields = [];
+
+        foreach ($required_fields as $field => $label) {
+            if (empty($_POST[$field]) || trim($_POST[$field]) == '') {
+                $missing_fields[] = $label;
+            }
+        }
+
+        // Check if missing any required fields
+        if (!empty($missing_fields)) {
+            $error_msg = '⚠️ Required fields missing: ' . implode(', ', $missing_fields);
+            echo json_encode(['status' => 'error', 'message' => $error_msg]);
+            exit();
+        }
+
+        // ============================================
+        // 2. COLLECT DATA (After validation passes)
+        // ============================================
+        $v_no = cleanInput($_POST['vehicle_number']);
 
         // ⭐⭐ DUPLICATE CHECK START ⭐⭐
         // If updating, ignore current ID. If inserting, check all.
@@ -111,6 +142,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $on_txn = cleanInput($_POST['online_transaction_id']);
         $on_price = cleanInput($_POST['online_price']) ?: 0;
 
+        // ============================================
+        // 3. PAYMENT VALIDATION
+        // ============================================
+        if ($pay_type == 'Cash' && $c_price <= 0) {
+            echo json_encode(['status' => 'error', 'message' => '⚠️ Cash Price is required for Cash payment!']);
+            exit();
+        }
+
+        if ($pay_type == 'Online') {
+            if (empty($on_method)) {
+                echo json_encode(['status' => 'error', 'message' => '⚠️ Online Payment Method is required!']);
+                exit();
+            }
+            if ($on_price <= 0) {
+                echo json_encode(['status' => 'error', 'message' => '⚠️ Online Price is required for Online payment!']);
+                exit();
+            }
+            if (empty($on_txn)) {
+                echo json_encode(['status' => 'error', 'message' => '⚠️ Transaction ID is required for Online payment!']);
+                exit();
+            }
+        }
+
+        // ============================================
+        // 4. CHALLAN DATA
+        // ============================================
         $pol_chal = cleanInput($_POST['police_challan']);
         $c1_n = cleanInput($_POST['challan1_number']);
         $c1_a = cleanInput($_POST['challan1_amount']) ?: 0;
@@ -122,56 +179,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $c3_a = cleanInput($_POST['challan3_amount']) ?: 0;
         $c3_s = cleanInput($_POST['challan3_status']);
 
+        // ============================================
+        // 5. PHOTO & STATUS
+        // ============================================
         $sold_out = checkVal('sold_out');
         $p1 = handleUpload('photo1');
         $p2 = handleUpload('photo2');
         $p3 = handleUpload('photo3');
         $p4 = handleUpload('photo4');
 
+        // ============================================
+        // 6. DATABASE OPERATIONS
+        // ============================================
         if ($vehicle_id > 0) {
-            // --- FIX: Added Photo Columns with Smart Update Logic ---
+            // UPDATE EXISTING VEHICLE
             $sql = "UPDATE vehicle SET 
-                    vehicle_type='$v_type', 
-                    name='$name', 
-                    vehicle_number='$v_no', 
-                    register_date='$reg_date', 
-                    owner_serial='$own_ser', 
-                    chassis_number='$chas_no', 
-                    engine_number='$eng_no',
-                    payment_type='$pay_type', 
-                    cash_price='$c_price', 
-                    online_method='$on_method', 
-                    online_transaction_id='$on_txn', 
-                    online_price='$on_price', 
-                    police_challan='$pol_chal',
-                    challan1_number='$c1_n', challan1_amount='$c1_a', challan1_status='$c1_s',
-                    challan2_number='$c2_n', challan2_amount='$c2_a', challan2_status='$c2_s',
-                    challan3_number='$c3_n', challan3_amount='$c3_a', challan3_status='$c3_s',
-                    sold_out='$sold_out',
-
-                    photo1 = CASE WHEN '$p1' != '' THEN '$p1' ELSE photo1 END,
-                    photo2 = CASE WHEN '$p2' != '' THEN '$p2' ELSE photo2 END,
-                    photo3 = CASE WHEN '$p3' != '' THEN '$p3' ELSE photo3 END,
-                    photo4 = CASE WHEN '$p4' != '' THEN '$p4' ELSE photo4 END
-
-                    WHERE id=$vehicle_id";
+                vehicle_type='$v_type', 
+                name='$name', 
+                vehicle_number='$v_no', 
+                register_date='$reg_date', 
+                owner_serial='$own_ser', 
+                chassis_number='$chas_no', 
+                engine_number='$eng_no',
+                payment_type='$pay_type', 
+                cash_price='$c_price', 
+                online_method='$on_method', 
+                online_transaction_id='$on_txn', 
+                online_price='$on_price', 
+                police_challan='$pol_chal',
+                challan1_number='$c1_n', challan1_amount='$c1_a', challan1_status='$c1_s',
+                challan2_number='$c2_n', challan2_amount='$c2_a', challan2_status='$c2_s',
+                challan3_number='$c3_n', challan3_amount='$c3_a', challan3_status='$c3_s',
+                sold_out='$sold_out',
+                photo1 = CASE WHEN '$p1' != '' THEN '$p1' ELSE photo1 END,
+                photo2 = CASE WHEN '$p2' != '' THEN '$p2' ELSE photo2 END,
+                photo3 = CASE WHEN '$p3' != '' THEN '$p3' ELSE photo3 END,
+                photo4 = CASE WHEN '$p4' != '' THEN '$p4' ELSE photo4 END
+                WHERE id=$vehicle_id";
         } else {
-            // ... (Your existing INSERT query is fine, no changes needed there) ...
+            // INSERT NEW VEHICLE
             $sql = "INSERT INTO vehicle (
-                vehicle_type, name, vehicle_number, register_date, owner_serial, chassis_number, engine_number,
-                payment_type, cash_price, online_method, online_transaction_id, online_price,
-                police_challan, challan1_number, challan1_amount, challan1_status,
-                challan2_number, challan2_amount, challan2_status,
-                challan3_number, challan3_amount, challan3_status, sold_out,
-                photo1, photo2, photo3, photo4
-            ) VALUES (
-                '$v_type', '$name', '$v_no', '$reg_date', '$own_ser', '$chas_no', '$eng_no',
-                '$pay_type', '$c_price', '$on_method', '$on_txn', '$on_price',
-                '$pol_chal', '$c1_n', '$c1_a', '$c1_s',
-                '$c2_n', '$c2_a', '$c2_s',
-                '$c3_n', '$c3_a', '$c3_s', '$sold_out',
-                '$p1', '$p2', '$p3', '$p4'
-            )";
+            vehicle_type, name, vehicle_number, register_date, owner_serial, chassis_number, engine_number,
+            payment_type, cash_price, online_method, online_transaction_id, online_price,
+            police_challan, challan1_number, challan1_amount, challan1_status,
+            challan2_number, challan2_amount, challan2_status,
+            challan3_number, challan3_amount, challan3_status, sold_out,
+            photo1, photo2, photo3, photo4
+        ) VALUES (
+            '$v_type', '$name', '$v_no', '$reg_date', '$own_ser', '$chas_no', '$eng_no',
+            '$pay_type', '$c_price', '$on_method', '$on_txn', '$on_price',
+            '$pol_chal', '$c1_n', '$c1_a', '$c1_s',
+            '$c2_n', '$c2_a', '$c2_s',
+            '$c3_n', '$c3_a', '$c3_s', '$sold_out',
+            '$p1', '$p2', '$p3', '$p4'
+        )";
         }
 
         if ($conn->query($sql) === TRUE) {
@@ -179,9 +240,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             syncAllTables($vehicle_id);
 
-            echo json_encode(['status' => 'success', 'id' => $vehicle_id, 'message' => 'Vehicle Details Saved & Synced']);
+            echo json_encode([
+                'status' => 'success',
+                'id' => $vehicle_id,
+                'message' => '✅ Vehicle Details Saved & Synced Successfully!'
+            ]);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'DB Error: ' . $conn->error]);
+            echo json_encode([
+                'status' => 'error',
+                'message' => '❌ Database Error: ' . $conn->error
+            ]);
         }
         exit();
     }

@@ -290,7 +290,7 @@ if ($id == 0) {
 
                                                     </label>
 
-                                                    <input type="file" id="file_<?= $key ?>" name="<?= $key ?>" accept="image/*" hidden onchange="previewImage(this, '<?= $key ?>')">
+                                                    <input  required type="file" id="file_<?= $key ?>" name="<?= $key ?>" accept="image/*" hidden onchange="previewImage(this, '<?= $key ?>')">
                                                 </div>
                                             <?php endforeach; ?>
                                         </div>
@@ -311,15 +311,15 @@ if ($id == 0) {
                                             </div>
                                             <div class="col-12 col-md-6">
                                                 <label class="fw-bold">Name</label>
-                                                <input type="text" id="nameField" name="name" class="form-control" placeholder="Enter Name" value="<?= $vehicle['name'] ?? '' ?>">
+                                                <input  required type="text" id="nameField" name="name" class="form-control" placeholder="Enter Name" value="<?= $vehicle['name'] ?? '' ?>">
                                             </div>
                                             <div class="col-12 col-md-6">
                                                 <label>Vehicle Number</label>
-                                                <input type="text" name="vehicle_number" class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000" value="<?= $vehicle['vehicle_number'] ?? '' ?>">
+                                                <input  required type="text" name="vehicle_number" class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000" value="<?= $vehicle['vehicle_number'] ?? '' ?>">
                                             </div>
                                             <div class="col-12 col-md-6">
                                                 <label>Register Date</label>
-                                                <input type="date" name="register_date" class="form-control" value="<?= $vehicle['register_date'] ?? '' ?>">
+                                                <input  required type="date" name="register_date" class="form-control" value="<?= $vehicle['register_date'] ?? '' ?>">
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Owner Serial</label>
@@ -335,12 +335,12 @@ if ($id == 0) {
                                             </div>
                                             <div class="col-12 col-md-4">
                                                 <label>Chassis Number</label>
-                                                <input type="text" name="chassis_number" class="form-control text-uppercase" value="<?= $vehicle['chassis_number'] ?? '' ?>">
+                                                <input  required type="text" name="chassis_number" class="form-control text-uppercase" value="<?= $vehicle['chassis_number'] ?? '' ?>">
                                             </div>
 
                                             <div class="col-12 col-md-4">
                                                 <label>Engine Number</label>
-                                                <input type="text" name="engine_number" class="form-control text-uppercase" value="<?= $vehicle['engine_number'] ?? '' ?>">
+                                                <input  required type="text" name="engine_number" class="form-control text-uppercase" value="<?= $vehicle['engine_number'] ?? '' ?>">
                                             </div>
                                         </div>
 
@@ -348,10 +348,10 @@ if ($id == 0) {
                                             <div class="col-12 col-md-6">
                                                 <label class="fw-bold mb-2">Payment Type</label>
                                                 <div class="d-flex gap-2 mb-3">
-                                                    <input type="radio" class="btn-check" name="payment_type" id="sp_cash" value="Cash" <?= ($vehicle['payment_type'] == 'Cash') ? 'checked' : '' ?> data-bs-toggle="collapse" data-bs-target="#cashBox">
+                                                    <input  required type="radio" class="btn-check" name="payment_type" id="sp_cash" value="Cash" <?= ($vehicle['payment_type'] == 'Cash') ? 'checked' : '' ?> data-bs-toggle="collapse" data-bs-target="#cashBox">
                                                     <label class="btn btn-outline-success" for="sp_cash">Cash</label>
 
-                                                    <input type="radio" class="btn-check" name="payment_type" id="sp_online" value="Online" <?= ($vehicle['payment_type'] == 'Online') ? 'checked' : '' ?> data-bs-toggle="collapse" data-bs-target="#onlineBox">
+                                                    <input  required type="radio" class="btn-check" name="payment_type" id="sp_online" value="Online" <?= ($vehicle['payment_type'] == 'Online') ? 'checked' : '' ?> data-bs-toggle="collapse" data-bs-target="#onlineBox">
                                                     <label class="btn btn-outline-primary" for="sp_online">Online</label>
                                                 </div>
 
@@ -359,7 +359,7 @@ if ($id == 0) {
                                                     <div id="cashBox" class="collapse <?= ($vehicle['payment_type'] == 'Cash') ? 'show' : '' ?>" data-bs-parent="#payBoxes">
                                                         <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
                                                             <label class="fw-bold small mb-1">Bike Price</label>
-                                                            <input type="number" name="cash_price" class="form-control form-control-sm mb-3" placeholder="Enter Amount" value="<?= $vehicle['cash_price'] ?? '' ?>">
+                                                            <input  required type="number" name="cash_price" class="form-control form-control-sm mb-3" placeholder="Enter Amount" value="<?= $vehicle['cash_price'] ?? '' ?>">
                                                         </div>
                                                     </div>
 
@@ -373,18 +373,18 @@ if ($id == 0) {
                                                                     $checked = ($vehicle['online_method'] == $mName) ? 'checked' : '';
                                                                 ?>
                                                                     <div class="form-check">
-                                                                        <input type="radio" class="form-check-input" name="online_method" id="<?= $mId ?>" value="<?= $mName ?>" <?= $checked ?>>
+                                                                        <input  required type="radio" class="form-check-input"  name="online_method" id="<?= $mId ?>" value="<?= $mName ?>" <?= $checked ?>>
                                                                         <label class="form-check-label small fw-bold" for="<?= $mId ?>"><?= $mName ?></label>
                                                                     </div>
                                                                 <?php endforeach; ?>
                                                             </div>
 
-                                                            <input type="text" name="online_transaction_id" class="form-control form-control-sm mb-3 text-uppercase" placeholder="Transaction / UPI Reference ID" value="<?= $vehicle['online_transaction_id'] ?? '' ?>">
+                                                            <input  required type="text" name="online_transaction_id" class="form-control form-control-sm mb-3 text-uppercase" placeholder="Transaction / UPI Reference ID" value="<?= $vehicle['online_transaction_id'] ?? '' ?>">
 
                                                             <label class="fw-bold small mb-1">Bike Price</label>
                                                             <div class="input-group">
                                                                 <span class="input-group-text bg-white border-end-0">₹</span>
-                                                                <input type="number" name="online_price" class="form-control border-start-0 ps-0" placeholder="Enter Price" value="<?= $vehicle['online_price'] ?? '' ?>">
+                                                                <input  required type="number" name="online_price" class="form-control border-start-0 ps-0" placeholder="Enter Price" value="<?= $vehicle['online_price'] ?? '' ?>">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -396,11 +396,11 @@ if ($id == 0) {
                                             <label>Police Challan</label>
                                             <div class="d-flex gap-3 mb-2">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="police_challan" value="No" <?= ($vehicle['police_challan'] == 'No') ? 'checked' : '' ?> data-bs-toggle="collapse" data-bs-target="#challan-section">
+                                                    <input  required class="form-check-input"  type="radio" name="police_challan" value="No" <?= ($vehicle['police_challan'] == 'No') ? 'checked' : '' ?> data-bs-toggle="collapse" data-bs-target="#challan-section">
                                                     <label class="form-check-label fw-bold">No</label>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="police_challan" value="Yes" <?= ($vehicle['police_challan'] == 'Yes') ? 'checked' : '' ?> data-bs-toggle="collapse" data-bs-target="#challan-section">
+                                                    <input  required class="form-check-input"  type="radio" name="police_challan" value="Yes" <?= ($vehicle['police_challan'] == 'Yes') ? 'checked' : '' ?> data-bs-toggle="collapse" data-bs-target="#challan-section">
                                                     <label class="form-check-label fw-bold">Yes</label>
                                                 </div>
                                             </div>
@@ -411,17 +411,17 @@ if ($id == 0) {
                                                         <label class="fw-bold small">Challan <?= $i ?></label>
                                                         <div class="row g-2">
                                                             <div class="col-md-4">
-                                                                <input type="text" name="challan<?= $i ?>_number" class="form-control text-uppercase" placeholder="Challan Number" value="<?= $vehicle["challan{$i}_number"] ?? '' ?>">
+                                                                <input  required type="text" name="challan<?= $i ?>_number" class="form-control text-uppercase" placeholder="Challan Number" value="<?= $vehicle["challan{$i}_number"] ?? '' ?>">
                                                             </div>
                                                             <div class="col-md-4">
-                                                                <input type="number" name="challan<?= $i ?>_amount" class="form-control" placeholder="Amount" value="<?= $vehicle["challan{$i}_amount"] ?? '' ?>">
+                                                                <input  required type="number" name="challan<?= $i ?>_amount" class="form-control" placeholder="Amount" value="<?= $vehicle["challan{$i}_amount"] ?? '' ?>">
                                                             </div>
                                                             <div class="col-md-4">
                                                                 <div class="btn-group w-100 btn-group-sm">
-                                                                    <input type="radio" class="btn-check" name="challan<?= $i ?>_status" id="pen<?= $i ?>" value="Pending" <?= ($vehicle["challan{$i}_status"] == 'Pending') ? 'checked' : '' ?>>
+                                                                    <input  required type="radio" class="btn-check" name="challan<?= $i ?>_status" id="pen<?= $i ?>" value="Pending" <?= ($vehicle["challan{$i}_status"] == 'Pending') ? 'checked' : '' ?>>
                                                                     <label class="btn btn-outline-danger" for="pen<?= $i ?>">Pending</label>
 
-                                                                    <input type="radio" class="btn-check" name="challan<?= $i ?>_status" id="paid<?= $i ?>" value="Paid" <?= ($vehicle["challan{$i}_status"] == 'Paid') ? 'checked' : '' ?>>
+                                                                    <input  required type="radio" class="btn-check" name="challan<?= $i ?>_status" id="paid<?= $i ?>" value="Paid" <?= ($vehicle["challan{$i}_status"] == 'Paid') ? 'checked' : '' ?>>
                                                                     <label class="btn btn-outline-success" for="paid<?= $i ?>">Paid</label>
                                                                 </div>
                                                             </div>
@@ -434,7 +434,7 @@ if ($id == 0) {
                                         <div class="mt-4 pt-3 border-top d-flex align-items-center justify-content-between">
                                             <label class="form-check-label fw-bold text-danger mb-0" for="soldToggle">Mark as Sold Out</label>
                                             <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="soldToggle" name="sold_out" value="1" <?= ($vehicle['sold_out'] == 1) ? 'checked' : '' ?> style="width: 3em; height: 1.5em;">
+                                                <input  required class="form-check-input" type="checkbox" id="soldToggle" name="sold_out" value="1" <?= ($vehicle['sold_out'] == 1) ? 'checked' : '' ?> style="width: 3em; height: 1.5em;">
                                             </div>
                                         </div>
                                     </div>

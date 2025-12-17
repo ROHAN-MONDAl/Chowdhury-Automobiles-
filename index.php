@@ -1,3 +1,6 @@
+<?php
+include 'admin/db.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -181,47 +184,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- VEHICLE 2 -->
-                <div class="col">
-                    <div class="product-card" style="opacity: 0.9;">
-                        <span class="badge-status bg-sold">Sold Out</span>
-
-                        <div class="product-img-wrapper" style="filter: grayscale(100%);">
-                            <img src="https://www.drivio.in/_next/image?url=https%3A%2F%2Fcdn.drivio.in%2Fblog%2Fblog-1734089144775.webp&w=1280&q=75"
-                                alt="Bike">
-                        </div>
-
-                        <div class="p-4 pt-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <small class="text-secondary fw-bold text-uppercase" style="font-size: 0.7rem;">
-                                    Scooter
-                                </small>
-                            </div>
-
-                            <h5 class="fw-bold mb-1">Hero Splendor Plus</h5>
-                            <p class="text-muted small fw-medium mb-3">WB 20 AB 1234</p>
-
-                            <div class="d-flex gap-2 mb-3">
-                                <span class="spec-chip">Register Year: 2025</span>
-                                <span class="spec-chip">1st Owner</span>
-                            </div>
-
-                            <div class="d-flex align-items-end justify-content-between border-top pt-3">
-                                <div>
-                                    <small class="text-muted d-block" style="font-size: 0.75rem;">Price</small>
-                                    <span class="fw-bold fs-5">₹75,000</span>
-                                </div>
-
-                                <button class="btn btn-dark rounded-circle" style="width: 40px; height: 40px;"
-                                    data-bs-toggle="modal" data-bs-target="#viewDealModal">
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- More vehicle cards can be added here following the same structure -->
 
             </div>
 
