@@ -1,5 +1,5 @@
+// jQuery for Navbar (Keep this as is)
 $(document).ready(function () {
-    // Navbar blur on scroll
     $(window).on('scroll', function () {
         if ($(this).scrollTop() > 50) {
             $('.navbar').addClass('shadow-sm');
@@ -8,221 +8,188 @@ $(document).ready(function () {
         }
     });
 
-    // Fade out loader once page is loaded
     $(window).on('load', function () {
         $('#loading-screen').fadeOut(500);
     });
-
-    // --------------------------------------------
-    // CONFIG
-    // --------------------------------------------
-    const itemsPerPage = 6; // Set to 6 or 9 for better grid view
-    // Important: Select the column (.col), not the card, so the grid doesn't break
-    const allItems = $(".row .col");
-    let matchedItems = allItems; // This stores the filtered list (even if hidden)
-
-    // --------------------------------------------
-    // 1. UPDATE COUNT
-    // --------------------------------------------
-    function updateCount() {
-        $(".vehicle-count").text(matchedItems.length + " Vehicles");
-    }
-
-    // --------------------------------------------
-    // 2. BUILD PAGINATION UI
-    // --------------------------------------------
-    function buildPaginationUI() {
-        let totalPages = Math.ceil(matchedItems.length / itemsPerPage);
-        let paginationHTML = `
-        <li class="page-item prev disabled"><a class="page-link" href="#">Prev</a></li>
-    `;
-
-        for (let i = 1; i <= totalPages; i++) {
-            paginationHTML += `
-            <li class="page-item page-num" data-page="${i}">
-                <a class="page-link" href="#">${i}</a>
-            </li>
-        `;
-        }
-
-        paginationHTML += `
-        <li class="page-item next"><a class="page-link" href="#">Next</a></li>
-    `;
-
-        $(".pagination").html(paginationHTML);
-    }
-
-    // --------------------------------------------
-    // 3. SHOW SPECIFIC PAGE
-    // --------------------------------------------
-    function showPage(page) {
-        let totalPages = Math.ceil(matchedItems.length / itemsPerPage);
-
-        // Calculate start/end based on the MASTER list (matchedItems), not the visible DOM
-        let start = (page - 1) * itemsPerPage;
-        let end = start + itemsPerPage;
-
-        // Hide EVERYTHING first
-        allItems.hide();
-
-        // Show only the specific slice of the master list
-        matchedItems.slice(start, end).fadeIn(200);
-
-        // Update Buttons
-        $(".pagination .page-item").removeClass("active");
-        $(`.pagination .page-item[data-page="${page}"]`).addClass("active");
-
-        $(".prev").toggleClass("disabled", page === 1);
-        $(".next").toggleClass("disabled", page === totalPages || totalPages === 0);
-    }
-
-    // --------------------------------------------
-    // 4. MASTER FILTER (Search + Category)
-    // --------------------------------------------
-    function applyFilters() {
-        let searchValue = $(".hero-search-input").val().toLowerCase();
-        let categoryFilter = "";
-
-        // --- MODIFIED SECTION START ---
-        // Check if the Mobile Dropdown is visible
-        if ($('#mobileFilterSelect').is(':visible')) {
-            // Read text from the selected dropdown option
-            categoryFilter = $('#mobileFilterSelect option:selected').text().trim().toLowerCase();
-        } else {
-            // Read text from the active desktop chip
-            categoryFilter = $(".filter-chip.active").text().trim().toLowerCase();
-        }
-        // --- MODIFIED SECTION END ---
-
-        // Filter the original list of all items
-        matchedItems = allItems.filter(function () {
-            let cardText = $(this).text().toLowerCase();
-
-            // 1. Check Search
-            let matchesSearch = cardText.includes(searchValue);
-
-            // 2. Check Category
-            let matchesCategory = false;
-
-            if (categoryFilter === "all vehicles") {
-                matchesCategory = true;
-            } else if (categoryFilter.includes("scooter")) {
-                matchesCategory = cardText.includes("scooter") || cardText.includes("activa");
-            } else if (categoryFilter.includes("mopeds")) {
-                matchesCategory = cardText.includes("mopeds");
-            } else if (categoryFilter.includes("dirt / off-road bikes")) {
-                matchesCategory = cardText.includes("dirt / off-road bikes");
-            } else if (categoryFilter.includes("electric")) {
-                matchesCategory = cardText.includes("electric");
-            } else if (categoryFilter.includes("cruiser")) {
-                matchesCategory = cardText.includes("cruiser");
-            } else if (categoryFilter.includes("sport")) {
-                matchesCategory = cardText.includes("sport");
-            } else if (categoryFilter.includes("touring")) {
-                matchesCategory = cardText.includes("touring");
-            } else if (categoryFilter.includes("adventure")) {
-                matchesCategory = cardText.includes("adventure") || cardText.includes("dual-sport");
-            } else if (categoryFilter.includes("naked")) {
-                matchesCategory = cardText.includes("naked") || cardText.includes("standard");
-            } else if (categoryFilter.includes("cafe")) {
-                matchesCategory = cardText.includes("cafe");
-            } else if (categoryFilter.includes("bobber")) {
-                matchesCategory = cardText.includes("bobber");
-            } else if (categoryFilter.includes("chopper")) {
-                matchesCategory = cardText.includes("chopper");
-            } else if (categoryFilter.includes("pocket") || categoryFilter.includes("mini")) {
-                matchesCategory = cardText.includes("pocket") || cardText.includes("mini");
-            }
-
-            return matchesSearch && matchesCategory;
-        });
-
-        updateCount();
-        buildPaginationUI();
-
-        if (matchedItems.length > 0) {
-            showPage(1);
-        } else {
-            allItems.hide();
-            $(".pagination").empty();
-        }
-    }
-
-    // ==================================================
-    // 3. ADD THESE EVENT LISTENERS TO MAKE IT WORK
-    // ==================================================
-    $(document).ready(function () {
-
-        // Trigger filter when Mobile Dropdown changes
-        $('#mobileFilterSelect').on('change', function () {
-            applyFilters();
-        });
-
-        // Trigger filter when Desktop Chip is clicked (Existing logic)
-        $('.filter-chip').on('click', function () {
-            $('.filter-chip').removeClass('active');
-            $(this).addClass('active');
-            applyFilters();
-        });
-
-        // Trigger filter when typing in search
-        $(".hero-search-input").on("keyup", function () {
-            applyFilters();
-        });
-    });
-
-
-    // --------------------------------------------
-    // EVENTS
-    // --------------------------------------------
-
-    // Search Input
-    $(".hero-search-input").on("keyup", function () {
-        applyFilters();
-    });
-
-    // Search Button
-    $(".hero-search-container button").on("click", function () {
-        applyFilters();
-    });
-
-    // Filter Chips
-    $(".filter-chip").on("click", function () {
-        $(".filter-chip").removeClass("active");
-        $(this).addClass("active");
-        applyFilters();
-    });
-
-    // Pagination Number Click
-    $(document).on("click", ".page-num", function (e) {
-        e.preventDefault();
-        let page = parseInt($(this).attr("data-page"));
-        showPage(page);
-    });
-
-    // Prev Button
-    $(document).on("click", ".prev", function (e) {
-        e.preventDefault();
-        if ($(this).hasClass("disabled")) return;
-        let active = parseInt($(".pagination .active").attr("data-page"));
-        showPage(active - 1);
-    });
-
-    // Next Button
-    $(document).on("click", ".next", function (e) {
-        e.preventDefault();
-        if ($(this).hasClass("disabled")) return;
-        let active = parseInt($(".pagination .active").attr("data-page"));
-        let max = Math.ceil(matchedItems.length / itemsPerPage);
-        if (active < max) showPage(active + 1);
-    });
-
-    // --------------------------------------------
-    // INIT
-    // --------------------------------------------
-    $(document).ready(function () {
-        applyFilters();
-    });
-
 });
 
+// Vanilla JS for Filter/Search with Error Handling
+document.addEventListener('DOMContentLoaded', function () {
+    try {
+        console.log("Script Loaded: Filter Engine Started");
+
+        // --- CONFIGURATION ---
+        const itemsPerPage = 8;
+        let currentPage = 1;
+        let currentCategory = 'all';
+        let searchQuery = '';
+
+        // --- ELEMENTS & SAFETY CHECKS ---
+        const allItems = document.querySelectorAll('.vehicle-item');
+        const searchInput = document.querySelector('.hero-search-input');
+        const mobileFilter = document.getElementById('mobileFilterSelect');
+        const desktopChips = document.querySelectorAll('.filter-chip');
+        const countLabel = document.querySelector('.vehicle-count');
+        const paginationContainer = document.querySelector('.pagination');
+
+        // Check if elements exist
+        if (allItems.length === 0) {
+            console.error("CRITICAL ERROR: No elements found with class 'vehicle-item'. Did you update the PHP file?");
+            return; // Stop script to prevent errors
+        }
+        if (!searchInput) console.warn("Warning: Search input not found.");
+        if (!countLabel) console.warn("Warning: Vehicle count label not found.");
+
+        // --- INITIALIZATION ---
+        filterAndPaginate();
+
+        // --- EVENT LISTENERS ---
+
+        // 1. Search Bar Listener
+        if (searchInput) {
+            searchInput.addEventListener('keyup', (e) => {
+                searchQuery = e.target.value.toLowerCase().trim();
+                currentPage = 1;
+                filterAndPaginate();
+            });
+        }
+
+        // 2. Mobile Filter Dropdown Listener
+        if (mobileFilter) {
+            mobileFilter.addEventListener('change', (e) => {
+                currentCategory = e.target.value.toLowerCase();
+                
+                // Sync with desktop chips
+                desktopChips.forEach(chip => {
+                    chip.classList.remove('active');
+                    // Safety check for chip text
+                    const chipText = chip.innerText ? chip.innerText.toLowerCase() : '';
+                    if (chipText.includes(currentCategory) || (currentCategory === 'all' && chipText.includes('all'))) {
+                        chip.classList.add('active');
+                    }
+                });
+
+                currentPage = 1;
+                filterAndPaginate();
+            });
+        }
+
+        // 3. Desktop Chips Listener
+        desktopChips.forEach(chip => {
+            chip.addEventListener('click', function () {
+                desktopChips.forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+
+                const text = this.innerText.toLowerCase();
+                
+                // MAPPING LOGIC
+                if (text.includes('all')) currentCategory = 'all';
+                else if (text.includes('scooters')) currentCategory = 'scooters';
+                else if (text.includes('mopeds')) currentCategory = 'mopeds';
+                else if (text.includes('dirt')) currentCategory = 'dirt / off-road bikes';
+                else if (text.includes('electric')) currentCategory = 'electric';
+                else if (text.includes('cruiser')) currentCategory = 'cruiser';
+                else if (text.includes('sport')) currentCategory = 'sport';
+                else if (text.includes('touring')) currentCategory = 'touring';
+                else if (text.includes('adventure')) currentCategory = 'adventure';
+                else if (text.includes('naked')) currentCategory = 'naked';
+                else if (text.includes('cafe')) currentCategory = 'cafe';
+                else if (text.includes('bobbers')) currentCategory = 'bobbers';
+                else if (text.includes('choppers')) currentCategory = 'choppers';
+                else if (text.includes('pocket')) currentCategory = 'pocket';
+                else currentCategory = text.trim();
+
+                if (mobileFilter) mobileFilter.value = currentCategory;
+                currentPage = 1;
+                filterAndPaginate();
+            });
+        });
+
+        // --- MAIN LOGIC ---
+        function filterAndPaginate() {
+            let visibleItems = [];
+
+            allItems.forEach((item, index) => {
+                // SAFETY: Fallback to empty string if attribute is null
+                const itemCategory = (item.getAttribute('data-category') || '').toLowerCase();
+                const itemName = (item.getAttribute('data-name') || '').toLowerCase();
+                const itemText = item.innerText.toLowerCase();
+
+                // Debug first item to ensure data is reading
+                if (index === 0) {
+                   // console.log("Debug Item 1:", { cat: itemCategory, name: itemName });
+                }
+
+                // CHECK: Category
+                const categoryMatch = (currentCategory === 'all') || (itemCategory.includes(currentCategory));
+
+                // CHECK: Search
+                const searchMatch = (itemName.includes(searchQuery)) || (itemText.includes(searchQuery));
+
+                if (categoryMatch && searchMatch) {
+                    visibleItems.push(item);
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Update Count
+            if (countLabel) countLabel.innerText = `${visibleItems.length} Vehicles`;
+
+            // Pagination Logic
+            const totalPages = Math.ceil(visibleItems.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = 1;
+            if (currentPage < 1 && totalPages > 0) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+
+            visibleItems.forEach((item, index) => {
+                if (index >= startIndex && index < endIndex) {
+                    item.style.display = 'block';
+                    item.style.opacity = '1'; // Removed timeout for stability
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            if (paginationContainer) renderPaginationControls(totalPages);
+        }
+
+        function renderPaginationControls(totalPages) {
+            paginationContainer.innerHTML = '';
+            if (totalPages <= 1) return;
+
+            // Prev
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<a class="page-link" href="#">&laquo;</a>`;
+            prevLi.onclick = (e) => { e.preventDefault(); if (currentPage > 1) { currentPage--; filterAndPaginate(); scrollToTop(); }};
+            paginationContainer.appendChild(prevLi);
+
+            // Numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                li.onclick = (e) => { e.preventDefault(); currentPage = i; filterAndPaginate(); scrollToTop(); };
+                paginationContainer.appendChild(li);
+            }
+
+            // Next
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<a class="page-link" href="#">&raquo;</a>`;
+            nextLi.onclick = (e) => { e.preventDefault(); if (currentPage < totalPages) { currentPage++; filterAndPaginate(); scrollToTop(); }};
+            paginationContainer.appendChild(nextLi);
+        }
+
+        function scrollToTop() {
+            const section = document.getElementById('inventory');
+            if (section) section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+    } catch (error) {
+        console.error("JAVASCRIPT ERROR:", error);
+    }
+});

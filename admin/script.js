@@ -69,16 +69,30 @@ $(document).ready(function () {
 
 
     // --- 4. AJAX SAVE FUNCTION ---
-function saveData(actionType) {
+    function saveData(actionType, btnElement = null) {
 
-        // 1. Get Form Data
+        // --- 1. SETUP LOADING UI ---
+        let originalBtnText = '';
+        let $btn = null;
+
+        if (btnElement) {
+            $btn = $(btnElement);
+            originalBtnText = $btn.html(); // Save original text (e.g., "Next")
+
+            // Disable button and show spinner (Bootstrap class)
+            $btn.prop('disabled', true);
+            $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...');
+
+        }
+
+        // 2. Get Form Data
         let formData = new FormData($('#dealForm')[0]);
 
-        // 2. Append Manual Fields
+        // 3. Append Manual Fields
         formData.append('step', currentStep);
         formData.append('action', actionType);
 
-        // 3. Perform AJAX with Timeout
+        // 4. Perform AJAX with Timeout
         $.ajax({
             url: 'vehicle_form.php',
             type: 'POST',
@@ -98,12 +112,14 @@ function saveData(actionType) {
                             currentStep++;
                             updateWizard();
                         }
-                    }
-                    else if (actionType === 'save_only') {
+                    } else if (actionType === 'save_only') {
                         showGlobalToast(response.message, 'success');
-                    }
-                    else if (actionType === 'finish') {
+                    } else if (actionType === 'finish') {
                         showGlobalToast("Deal Completed! Redirecting...", 'success');
+
+                        // Don't reset button if redirecting, keeps the "Processing..." state
+                        return;
+
                         setTimeout(function () {
                             window.location.href = 'dashboard.php';
                         }, 1500);
@@ -114,7 +130,6 @@ function saveData(actionType) {
                 }
             },
             error: function (xhr, status, error) {
-
                 if (status === 'timeout') {
                     console.error("Save timed out (> 5s)");
                     showGlobalToast("Server taking too long. Redirecting...", 'error');
@@ -125,6 +140,14 @@ function saveData(actionType) {
                     console.error("AJAX Error:", xhr.responseText);
                     showGlobalToast("System Error: Check console for details.", 'error');
                 }
+            },
+            // --- 5. RESET LOADING UI (Runs on Success or Error) ---
+            complete: function () {
+                // Only reset if we are NOT redirecting (Finish action usually redirects)
+                if ($btn && actionType !== 'finish') {
+                    $btn.prop('disabled', false);
+                    $btn.html(originalBtnText); // Restore original text
+                }
             }
         });
     }
@@ -134,27 +157,27 @@ function saveData(actionType) {
     // Save Draft
     $('#btn-save-draft').off('click').on('click', function (e) {
         e.preventDefault();
-        saveData('save_only');
+        // Pass $(this) so we know which button to spin
+        saveData('save_only', $(this));
     });
 
     // Next
     $('#btn-next').off('click').on('click', function (e) {
         e.preventDefault();
-        saveData('save_next');
+        saveData('save_next', $(this));
     });
 
     // Finish
     $('#btn-finish').off('click').on('click', function (e) {
         e.preventDefault();
         if (confirm("Are you sure you want to finish?")) {
-            saveData('finish');
+            saveData('finish', $(this));
         }
     });
 
-    // Previous
+    // Previous (Usually doesn't need AJAX save, but if it did, you would pass $(this) here too)
     $('#prevBtn').off('click').on('click', function (e) {
         e.preventDefault();
-
         if (currentStep > 1) {
             currentStep--;
             updateWizard();
@@ -185,14 +208,6 @@ function saveData(actionType) {
         const toast = new bootstrap.Toast(toastElement, { delay: 4000 }); // Disappears after 4 seconds
         toast.show();
     }
-
-
-
-
-
-
-
-    // --- 5. BUTTON CLICK LISTENERS ---
 
 
     // --- 6. GLOBAL MODAL HANDLER ---
