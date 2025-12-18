@@ -119,10 +119,13 @@ $stmt->close();
                 <i class="ph-bold ph-sign-out me-1"></i> Log Out
             </a>
 
-            <button id="logoutIcon"
-                class="btn btn-light border rounded-circle shadow-sm d-inline-flex d-md-none justify-content-center align-items-center p-2">
-                <i class="ph-bold ph-sign-out fs-5"></i>
-            </button>
+            <a href="logout.php">
+                <!-- Mobile Logout Button -->
+                <button id="logoutIcon"
+                    class="btn btn-light border rounded-circle shadow-sm d-inline-flex d-md-none justify-content-center align-items-center p-2">
+                    <i class="ph-bold ph-sign-out fs-5"></i>
+                </button>
+            </a>
         </div>
     </nav>
     <div class="flex-grow-1 overflow-hidden">
@@ -1372,6 +1375,7 @@ $stmt->close();
 
                             <!-- Save Draft -->
                             <button type="button"
+                                id="btn-draft"
                                 class="btn btn-warning px-3 px-sm-4 d-flex align-items-center justify-content-center"
                                 onclick="submitAjax('save_only')">
                                 <i class="ph-bold ph-floppy-disk me-1"></i>
@@ -1507,21 +1511,41 @@ $stmt->close();
             formData.append('action', actionType);
             formData.append('step_number', currentStep);
 
-            var $btn = (currentStep === totalSteps) ? $('#btn-finish') : $('#btn-next');
+            // 1. Determine which button to show loading state on
+            var $btn;
+            if (actionType === '#btn-draft' || actionType === 'save_only') {
+                // Target the Draft button (btn-warning)
+                $btn = $('.btn-warning');
+            } else if (actionType === 'finish') {
+                $btn = $('#btn-finish');
+            } else {
+                $btn = $('#btn-next');
+            }
+
             var originalText = $btn.html();
-            $btn.html('<span class="spinner-border spinner-border-sm"></span> Processing...').prop('disabled', true);
+
+            // 2. Custom Loading Text
+            var loadingText = (actionType === 'save_only') ? 'Saving...' : 'Processing...';
+            $btn.html(`
+    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+    <span>${loadingText}</span>
+`).prop('disabled', true);
+
 
             $.ajax({
-                url: 'vechicle_update_form.php', // Ensure this file exists on server
+                url: 'vechicle_update_form.php',
                 type: 'POST',
                 data: formData,
                 processData: false,
                 contentType: false,
                 dataType: 'json',
+                timeout: 5000, // 3. Set timeout to 5 seconds (5000ms)
                 success: function(data) {
                     if (data.status === 'success') {
                         if (actionType === 'save_only') {
+                            // Optional: remove alert if you want it smoother, or keep it
                             alert("Draft Saved!");
+                            // Important: If you want to stay on page, we just reset button in complete()
                         } else if (actionType === 'save_next') {
                             nextStep();
                         } else if (actionType === 'finish') {
@@ -1532,11 +1556,18 @@ $stmt->close();
                         alert("Error: " + data.message);
                     }
                 },
-                error: function(xhr) {
-                    console.error(xhr.responseText);
-                    alert("System Error. Check console for details.");
+                error: function(xhr, status, error) {
+                    // 4. Handle Timeout specifically
+                    if (status === 'timeout') {
+                        alert("The server took too long to respond. Redirecting...");
+                        window.location.href = "edit_inventory.php"; // Redirect on timeout
+                    } else {
+                        console.error(xhr.responseText);
+                        alert("System Error: " + error);
+                    }
                 },
                 complete: function() {
+                    // 5. Always restore the button text and enable it
                     $btn.html(originalText).prop('disabled', false);
                 }
             });

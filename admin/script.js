@@ -78,14 +78,24 @@ $(document).ready(function () {
         formData.append('step', currentStep);
         formData.append('action', actionType);
 
-        // 3. UI: Show Loading Spinner
+        // 3. UI: Select Button
         let $btn = (actionType === 'save_next') ? $('#btn-next') :
-            (actionType === 'save_only' ? $('#btn-save-draft') : $('#btn-finish'));
+            (actionType === 'save_only') ? $('#btn-save-draft') : $('#btn-finish');
 
         let originalText = $btn.html();
-        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Processing...');
 
-        // 4. Perform AJAX
+        // --- DETERMINE LOADING TEXT ---
+        let loadingText = 'Processing...'; // Default for Next/Finish
+        if (actionType === 'save_only') {
+            loadingText = 'Saving...';     // Specific for Draft
+        }
+
+        // Disable button and show specific spinner text
+        $btn.prop('disabled', true).html(
+            `<span class="spinner-border spinner-border-sm me-2"></span>${loadingText}`
+        );
+
+        // 4. Perform AJAX with Timeout
         $.ajax({
             url: 'vehicle_form.php',
             type: 'POST',
@@ -93,56 +103,98 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             dataType: 'json',
+            timeout: 5000, // Stop after 5 seconds
             success: function (response) {
 
                 // Reset Button
                 $btn.prop('disabled', false).html(originalText);
 
                 if (response.status === 'success') {
-
-                    // A. Update Vehicle ID (Crucial for linking steps)
                     $('input[name="vehicle_id"]').val(response.id);
 
-                    // B. Handle Logic based on button clicked
                     if (actionType === 'save_next') {
-
-                        // ⭐ Success Notification (Optional but good UX)
                         showGlobalToast(response.message, 'success');
-
-                        // Move to Next Step
                         if (currentStep < totalSteps) {
                             currentStep++;
                             updateWizard();
                         }
                     }
                     else if (actionType === 'save_only') {
-                        // ⭐ REPLACED ALERT WITH TOAST
                         showGlobalToast(response.message, 'success');
                     }
                     else if (actionType === 'finish') {
-                        // ⭐ REPLACED ALERT WITH TOAST (Before Redirect)
                         showGlobalToast("Deal Completed! Redirecting...", 'success');
-
                         setTimeout(function () {
                             window.location.href = 'dashboard.php';
-                        }, 1500); // Small delay so user sees the success message
+                        }, 1500);
                     }
 
                 } else {
-                    // ⭐ REPLACED ERROR ALERT WITH TOAST
                     showGlobalToast(response.message, 'error');
                 }
             },
             error: function (xhr, status, error) {
-                // Handle System Error
                 $btn.prop('disabled', false).html(originalText);
-                console.error("AJAX Error:", xhr.responseText);
 
-                // ⭐ REPLACED SYSTEM ERROR ALERT WITH TOAST
-                showGlobalToast("System Error: Check console for details.", 'error');
+                if (status === 'timeout') {
+                    console.error("Save timed out (> 5s)");
+                    showGlobalToast("Server taking too long. Redirecting...", 'error');
+                    setTimeout(function () {
+                        window.location.href = 'dashboard.php';
+                    }, 1500);
+                } else {
+                    console.error("AJAX Error:", xhr.responseText);
+                    showGlobalToast("System Error: Check console for details.", 'error');
+                }
             }
         });
     }
+
+    // --- EVENT HANDLERS ---
+
+    // Save Draft
+    $('#btn-save-draft').off('click').on('click', function (e) {
+        e.preventDefault();
+        saveData('save_only'); // Will show "Saving..."
+    });
+
+    // Next
+    $('#btn-next').off('click').on('click', function (e) {
+        e.preventDefault();
+        saveData('save_next'); // Will show "Processing..."
+    });
+
+    // Finish
+    $('#btn-finish').off('click').on('click', function (e) {
+        e.preventDefault();
+        if (confirm("Are you sure you want to finish?")) {
+            saveData('finish'); // Will show "Processing..."
+        }
+    });
+
+    // Previous - NOW SHOWS "LOADING..."
+    $('#prevBtn').off('click').on('click', function (e) {
+        e.preventDefault();
+
+        if (currentStep > 1) {
+            let $btn = $(this);
+            let originalText = $btn.html();
+
+            // 1. Show Loading State
+            $btn.prop('disabled', true).html(
+                '<span class="spinner-border spinner-border-sm me-2"></span>Loading...'
+            );
+
+            // 2. Small delay to make the "Loading" visible to the user
+            setTimeout(function () {
+                currentStep--;
+                updateWizard();
+
+                // 3. Reset Button
+                $btn.prop('disabled', false).html(originalText);
+            }, 500); // 0.5 second delay for smooth UI effect
+        }
+    });
 
 
     // GLOBAL MESSAGE FOR FORM
@@ -177,33 +229,6 @@ $(document).ready(function () {
 
     // --- 5. BUTTON CLICK LISTENERS ---
 
-    // Save Draft
-    $('#btn-save-draft').click(function () {
-        saveData('save_only');
-    });
-
-    // Next
-    $('#btn-next').click(function () {
-        saveData('save_next');
-    });
-
-    // Finish
-    $('#btn-finish').click(function () {
-        if (confirm("Are you sure you want to finish?")) {
-            saveData('finish');
-        }
-    });
-
-    // Back (Just UI change, no save needed usually)
-    $('#prevBtn').click(function () {
-        if (currentStep > 1) {
-            currentStep--;
-            updateWizard();
-        }
-    });
-
-    // Initialize
-    updateWizard();
 
     // --- 6. GLOBAL MODAL HANDLER ---
     window.openModal = function (id) {
@@ -224,10 +249,7 @@ $(document).ready(function () {
 
 });
 
-
-
-
-
+// ==========================
 // Form Submission
 $('#saveStepBtn').click(function () {
     let btn = $(this);

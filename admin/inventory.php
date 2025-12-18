@@ -7,6 +7,8 @@ if (!isset($_SESSION["user_id"])) {
     header("Location: index.php");
     exit();
 }
+// 1. Get ID (safely handle if missing)
+$id = $_SESSION['id'] ?? 0;
 
 // 2. Run Query (Standard MySQLi style)
 $query = $conn->prepare("SELECT user_id, email, role FROM users WHERE id = ?");
@@ -97,18 +99,15 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                     </div>
                 </a>
 
+                 <!-- Desktop Logout Button -->
+                <a href="logout.php" class="btn logout-btn d-none d-md-inline-block">
+                    <i class="ph-bold ph-sign-out me-1"></i> Log Out
+                </a>
 
-                <!-- Desktop Log Out Button -->
-                <button id="logoutBtn"
-                    class="btn btn-light border fw-bold rounded-pill px-3 py-1 shadow-sm d-none d-md-inline-block">
-                    Log Out
-                </button>
-
-                <!-- Mobile Log Out Icon -->
-                <button id="logoutIcon"
-                    class="btn btn-light border rounded-circle shadow-sm d-inline-flex d-md-none justify-content-center align-items-center p-2">
+                <!-- Mobile Logout Icon -->
+                <a href="logout.php" class="btn logout-icon d-inline-flex d-md-none">
                     <i class="ph-bold ph-sign-out fs-5"></i>
-                </button>
+                </a>
 
             </div>
         </nav>

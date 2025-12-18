@@ -1278,29 +1278,20 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
                                 <div class="d-flex gap-2 gap-sm-3 ms-auto">
 
-                                    <!-- Save Draft -->
-                                    <button type="button"
-                                        id="btn-save-draft"
-                                        class="btn btn-warning fw-bold text-dark shadow-sm d-flex align-items-center justify-content-center"
-                                        onclick="saveData('save_only')">
+                                    <button type="button" id="btn-save-draft"
+                                        class="btn btn-warning fw-bold text-dark shadow-sm d-flex align-items-center justify-content-center">
                                         <i class="ph-bold ph-floppy-disk fs-5 me-1"></i>
                                         <span>Draft</span>
                                     </button>
 
-                                    <!-- Save & Next -->
-                                    <button type="button"
-                                        id="btn-next"
-                                        class="btn btn-primary fw-bold shadow d-flex align-items-center justify-content-center"
-                                        onclick="saveData('save_next')">
+                                    <button type="button" id="btn-next"
+                                        class="btn btn-primary fw-bold shadow d-flex align-items-center justify-content-center">
                                         <i class="ph-bold ph-caret-right fs-5 me-1"></i>
                                         <span>Next</span>
                                     </button>
 
-                                    <!-- Finish -->
-                                    <button type="button"
-                                        id="btn-finish"
-                                        class="btn btn-success fw-bold text-white shadow-lg d-none d-flex align-items-center justify-content-center"
-                                        onclick="saveData('finish')">
+                                    <button type="button" id="btn-finish"
+                                        class="btn btn-success fw-bold text-white shadow-lg d-none d-flex align-items-center justify-content-center">
                                         <i class="ph-bold ph-check-circle fs-5 me-1"></i>
                                         <span>Finish</span>
                                     </button>
