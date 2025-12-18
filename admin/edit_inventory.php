@@ -286,7 +286,7 @@ $stmt->close();
 
                             <!-- 1st step -->
                             <div id="step-1" class="wizard-step fade-in-animation" style="padding-bottom: 100px;">
-                               <div class="card steps-id border-0 shadow-sm position-relative sold-wrapper rounded-4 p-3 p-md-4" style="padding-bottom: 100px;">
+                                <div class="card steps-id border-0 shadow-sm position-relative sold-wrapper rounded-4 p-3 p-md-4" style="padding-bottom: 100px;">
 
                                     <?php if (isset($vehicle['sold_out']) && $vehicle['sold_out'] == 1): ?>
                                         <div class="sold-stamp">SOLD OUT</div>
@@ -552,7 +552,7 @@ $stmt->close();
                                                 $statusColor = !empty($dbFile) ? "text-success" : "text-muted";
                                                 $icon = !empty($dbFile) ? "ph-file-image" : "ph-file";
                                             ?>
-                                                <div class="col-6 col-md-3">
+                                                <div class="col-12 col-md-3">
                                                     <div class="card h-100 shadow-sm border-0 bg-light">
                                                         <div class="card-body p-2 d-flex flex-column">
 
@@ -638,7 +638,7 @@ $stmt->close();
                                                     $statusColor = !empty($dbFile) ? "text-success" : "text-muted";
                                                     $icon = !empty($dbFile) ? "ph-file-image" : "ph-file";
                                                 ?>
-                                                    <div class="col-6 col-md-3">
+                                                    <div class="col-12 col-md-3">
                                                         <div class="card h-100 shadow-sm border-0 bg-light">
                                                             <div class="card-body p-2 d-flex flex-column">
 
@@ -704,7 +704,7 @@ $stmt->close();
                                                     $statusColor = !empty($dbFile) ? "text-success" : "text-muted";
                                                     $icon = !empty($dbFile) ? "ph-file-image" : "ph-file";
                                                 ?>
-                                                    <div class="col-6 col-md-3">
+                                                    <div class="col-12 col-md-3">
                                                         <div class="card h-100 shadow-sm border-0 bg-light">
                                                             <div class="card-body p-2 d-flex flex-column">
 
@@ -828,7 +828,7 @@ $stmt->close();
                             </div>
                             <!-- 3rd step -->
                             <div id="step-3" class="wizard-step d-none" style="padding-bottom: 100px;">
-                                <div class="card steps-id border-0 shadow-sm position-relative sold-wrapper rounded-4 p-3 p-md-4"  style="padding-bottom: 100px;">
+                                <div class="card steps-id border-0 shadow-sm position-relative sold-wrapper rounded-4 p-3 p-md-4" style="padding-bottom: 100px;">
                                     <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Purchaser Details</h6>
 
                                     <div class="row g-3 mb-3">
@@ -1100,7 +1100,7 @@ $stmt->close();
                                                 $statusColor = !empty($dbFile) ? "text-success" : "text-muted";
                                                 $icon = !empty($dbFile) ? "ph-file-image" : "ph-file";
                                             ?>
-                                                <div class="col-6 col-md-3">
+                                                <div class="col-12 col-md-3">
                                                     <div class="card h-100 shadow-sm border-0 bg-light">
                                                         <div class="card-body p-2 d-flex flex-column">
 
@@ -1142,10 +1142,10 @@ $stmt->close();
                             </div>
                             <!-- 4rd step -->
                             <div id="step-4" class="wizard-step d-none" style="padding-bottom: 100px;">
-                                <div class="card steps-id border-0 shadow-sm position-relative sold-wrapper rounded-4 p-3 p-md-4"  style="padding-bottom: 100px;">
+                                <div class="card steps-id border-0 shadow-sm position-relative sold-wrapper rounded-4 " style="padding-bottom: 100px;">
                                     <h6 class="fw-bold text-primary m-4 mb-3 text-uppercase ls-1">Ownership Transfer</h6>
 
-                                    <div class="p-3 border rounded-4 mb-4">
+                                    <div class="border rounded-4 mb-4" style="padding: 10px;">
                                         <div class="row g-3 mb-3">
                                             <div class="col-12 col-md-4">
                                                 <label>Name Transfer</label>
