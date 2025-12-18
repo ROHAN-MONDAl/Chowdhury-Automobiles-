@@ -44,6 +44,9 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
     <!-- Icons (Phosphor Icons) -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Icons (Font-awesome Icons) -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- Google reCAPTCHA -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
@@ -139,17 +142,21 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
         // --- Year Filter (Checks inside 'vehicle' table) ---
         if (!empty($year)) {
-            $conditions[] = "v.year = ?";
+            $conditions[] = "YEAR(v.register_date) = ?";
             $params[] = $year;
-            $types .= "s";
+            $types .= "i";  // integer type for year
         }
 
         // --- Status/Payment Filters (Add these if needed) ---
         if (!empty($status)) {
-            // Assuming status is in the vehicle table. Adjust if it's elsewhere.
-            $conditions[] = "v.status = ?";
-            $params[] = $status;
-            $types .= "s";
+            if ($status == 'available') {
+                $conditions[] = "v.sold_out = ?";
+                $params[] = 0;  // 0 = not sold
+            } else if ($status == 'sold') {
+                $conditions[] = "v.sold_out = ?";
+                $params[] = 1;  // 1 = sold
+            }
+            $types .= "i";  // integer type
         }
 
         // Construct the WHERE clause
@@ -402,49 +409,55 @@ LEFT JOIN vehicle_ot ot ON v.id = ot.vehicle_id" . $whereSQL;
 
                         <div class="col">
 
-                           <div class="card border-0 inventory-card h-100">
-    <div class="hover-card position-relative overflow-hidden">
-        <img src="<?= $imageSrc; ?>" class="d-block w-100" loading="lazy" alt="Bike">
-        
-        <span class="badge status-badge <?= $statusClass ?> fw-bold"
-            style="font-size: 12px; letter-spacing: 0.5px;">
-            <i class="ph-fill ph-circle"></i> <?= $statusText ?>
-        </span>
-    </div>
 
-    <div class="info-overlay">
-        <div class="card-header-section">
-            <div>
-                <h6 class="fw-bold text-uppercase"><?= $row['vehicle_number']; ?></h6>
-                <small><?= $row['name']; ?></small>
-            </div>
-            <div class="card-price">₹ <?= number_format($row['cash_price']); ?></div>
-        </div>
+                            <div class="card border-0 inventory-card h-100">
+                                <div class="hover-card position-relative overflow-hidden">
+                                    <img src="<?= $imageSrc; ?>" class="d-block w-100" loading="lazy" alt="Bike">
 
-        <div class="card-meta">
-            <span class="badge"><?= date('Y', strtotime($row['register_date'])); ?></span>
-            <span class="badge"><?= $row['owner_serial']; ?> Owner</span>
-        </div>
+                                    <span class="badge status-badge <?= $statusClass ?>">
+                                        <?php if ($statusText === 'Available'): ?>
+                                            <i class="fa-solid fa-box"></i>
+                                        <?php else: ?>
+                                            <i class="fa-solid fa-box-archive"></i>
+                                        <?php endif; ?>
+                                        <?= $statusText ?>
+                                    </span>
 
-        <div class="card-actions">
-            <a href="edit_inventory.php?id=<?= $row['vehicle_prim_id']; ?>"
-                class="btn action-btn btn-edit">
-                <i class="ph-bold ph-pencil-simple"></i> Edit
-            </a>
+                                </div>
 
-            <a href="delete_vehicle.php?id=<?= $row['vehicle_prim_id']; ?>"
-                class="btn action-btn btn-delete"
-                onclick="return confirmDeleteVehicle();">
-                <i class="bi bi-trash"></i> Delete
-            </a>
+                                <div class="info-overlay">
+                                    <div class="card-header-section">
+                                        <div>
+                                            <h6 class="fw-bold text-uppercase"><?= $row['vehicle_number']; ?></h6>
+                                            <small><?= $row['name']; ?></small>
+                                        </div>
+                                        <div class="card-price">₹ <?= number_format($row['cash_price']); ?></div>
+                                    </div>
 
-            <button type="button" class="btn action-btn btn-view"
-                data-bs-toggle="modal" data-bs-target="#<?= $modalID; ?>">
-                <i class="ph-bold ph-eye"></i> View
-            </button>
-        </div>
-    </div>
-</div>
+                                    <div class="card-meta">
+                                        <span class="badge"><?= date('Y', strtotime($row['register_date'])); ?></span>
+                                        <span class="badge"><?= $row['owner_serial']; ?> Owner</span>
+                                    </div>
+
+                                    <div class="card-actions">
+                                        <a href="edit_inventory.php?id=<?= $row['vehicle_prim_id']; ?>"
+                                            class="btn action-btn btn-edit">
+                                            <i class="ph-bold ph-pencil-simple"></i> Edit
+                                        </a>
+
+                                        <a href="delete_vehicle.php?id=<?= $row['vehicle_prim_id']; ?>"
+                                            class="btn action-btn btn-delete"
+                                            onclick="return confirmDeleteVehicle();">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </a>
+
+                                        <button type="button" class="btn action-btn btn-view"
+                                            data-bs-toggle="modal" data-bs-target="#<?= $modalID; ?>">
+                                            <i class="ph-bold ph-eye"></i> View
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
 
