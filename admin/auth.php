@@ -110,12 +110,12 @@ function sendMail($to, $subject, $body)
         $mail->isSMTP();
         $mail->Host = "smtp.gmail.com";
         $mail->SMTPAuth = true;
-        $mail->Username = "mindtraveller775@gmail.com";
-        $mail->Password = "vtnh obqg akzm hoxo";
+        $mail->Username = "csoumen652@gmail.com";
+        $mail->Password = "pgyt afpd jhbe ehvq"; // App Password
         $mail->SMTPSecure = "tls";
         $mail->Port = 587;
 
-        $mail->setFrom("mindtraveller775@gmail.com", "Chowdhury Automobile");
+        $mail->setFrom("csoumen652@gmail.com", "Chowdhury Automobile");
         $mail->addAddress($to);
         $mail->isHTML(true);
         $mail->Subject = $subject;
@@ -149,7 +149,7 @@ if ($action === 'login') {
         exit();
     }
 
-    $secret = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"; 
+    $secret = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"; // Test Secret Key
     $verify = @file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secret&response=$response");
     $captcha = json_decode($verify, true);
 

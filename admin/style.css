@@ -799,120 +799,217 @@ label {
 /* --- 1. Main Card Container --- */
 .inventory-card {
     border: none;
-    /* Removed border for a cleaner look */
-    border-radius: 16px;
-    /* Softer corners */
-    background: #fff;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-    /* Very subtle initial shadow */
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    /* Bouncy transition */
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-.inventory-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15) !important;
+.inventory-card:hover:not(.modal-open) {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+.inventory-card.modal-open {
+    transform: none !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
 }
 
 /* --- 2. Image Area --- */
 .hover-card {
-    height: 260px;
-    /* Slightly taller */
+    height: 280px;
     position: relative;
-    border-radius: 16px;
-    /* Matches container */
+    border-radius: 20px 20px 0 0;
     overflow: hidden;
-    background: #f1f5f9;
-    /* Skeleton placeholder color */
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
 }
 
-/* Image scaling */
 .hover-card img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.6s cubic-bezier(0.33, 1, 0.68, 1);
-    /* Smooth slow-out */
+    display: block;
 }
 
-/* On hover, scale image and slightly dim it to make text pop */
-.hover-card:hover img {
-    transform: scale(1.12);
-    filter: brightness(0.95);
+.inventory-card:hover:not(.modal-open) .hover-card img {
+    transform: scale(1.08);
+    filter: brightness(0.98);
 }
 
-/* --- 3. The New "Floating Glass" Overlay --- */
-.info-overlay {
+/* --- 3. Status Badge --- */
+.status-badge {
     position: absolute;
-    bottom: 12px;
-    /* Floats above the bottom edge */
-    left: 12px;
+    top: 12px;
     right: 12px;
-
-    /* The Glass Effect */
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-
-    padding: 16px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-
-    /* Text Colors (Must be dark now) */
-    color: #1e293b;
-    z-index: 2;
-
-    /* Animation State */
-    transform: translateY(30px);
-    /* Pushed down slightly */
-    opacity: 0.9;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+    font-size: 12px !important;
+    letter-spacing: 0.5px;
+    padding: 8px 14px !important;
+    border-radius: 20px !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    font-weight: 600;
+    animation: slideIn 0.4s ease-out;
 }
 
-/* Ensure text inside overlay is readable */
-.info-overlay h1,
-.info-overlay h2,
-.info-overlay h3,
-.info-overlay h4,
-.info-overlay h5,
+.status-badge.available {
+    background: rgba(34, 197, 94, 0.15) !important;
+    color: #15803d !important;
+}
+
+.status-badge.sold {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #991b1b !important;
+}
+
+.status-badge i {
+    font-size: 6px;
+    margin-right: 6px;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* --- 4. Info Overlay --- */
+.info-overlay {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: #ffffff;
+}
+
 .info-overlay h6 {
+    font-size: 16px;
+    font-weight: 700;
     color: #0f172a;
-    /* Dark Slate */
+    letter-spacing: 1px;
     margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.info-overlay small {
+    font-size: 12px;
+    color: #64748b;
+    display: block;
 }
 
 .info-overlay p,
 .info-overlay span {
     color: #64748b;
-    /* Muted Slate */
 }
 
-/* Secondary info elements inside the card */
-.info-overlay>*:not(:first-child) {
-    opacity: 0;
-    height: 0;
-    margin-top: 0;
-    overflow: hidden;
+/* --- 5. Header Section --- */
+.card-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.card-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2563eb;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* --- 6. Meta Badges --- */
+.card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.card-meta .badge {
+    font-size: 11px;
+    padding: 6px 12px !important;
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0 !important;
+    font-weight: 500;
+    border-radius: 16px !important;
+}
+
+/* --- 7. Action Buttons --- */
+.card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 10px 12px !important;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 12px !important;
     transition: all 0.3s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
 }
 
-/* --- 4. Hover States --- */
-/* When hovering the card, move overlay up and fix opacity */
-.hover-card:hover .info-overlay {
-    transform: translateY(0);
-    opacity: 1;
-    bottom: 12px;
+.btn-edit {
+    background: #1e293b !important;
+    color: white !important;
+    border: none !important;
 }
 
-/* Reveal the hidden details */
-.hover-card:hover .info-overlay>*:not(:first-child) {
-    opacity: 1;
-    height: auto;
-    margin-top: 8px;
+.btn-edit:hover {
+    background: #0f172a !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
 }
 
+.btn-delete {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+    border: none !important;
+}
+
+.btn-delete:hover {
+    background: #fecaca !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(153, 27, 27, 0.2);
+}
+
+.btn-view {
+    background: #eff6ff !important;
+    color: #1e40af !important;
+    border: 1.5px solid #dbeafe !important;
+}
+
+.btn-view:hover {
+    background: #dbeafe !important;
+    border-color: #bfdbfe !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
+}
+
+.action-btn i {
+    font-size: 13px;
+}
 /* --- 5. Badges --- */
 .status-badge {
     z-index: 5;

@@ -401,63 +401,50 @@ LEFT JOIN vehicle_ot ot ON v.id = ot.vehicle_id" . $whereSQL;
                 ?>
 
                         <div class="col">
-                            <div class="card border-0 inventory-card h-100">
-                                <div class="hover-card position-relative overflow-hidden">
 
-                                    <img src="<?= $imageSrc; ?>" class="d-block w-100 h-100 object-fit-cover" loading="lazy"
-                                        style="height: 300px !important;" alt="Bike">
+                           <div class="card border-0 inventory-card h-100">
+    <div class="hover-card position-relative overflow-hidden">
+        <img src="<?= $imageSrc; ?>" class="d-block w-100" loading="lazy" alt="Bike">
+        
+        <span class="badge status-badge <?= $statusClass ?> fw-bold"
+            style="font-size: 12px; letter-spacing: 0.5px;">
+            <i class="ph-fill ph-circle"></i> <?= $statusText ?>
+        </span>
+    </div>
 
-                                    <div class="position-absolute top-0 end-0 p-3 z-2 mt-2">
-                                        <span class="badge status-badge <?= $statusClass ?> fw-bold bg-white shadow-sm rounded-pill px-3 py-2"
-                                            style="font-size: 11px; letter-spacing: 0.5px;">
-                                            <i class="ph-fill ph-circle me-1"></i> <?= $statusText ?>
-                                        </span>
-                                    </div>
+    <div class="info-overlay">
+        <div class="card-header-section">
+            <div>
+                <h6 class="fw-bold text-uppercase"><?= $row['vehicle_number']; ?></h6>
+                <small><?= $row['name']; ?></small>
+            </div>
+            <div class="card-price">₹ <?= number_format($row['cash_price']); ?></div>
+        </div>
 
-                                    <div class="info-overlay d-flex flex-column gap-2">
-                                        <div class="d-flex justify-content-between align-items-end">
-                                            <div>
-                                                <h6 class="fw-bold mb-1 text-dark fs-5"><?= $row['vehicle_number']; ?></h6>
-                                                <small class="text-muted"><?= $row['name']; ?></small>
-                                            </div>
-                                            <div class="fw-bold text-primary fs-4">₹ <?= number_format($row['cash_price']); ?></div>
-                                        </div>
+        <div class="card-meta">
+            <span class="badge"><?= date('Y', strtotime($row['register_date'])); ?></span>
+            <span class="badge"><?= $row['owner_serial']; ?> Owner</span>
+        </div>
 
-                                        <div class="d-flex flex-wrap gap-2 mt-2">
-                                            <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
-                                                <?= date('Y', strtotime($row['register_date'])); ?>
-                                            </span>
-                                            <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal">
-                                                <?= $row['owner_serial']; ?> Owner
-                                            </span>
-                                        </div>
+        <div class="card-actions">
+            <a href="edit_inventory.php?id=<?= $row['vehicle_prim_id']; ?>"
+                class="btn action-btn btn-edit">
+                <i class="ph-bold ph-pencil-simple"></i> Edit
+            </a>
 
-                                        <div class="d-flex gap-2 mt-3 align-items-center">
-                                            <!-- Edit -->
-                                            <a href="edit_inventory.php?id=<?= $row['vehicle_prim_id']; ?>"
-                                                class="btn btn-sm btn-dark fw-bold flex-grow-1 rounded-pill py-2 text-center">
-                                                <i class="ph-bold ph-pencil-simple text-white me-1"></i> Edit
-                                            </a>
+            <a href="delete_vehicle.php?id=<?= $row['vehicle_prim_id']; ?>"
+                class="btn action-btn btn-delete"
+                onclick="return confirmDeleteVehicle();">
+                <i class="bi bi-trash"></i> Delete
+            </a>
 
-                                            <!-- Delete -->
-                                            <a href="delete_vehicle.php?id=<?= $row['vehicle_prim_id']; ?>"
-                                                class="btn btn-sm btn-danger fw-bold flex-grow-1 rounded-pill py-2 text-center"
-                                                onclick="return confirmDeleteVehicle();">
-                                                <i class="bi bi-trash me-1"></i> Delete
-                                            </a>
-
-                                            <!-- View -->
-                                            <button type="button"
-                                                class="btn btn-sm btn-outline-dark fw-bold flex-grow-1 rounded-pill py-2 text-center"
-                                                data-bs-toggle="modal" data-bs-target="#<?= $modalID; ?>">
-                                                View
-                                            </button>
-                                        </div>
-
-                                    </div>
-
-                                </div>
-                            </div>
+            <button type="button" class="btn action-btn btn-view"
+                data-bs-toggle="modal" data-bs-target="#<?= $modalID; ?>">
+                <i class="ph-bold ph-eye"></i> View
+            </button>
+        </div>
+    </div>
+</div>
                         </div>
 
 
