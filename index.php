@@ -145,154 +145,94 @@ include 'admin/db.php';
     <section class="py-1">
         <div class="container">
 
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
 
                 <?php
                 // ============================================
-                // BUILD DYNAMIC SQL QUERY WITH FILTERS
+                // 1. BUILD QUERY
                 // ============================================
                 $sql = "SELECT 
-            v.id as vehicle_prim_id, 
-            v.*, 
-            vs.*, 
-            vp.*, 
-            ot.*
-        FROM vehicle v
-        LEFT JOIN vehicle_seller vs ON v.id = vs.vehicle_id
-        LEFT JOIN vehicle_purchaser vp ON v.id = vp.vehicle_id
-        LEFT JOIN vehicle_ot ot ON v.id = ot.vehicle_id
-        WHERE 1=1";
+                v.id as vehicle_prim_id, v.*, vs.*, vp.*, ot.*
+                FROM vehicle v
+                LEFT JOIN vehicle_seller vs ON v.id = vs.vehicle_id
+                LEFT JOIN vehicle_purchaser vp ON v.id = vp.vehicle_id
+                LEFT JOIN vehicle_ot ot ON v.id = ot.vehicle_id
+                WHERE 1=1";
 
-                // Search Filter (Name, Vehicle Number, Engine, Chassis)
+                // --- FILTERS ---
                 if (!empty($search)) {
                     $searchEscaped = $conn->real_escape_string($search);
-                    $sql .= " AND (
-                v.name LIKE '%$searchEscaped%' OR 
-                v.vehicle_number LIKE '%$searchEscaped%' OR 
-                v.engine_number LIKE '%$searchEscaped%' OR 
-                v.chassis_number LIKE '%$searchEscaped%'
-            )";
+                    $sql .= " AND (v.name LIKE '%$searchEscaped%' OR v.vehicle_number LIKE '%$searchEscaped%' OR v.engine_number LIKE '%$searchEscaped%' OR v.chassis_number LIKE '%$searchEscaped%')";
                 }
-
-                // Year Filter
                 if (!empty($year)) {
                     $yearEscaped = $conn->real_escape_string($year);
                     $sql .= " AND YEAR(v.register_date) = '$yearEscaped'";
                 }
-
-                // RTO Filter (assuming RTO is part of vehicle_number like WB-XX-XXXX)
                 if (!empty($rto)) {
                     $rtoEscaped = $conn->real_escape_string($rto);
                     $sql .= " AND v.vehicle_number LIKE '%$rtoEscaped%'";
                 }
-
-
-                // Payment Type Filter
                 if (!empty($payment)) {
                     $paymentEscaped = $conn->real_escape_string($payment);
                     $sql .= " AND v.payment_type = '$paymentEscaped'";
                 }
 
                 $sql .= " ORDER BY v.id DESC";
-
                 $result = $conn->query($sql);
 
+                // ============================================
+                // 2. START LOOP
+                // ============================================
                 if ($result->num_rows > 0):
                     while ($row = $result->fetch_assoc()):
 
-                        // Image Logic
-                        if (!empty($row['photo1'])) {
-                            $imageSrc = "images/" . $row['photo1'];
-                        } else {
-                            $imageSrc = "images/default.jpg";
-                        }
-
-                        // Status Logic
+                        // Logic Setup
+                        $imageSrc = !empty($row['photo1']) ? "images/" . $row['photo1'] : "images/default.jpg";
                         $isAvailable = ($row['sold_out'] == 0);
-                        $statusText = $isAvailable ? "AVAILABLE" : "SOLD OUT";
-                        $statusClass = $isAvailable ? "text-success" : "text-danger";
-
-                        // Unique Modal ID
                         $modalID = "viewModal_" . $row['vehicle_prim_id'];
-
-                        // Prevent Warnings
-                        $row['pr_rc'] = $row['pr_rc'] ?? 0;
-                        $row['pr_noc'] = $row['pr_noc'] ?? 0;
-                        $row['seller_payment_type'] = $row['seller_payment_type'] ?? '';
                 ?>
-                        <!-- VEHICLE 1 -->
-                        <div class="col">
-                            <div class="product-card bikedekho-dark">
 
-                                <!-- STATUS -->
-                                <span class="badge-status <?= ($row['sold_out'] == 0) ? 'bg-available' : 'bg-sold'; ?>">
-                                    <?= ($row['sold_out'] == 0) ? 'Available' : 'Sold Out'; ?>
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="product-card bikedekho-dark h-100"> <span class="badge-status <?= $isAvailable ? 'bg-available' : 'bg-sold'; ?>">
+                                    <?= $isAvailable ? 'Available' : 'Sold Out'; ?>
                                 </span>
 
-                                <!-- IMAGE -->
                                 <div class="bike-img">
-                                    <img src="<?= !empty($row['photo1']) ? 'images/' . $row['photo1'] : 'images/default.jpg'; ?>"
-                                        alt="Bike">
+                                    <img src="<?= $imageSrc; ?>" alt="Bike" class="img-fluid">
                                 </div>
 
-                                <!-- BODY -->
                                 <div class="bike-body">
-
-                                    <!-- VEHICLE TYPE -->
                                     <span class="bike-type fw-bold mb-1 d-inline-block">
                                         <?= htmlspecialchars($row['vehicle_type'] ?? 'Bike'); ?>
                                     </span>
 
-                                    <!-- TITLE -->
-                                    <h6 class="bike-title mb-1">
+                                    <h6 class="bike-title mb-1 text-truncate">
                                         <?= htmlspecialchars($row['model_name'] ?? $row['name']); ?>
                                     </h6>
 
-                                    <!-- VEHICLE NUMBER -->
-                                    <p class="bike-number mb-1">
+                                    <p class="bike-number mb-1 small text-muted">
                                         <?= htmlspecialchars($row['vehicle_number']); ?>
                                     </p>
 
-                                    <!-- META INFO -->
-                                    <div class="bike-meta mb-2">
+                                    <div class="bike-meta mb-2 small">
                                         <?= date('Y', strtotime($row['register_date'])); ?> •
-                                        <?= (int) $row['owner_serial']; ?> Owner
+                                        <?= (int)$row['owner_serial']; ?> Owner
                                     </div>
 
-                                    <!-- PRICE + ACTION -->
-                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                                        <span class="bike-price">
+                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-auto">
+                                        <span class="bike-price fw-bold">
                                             ₹<?= number_format($row['cash_price']); ?>
                                         </span>
-
-                                        <button class="btn btn-dark btn-sm rounded-pill" data-bs-toggle="modal"
-                                            data-bs-target="#<?= $modalID; ?>">
+                                        <button class="btn btn-dark btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#<?= $modalID; ?>">
                                             View <i class="fa-solid fa-arrow-right ms-1"></i>
                                         </button>
-
                                     </div>
-
                                 </div>
-
                             </div>
 
                         </div>
-
-
-            </div>
-
-            <!-- PAGINATION (EMPTY — JS will build pages here) -->
-            <div class="d-flex justify-content-center mt-5">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination"></ul>
-                </nav>
-            </div>
-
-        </div>
-    </section>
-
-
-
+                        
+                        
     <!-- Vehicle Details View Modal - Accordion-based modal to view comprehensive vehicle and deal
               information including photos, specs, and transaction details -->
     <div class="modal fade" id="<?= $modalID; ?>" tabindex="-1" aria-hidden="true">
@@ -1241,107 +1181,119 @@ include 'admin/db.php';
             </div>
         </div>
     </div>
-
-
-<?php
-                    endwhile;
-                else:
-?>
-<div class="col-12">
-    <div class="alert alert-info text-center">
-        <i class="ph-bold ph-info fs-1 d-block mb-2"></i>
-        <h5>No vehicles found</h5>
-        <p class="mb-0">Try adjusting your filters or <a href="?">reset them</a> to see all vehicles.</p>
-    </div>
-</div>
-<?php endif; ?>
-
-<footer id="contact" class="section-footer py-5">
-    <div class="container py-4">
-        <div class="row g-5">
-
-            <div class="col-lg-4">
-                <a class="navbar-brand d-flex align-items-center gap-2" href="staffs_portal.php">
-                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-1"
-                        style="width: 48px; height: 48px; overflow: hidden; padding: 2px;">
-                        <img src="images/logo.jpeg" alt="Chowdhury Automobile Logo" class="rounded-circle"
-                            style="width: 100%; height: 100%; object-fit: cover;">
+                        
+                        <?php
+                            // ============================================
+                            // 3. END LOOP
+                            // ============================================
+                            endwhile;
+                        else:
+                                ?>
+                    <div class="col-12">
+                        <div class="alert alert-info text-center py-4">
+                            <i class="fa-solid fa-circle-info fs-1 d-block mb-2"></i>
+                            <h5>No vehicles found</h5>
+                            <p class="mb-0">Try adjusting your filters.</p>
+                        </div>
                     </div>
+                <?php endif; ?>
 
-                    <div class="d-flex flex-column lh-1">
-                        <span class="fs-5 fw-bolder text-white">CHOWDHURY</span>
-                        <span class="text-secondary fw-bold text-uppercase"
-                            style="font-size: 0.7rem; letter-spacing: 1.5px;">
-                            Automobile
-                        </span>
-                    </div>
-                </a>
+            </div>
+            <div class="d-flex justify-content-center mt-5">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination"></ul>
+                </nav>
+            </div>
 
+        </div>
+    </section>
 
-                <p class="text-secondary small mt-2 mb-4 pe-lg-4">
-                    West Bengal's most trusted pre-owned two-wheeler dealership. We ensure every ride you take is
-                    safe, legal, and reliable.
-                </p>
-                <div class="d-flex gap-3">
-                    <a href="https://wa.me/917047649289" target="_blank" class="btn btn-dark rounded-circle d-flex align-items-center justify-content-center"
-                        style="width: 40px; height: 40px;">
-                        <i class="fa-brands fa-whatsapp"></i>
+    <footer id="contact" class="section-footer py-5">
+        <div class="container py-4">
+            <div class="row g-5">
+
+                <div class="col-lg-4">
+                    <a class="navbar-brand d-flex align-items-center gap-2" href="staffs_portal.php">
+                        <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-1"
+                            style="width: 48px; height: 48px; overflow: hidden; padding: 2px;">
+                            <img src="images/logo.jpeg" alt="Chowdhury Automobile Logo" class="rounded-circle"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+
+                        <div class="d-flex flex-column lh-1">
+                            <span class="fs-5 fw-bolder text-white">CHOWDHURY</span>
+                            <span class="text-secondary fw-bold text-uppercase"
+                                style="font-size: 0.7rem; letter-spacing: 1.5px;">
+                                Automobile
+                            </span>
+                        </div>
                     </a>
-                    <a href="#" class="btn btn-dark rounded-circle" style="width: 40px; height: 40px;"><i
-                            class="fa-brands fa-facebook-f mt-1"></i></a>
-                    <a href="#" class="btn btn-dark rounded-circle" style="width: 40px; height: 40px;"><i
-                            class="fa-brands fa-instagram mt-1"></i></a>
-                </div>
-            </div>
 
-            <div class="col-lg-3">
-                <h6 class="fw-bold mb-4">Get in Touch</h6>
-                <div class="d-flex gap-3 mb-4">
-                    <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                        style="width: 40px; height: 40px;">
-                        <i class="fa-solid fa-location-dot"></i>
-                    </div>
-                    <div>
-                        <span class="fw-bold small d-block">Showroom</span>
-                        <span class="small text-secondary">Beliatore (Opposite of WBSEDCL office),pin :- 722203.</span>
-                    </div>
-                </div>
-                <div class="d-flex gap-3">
-                    <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                        style="width: 40px; height: 40px;">
-                        <i class="fa-solid fa-phone"></i>
-                    </div>
-                    <div>
-                        <a href="tel:+919332072223" class="text-decoration-none">
-                            <span class="fw-bold text-white small d-block">Call Us</span>
-                            <span class="small text-secondary">+91 93320 72223</span>
+
+                    <p class="text-secondary small mt-2 mb-4 pe-lg-4">
+                        West Bengal's most trusted pre-owned two-wheeler dealership. We ensure every ride you take is
+                        safe, legal, and reliable.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="https://wa.me/917047649289" target="_blank" class="btn btn-dark rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 40px; height: 40px;">
+                            <i class="fa-brands fa-whatsapp"></i>
                         </a>
-                        <a href="tel:+917047649289" class="text-decoration-none">
-                            <span class="fw-bold text-white small d-block">Call Us</span>
-                            <span class="small text-secondary">+91 70476 49289</span>
-                        </a>
+                        <a href="#" class="btn btn-dark rounded-circle" style="width: 40px; height: 40px;"><i
+                                class="fa-brands fa-facebook-f mt-1"></i></a>
+                        <a href="#" class="btn btn-dark rounded-circle" style="width: 40px; height: 40px;"><i
+                                class="fa-brands fa-instagram mt-1"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
+                    <h6 class="fw-bold mb-4">Get in Touch</h6>
+                    <div class="d-flex gap-3 mb-4">
+                        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                            style="width: 40px; height: 40px;">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div>
+                            <span class="fw-bold small d-block">Showroom</span>
+                            <span class="small text-secondary">Beliatore (Opposite of WBSEDCL office),pin :- 722203.</span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                            style="width: 40px; height: 40px;">
+                            <i class="fa-solid fa-phone"></i>
+                        </div>
+                        <div>
+                            <a href="tel:+919332072223" class="text-decoration-none">
+                                <span class="fw-bold text-white small d-block">Call Us</span>
+                                <span class="small text-secondary">+91 93320 72223</span>
+                            </a>
+                            <a href="tel:+917047649289" class="text-decoration-none">
+                                <span class="fw-bold text-white small d-block">Call Us</span>
+                                <span class="small text-secondary">+91 70476 49289</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="overflow-hidden rounded-4 border border-secondary border-opacity-25"
+                        style="height: 100%; min-height: 250px;">
+                        <iframe class="footer-map-frame"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3663.9166233335636!2d87.21558441011682!3d23.318783705123142!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f7a1a94a63818b%3A0xc439f4a9fb186f34!2sBeliatore%20CCC(WBSEDCL)!5e0!3m2!1sen!2sin!4v1766005607136!5m2!1sen!2sin"
+                            allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-5">
-                <div class="overflow-hidden rounded-4 border border-secondary border-opacity-25"
-                    style="height: 100%; min-height: 250px;">
-                    <iframe class="footer-map-frame"
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3663.9166233335636!2d87.21558441011682!3d23.318783705123142!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f7a1a94a63818b%3A0xc439f4a9fb186f34!2sBeliatore%20CCC(WBSEDCL)!5e0!3m2!1sen!2sin!4v1766005607136!5m2!1sen!2sin"
-                        allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-                    </iframe>
-                </div>
+            <div class="border-top border-secondary border-opacity-25 mt-5 pt-4 text-center small text-secondary">
+                © 2025 Chowdhury Automobile. All rights reserved. | Developed by <a href="https://web2infinity.com/"
+                    style="text-decoration: none; color: white;">Web2Infinity</a>
             </div>
-        </div>
 
-        <div class="border-top border-secondary border-opacity-25 mt-5 pt-4 text-center small text-secondary">
-            © 2025 Chowdhury Automobile. All rights reserved. | Developed by <a href="https://web2infinity.com/"
-                style="text-decoration: none; color: white;">Web2Infinity</a>
         </div>
-
-    </div>
-</footer>
+    </footer>
 
 
 </html>

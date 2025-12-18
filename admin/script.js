@@ -69,7 +69,7 @@ $(document).ready(function () {
 
 
     // --- 4. AJAX SAVE FUNCTION ---
-    function saveData(actionType) {
+function saveData(actionType) {
 
         // 1. Get Form Data
         let formData = new FormData($('#dealForm')[0]);
@@ -78,24 +78,7 @@ $(document).ready(function () {
         formData.append('step', currentStep);
         formData.append('action', actionType);
 
-        // 3. UI: Select Button
-        let $btn = (actionType === 'save_next') ? $('#btn-next') :
-            (actionType === 'save_only') ? $('#btn-save-draft') : $('#btn-finish');
-
-        let originalText = $btn.html();
-
-        // --- DETERMINE LOADING TEXT ---
-        let loadingText = 'Processing...'; // Default for Next/Finish
-        if (actionType === 'save_only') {
-            loadingText = 'Saving...';     // Specific for Draft
-        }
-
-        // Disable button and show specific spinner text
-        $btn.prop('disabled', true).html(
-            `<span class="spinner-border spinner-border-sm me-2"></span>${loadingText}`
-        );
-
-        // 4. Perform AJAX with Timeout
+        // 3. Perform AJAX with Timeout
         $.ajax({
             url: 'vehicle_form.php',
             type: 'POST',
@@ -105,9 +88,6 @@ $(document).ready(function () {
             dataType: 'json',
             timeout: 5000, // Stop after 5 seconds
             success: function (response) {
-
-                // Reset Button
-                $btn.prop('disabled', false).html(originalText);
 
                 if (response.status === 'success') {
                     $('input[name="vehicle_id"]').val(response.id);
@@ -134,7 +114,6 @@ $(document).ready(function () {
                 }
             },
             error: function (xhr, status, error) {
-                $btn.prop('disabled', false).html(originalText);
 
                 if (status === 'timeout') {
                     console.error("Save timed out (> 5s)");
@@ -155,44 +134,30 @@ $(document).ready(function () {
     // Save Draft
     $('#btn-save-draft').off('click').on('click', function (e) {
         e.preventDefault();
-        saveData('save_only'); // Will show "Saving..."
+        saveData('save_only');
     });
 
     // Next
     $('#btn-next').off('click').on('click', function (e) {
         e.preventDefault();
-        saveData('save_next'); // Will show "Processing..."
+        saveData('save_next');
     });
 
     // Finish
     $('#btn-finish').off('click').on('click', function (e) {
         e.preventDefault();
         if (confirm("Are you sure you want to finish?")) {
-            saveData('finish'); // Will show "Processing..."
+            saveData('finish');
         }
     });
 
-    // Previous - NOW SHOWS "LOADING..."
+    // Previous
     $('#prevBtn').off('click').on('click', function (e) {
         e.preventDefault();
 
         if (currentStep > 1) {
-            let $btn = $(this);
-            let originalText = $btn.html();
-
-            // 1. Show Loading State
-            $btn.prop('disabled', true).html(
-                '<span class="spinner-border spinner-border-sm me-2"></span>Loading...'
-            );
-
-            // 2. Small delay to make the "Loading" visible to the user
-            setTimeout(function () {
-                currentStep--;
-                updateWizard();
-
-                // 3. Reset Button
-                $btn.prop('disabled', false).html(originalText);
-            }, 500); // 0.5 second delay for smooth UI effect
+            currentStep--;
+            updateWizard();
         }
     });
 

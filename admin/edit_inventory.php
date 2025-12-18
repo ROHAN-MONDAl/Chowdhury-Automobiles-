@@ -97,37 +97,42 @@ $stmt->close();
     <?php include_once "global_message.php" ?>
 
 
-    <nav class="navbar bg-white border-bottom shadow-sm py-3 flex-shrink-0">
-        <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="dashboard.php">
-                <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-1"
-                    style="width: 48px; height: 48px; overflow: hidden; padding: 2px;">
-                    <img src="../images/logo.jpeg" alt="Chowdhury Automobile Logo" class="rounded-circle"
-                        style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div class="d-flex flex-column lh-1">
-                    <span class="fs-5 fw-bolder text-dark">CHOWDHURY</span>
-                    <span class="text-secondary fw-bold text-uppercase"
-                        style="font-size: 0.7rem; letter-spacing: 1.5px;">
-                        Automobile
-                    </span>
-                </div>
-            </a>
+    <section id="dashboard-section">
+        <!-- HEADER / NAVIGATION BAR -->
+        <!-- Responsive: Sticky-top, shadows, and flex ensures horizontal layout adapts on small screens -->
+        <nav class="navbar bg-white sticky-top shadow-sm rounded-4 py-3 mt-3">
+            <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between">
 
-            <!-- Desktop Logout Button -->
-            <a href="logout.php" class="btn logout-btn d-none d-md-inline-block">
-                <i class="ph-bold ph-sign-out me-1"></i> Log Out
-            </a>
+                <!-- Brand -->
+                <a class="navbar-brand d-flex align-items-center gap-2" href="dashboard.php">
+                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-1"
+                        style="width: 48px; height: 48px; overflow: hidden; padding: 2px;">
+                        <img src="../images/logo.jpeg" alt="Chowdhury Automobile Logo" class="rounded-circle"
+                            style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
 
-            <a href="logout.php">
-                <!-- Mobile Logout Button -->
-                <button id="logoutIcon"
-                    class="btn btn-light border rounded-circle shadow-sm d-inline-flex d-md-none justify-content-center align-items-center p-2">
+                    <div class="d-flex flex-column lh-1">
+                        <span class="fs-5 fw-bolder text-dark">CHOWDHURY</span>
+                        <span class="text-secondary fw-bold text-uppercase"
+                            style="font-size: 0.7rem; letter-spacing: 1.5px;">
+                            Automobile
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Desktop Logout Button -->
+                <a href="logout.php" class="btn logout-btn d-none d-md-inline-block">
+                    <i class="ph-bold ph-sign-out me-1"></i> Log Out
+                </a>
+
+                <!-- Mobile Logout Icon -->
+                <a href="logout.php" class="btn logout-icon d-inline-flex d-md-none">
                     <i class="ph-bold ph-sign-out fs-5"></i>
-                </button>
-            </a>
-        </div>
-    </nav>
+                </a>
+
+            </div>
+        </nav>
+    </section>
     <div class="flex-grow-1 overflow-hidden">
         <div class="row g-0 h-100">
             <?php
