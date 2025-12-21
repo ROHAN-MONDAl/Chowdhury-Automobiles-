@@ -1349,8 +1349,11 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                     <h5 class="fw-bold mb-1"><?= htmlspecialchars($lead['name']) ?></h5>
                                                     <div class="opacity-75 small mb-3">
                                                         <i class="ph-bold ph-phone me-1"></i>
-                                                        <?= htmlspecialchars($lead['phone']) ?>
+                                                        <a href="tel:<?= htmlspecialchars($lead['phone']) ?>" class="text-decoration-none text-reset">
+                                                            <?= htmlspecialchars($lead['phone']) ?>
+                                                        </a>
                                                     </div>
+
                                                 </div>
                                                 <button
                                                     class="btn btn-white bg-white text-danger btn-sm rounded-5 shadow-sm delete-lead"

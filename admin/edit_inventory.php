@@ -14,25 +14,35 @@ $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 // Condition 1: ID is invalid (0 or missing)
 if ($id == 0) {
+    // Destroy session and redirect to 404
+    session_destroy();
     header("Location: 404.php");
     exit();
 }
 
 // Condition 2: Check if this specific ID actually exists in the database
-// (Assuming your table is named 'vehicle' or 'inventory' - change this name if needed)
-$stmt = $conn->prepare("SELECT id FROM vehicle WHERE id = ?");
+$stmt = $conn->prepare("SELECT id, sold_out FROM vehicle WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
-$stmt->store_result();
+$result = $stmt->get_result();
 
-if ($stmt->num_rows === 0) {
-    // ID was a number, but it doesn't exist in the DB (User edited URL to a fake ID)
+if ($result->num_rows === 0) {
+    // ID doesn't exist in DB - Destroy session and redirect
+    session_destroy();
     header("Location: 404.php");
     exit();
 }
-$stmt->close();
 
-// ... Code continues ...
+// Condition 3: Check if vehicle is already sold out
+$vehicle_check = $result->fetch_assoc();
+if ($vehicle_check['sold_out'] == 1) {
+    // Vehicle is sold out - prevent editing
+    session_destroy();
+    header("Location: 404.php");
+    exit();
+}
+
+$stmt->close();
 ?>
 
 

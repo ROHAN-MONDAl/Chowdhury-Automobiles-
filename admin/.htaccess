@@ -1,11 +1,17 @@
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /Freelance_work/Chowdhury-Automobiles-/
+# Enable rewrite engine
+RewriteEngine On
 
-    # If the user types a file or folder that does NOT exist...
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    
-    # ...redirect them to index.php
-    RewriteRule ^.*$ index.php [L]
-</IfModule>
+# Remove multiple slashes in the URL
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s.*//+.*\sHTTP/
+RewriteRule .* 404.php [L]
+
+# Block directory listing
+Options -Indexes
+
+# Redirect any non-existent files or directories to 404
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ 404.php [L]
+
+# Fallback 404 error page
+ErrorDocument 404 404.php
