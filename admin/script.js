@@ -431,3 +431,32 @@ $("#startDate").on("change", function () {
 $(".global-success-msg, .global-error-msg, .global-info-msg, .global-warning-msg")
     .delay(3000) // show for 3 seconds
     .fadeOut(500);
+// ==========================
+// LEAD SEARCH FUNCTIONALITY
+// ==========================
+$(document).ready(function () {
+    // Listen for typing in the search box
+    $("#leadSearchInput").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        var hasVisibleItems = false;
+
+        // Loop through all items with class 'lead-item'
+        $("#leadsContainer .lead-item").filter(function () {
+            // Check if the text inside the card matches the search value
+            var isMatch = $(this).text().toLowerCase().indexOf(value) > -1;
+
+            // Toggle visibility
+            $(this).toggle(isMatch);
+
+            // If we found a match, mark flag as true
+            if (isMatch) hasVisibleItems = true;
+        });
+
+        // Show "No Results" message if everything is hidden
+        if (!hasVisibleItems && value.length > 0) {
+            $("#noResultsMsg").show();
+        } else {
+            $("#noResultsMsg").hide();
+        }
+    });
+});

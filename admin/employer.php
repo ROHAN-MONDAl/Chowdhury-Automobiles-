@@ -1,3 +1,6 @@
+<?php
+require_once 'db.php'; ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -40,7 +43,6 @@
     <script src="login.js" defer></script>
 </head>
 
-
 <body>
 
     <!-- Loading Screen -->
@@ -56,11 +58,9 @@
         </div>
     </div>
 
-
     <?php include 'global_message.php'; ?>
 
 
-    <!-- Main Section -->
     <section class="min-vh-100 d-flex p-0 m-0 bg-light">
         <div class="container-fluid g-0">
             <div class="row g-0 min-vh-100">
@@ -91,18 +91,19 @@
                                         style="width: 80px; height: 80px; object-fit: cover;">
                                 </div>
                                 <h4 class="fw-bold text-dark mb-1">Chowdhury Automobile</h4>
-                                <p class="text-muted small text-uppercase fw-semibold ls-1">ADMIN Portal Login</p>
+                                <p class="text-muted small text-uppercase fw-semibold ls-1">Employers Portal Login</p>
                             </div>
 
-                            <form id="loginForm" method="POST" action="auth.php">
+                            <form id="loginForm" method="POST" action="employers_auth.php">
                                 <input type="hidden" name="action" value="login">
 
                                 <div class="mb-3">
                                     <label class="form-label small text-muted fw-bold">Select Role</label>
                                     <select class="form-select py-2 bg-light border-0 fw-semibold" id="roleSelect"
-                                        name="role" required>
+                                        name="role">
                                         <option value="">Select Role</option>
-                                        <option value="admin">Admin</option>
+                                        <option value="manager">Manager</option>
+                                        <option value="staff">Staff</option>
                                     </select>
                                 </div>
 
@@ -113,7 +114,7 @@
                                             <i class="ph-bold ph-user-circle fs-5"></i>
                                         </span>
                                         <input type="text" class="form-control bg-light border-start-0 ps-0"
-                                            id="usernameInput" name="user_id" placeholder="Enter your ID" required>
+                                            id="usernameInput" name="user_id" placeholder="Enter your ID" >
                                     </div>
                                 </div>
 
@@ -124,22 +125,8 @@
                                             <i class="ph-bold ph-lock-key fs-5"></i>
                                         </span>
                                         <input type="password" class="form-control bg-light border-start-0 ps-0"
-                                            id="passwordInput" name="password" placeholder="••••••••" required>
+                                            id="passwordInput" name="password" placeholder="••••••••" >
                                     </div>
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="rememberMe" name="remember">
-                                        <label class="form-check-label small text-muted" for="rememberMe">
-                                            Remember me
-                                        </label>
-                                    </div>
-
-                                    <a href="#" class="small text-decoration-none fw-bold text-primary"
-                                        data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
-                                        Forgot password?
-                                    </a>
                                 </div>
 
                                 <div class="d-flex justify-content-center mb-3"
@@ -158,14 +145,14 @@
                                 <p class="text-muted small mb-2">Quick Access</p>
 
                                 <div class="d-flex justify-content-center gap-3 flex-wrap">
-                                    <a href="../index.php" class="text-decoration-none fw-bold text-dark small">
+                                    <a href="../../index.php" class="text-decoration-none fw-bold text-dark small">
                                         <i class="ph-bold ph-house me-1"></i> Home Portal
                                     </a>
 
                                     <span class="text-muted">|</span>
 
-                                    <a href="employer.php" class="text-decoration-none fw-bold text-dark small">
-                                        <i class="ph-bold ph-users me-1"></i> Employers Portal
+                                    <a href="index.php" class="text-decoration-none fw-bold text-dark small">
+                                        <i class="ph-bold ph-users me-1"></i> Admin Portal
                                     </a>
                                 </div>
                             </div>
@@ -179,84 +166,7 @@
         </div>
     </section>
 
-    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content border-0 shadow-lg rounded-4">
-
-                <div class="modal-header border-bottom-0 pb-0">
-                    <h6 class="modal-title fw-bold" id="modalTitle">Reset Password</h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body pt-2">
-
-                    <form id="step1Form" action="auth.php" method="POST">
-                        <input type="hidden" name="action" value="send_otp">
-
-                        <div id="emailStep">
-                            <p class="small text-muted mb-3">Enter your registered email address.</p>
-
-                            <div class="mb-3">
-                                <input type="email" id="resetEmail" name="email" class="form-control bg-light"
-                                    placeholder="name@company.com" required>
-                            </div>
-
-                            <div class="d-grid mb-3">
-                                <button type="submit" class="btn btn-primary btn-sm">Send OTP</button>
-                            </div>
-
-                            <div class="text-center">
-                                <a href="#" onclick="toggleResetSteps()" class="small text-decoration-none text-muted">
-                                    Already have a code? <span class="text-primary fw-bold">Enter it here</span>
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-
-                    <form id="step2Form" action="auth.php" method="POST" onsubmit="combineOtp()">
-                        <input type="hidden" name="action" value="verify_otp">
-                        <input type="hidden" name="email" id="hiddenEmail">
-
-                        <div id="otpStep" class="d-none">
-                            <p class="small text-muted mb-3">Enter the 6-digit OTP sent to your email.</p>
-
-                            <div class="d-flex justify-content-between mb-3 gap-1">
-                                <input type="text" maxlength="1" class="form-control text-center otp-box bg-light"
-                                    oninput="moveToNext(this, 0)">
-                                <input type="text" maxlength="1" class="form-control text-center otp-box bg-light"
-                                    oninput="moveToNext(this, 1)">
-                                <input type="text" maxlength="1" class="form-control text-center otp-box bg-light"
-                                    oninput="moveToNext(this, 2)">
-                                <input type="text" maxlength="1" class="form-control text-center otp-box bg-light"
-                                    oninput="moveToNext(this, 3)">
-                                <input type="text" maxlength="1" class="form-control text-center otp-box bg-light"
-                                    oninput="moveToNext(this, 4)">
-                                <input type="text" maxlength="1" class="form-control text-center otp-box bg-light"
-                                    oninput="moveToNext(this, 5)">
-                                <input type="hidden" id="fullOtp" name="otp">
-                            </div>
-
-                            <div class="d-grid mb-3">
-                                <button type="submit" class="btn btn-dark btn-sm">Verify & Reset</button>
-                            </div>
-
-                            <div class="text-center">
-                                <a href="#" onclick="toggleResetSteps()" class="small text-decoration-none text-muted">
-                                    Wrong email? <span class="text-primary fw-bold">Go back</span>
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

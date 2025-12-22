@@ -1,6 +1,5 @@
 <?php
 // ========================= 1. SETUP =========================
-session_start();
 require "db.php";
 
 // Check if user is logged in
@@ -23,6 +22,9 @@ function flash($msg, $type = "error")
 // ========================= 3. PROCESS FORM =========================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type'])) {
 
+    // ==========================================
+    // 1. EDIT PROFILE (Existing Logic)
+    // ==========================================
     if ($_POST['form_type'] === 'profile') {
 
         // --- A. GATHER INPUTS ---
@@ -37,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type'])) {
             flash("All fields are required.");
         }
 
-        $valid_roles = ["admin", "user", "manager"];
+        $valid_roles = ["admin"];
         if (!in_array($role, $valid_roles)) {
             flash("Invalid role selected.");
         }
@@ -47,42 +49,123 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type'])) {
         }
 
         // --- C. UPDATE DATABASE ---
-
-        // Path 1: User wants to change Password
         if (!empty($pass)) {
-
-            // Password Validation
-            if ($pass !== $confirm)
-                flash("Passwords do not match.");
-
-            // Regex: Upper, Lower, Number, Special Char, Min 8 length
+            if ($pass !== $confirm) flash("Passwords do not match.");
             if (!preg_match("/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/", $pass)) {
                 flash("Password must be 8+ chars with Uppercase, Lowercase, Number & Symbol.");
             }
-
             $hash = password_hash($pass, PASSWORD_DEFAULT);
 
-            // Update Query WITH Password
             $sql = "UPDATE users SET email=?, role=?, user_id=?, password_hash=? WHERE user_id=?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("sssss", $email, $role, $new_user_id, $hash, $currentUserId);
-
-        }
-        // Path 2: User keeps existing password
-        else {
-            // Update Query WITHOUT Password
+        } else {
             $sql = "UPDATE users SET email=?, role=?, user_id=? WHERE user_id=?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("ssss", $email, $role, $new_user_id, $currentUserId);
         }
 
-        // --- D. EXECUTE & FINISH ---
-        // If email/user_id is duplicate, execute() will return false (if DB columns are UNIQUE)
         if ($stmt->execute()) {
-            $_SESSION["user_id"] = $new_user_id; // Update session
+            $_SESSION["user_id"] = $new_user_id;
             flash("Profile updated.", "success");
         } else {
             flash("Failed to update profile (Username or Email might already be taken).");
+        }
+    }
+
+    // ==========================================
+    // 2. CREATE NEW USER (New Logic)
+    // ==========================================
+    elseif ($_POST['form_type'] === 'create_user') {
+
+        // --- 1. GATHER DATA ---
+        $role        = strtolower(trim($_POST["role"] ?? ""));
+        $full_name   = trim($_POST["full_name"] ?? "");
+        $new_user_id = trim($_POST["user_id"] ?? "");
+        $pass        = trim($_POST["password"] ?? "");
+
+        // --- 2. VALIDATE INPUTS ---
+        if (empty($role) || empty($full_name) || empty($new_user_id) || empty($pass)) {
+            flash("All fields are required.");
+            return;
+        }
+
+        // === NEW PASSWORD VALIDATIONS START ===
+
+        // Check 1: Minimum Length (8 characters)
+        if (strlen($pass) < 8) {
+            flash("Password must be at least 8 characters long.");
+            return;
+        }
+
+        // Check 2: Complexity (Upper, Lower, Number, Special Char)
+        // Regex explanation:
+        // (?=.*[A-Z]) -> At least one Uppercase
+        // (?=.*[a-z]) -> At least one Lowercase
+        // (?=.*\d)    -> At least one Number
+        // (?=.*[\W_]) -> At least one Special Character (Symbol)
+        if (!preg_match("/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).+$/", $pass)) {
+            flash("Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol.");
+            return;
+        }
+
+        // === NEW PASSWORD VALIDATIONS END ===
+
+        $hash = password_hash($pass, PASSWORD_DEFAULT);
+
+        // --- 3. MANAGER LOGIC ---
+        if ($role === 'manager') {
+
+            // Check for duplicates
+            $checkSql = "SELECT id FROM managers WHERE user_id = ?";
+            $stmt = $conn->prepare($checkSql);
+            $stmt->bind_param("s", $new_user_id);
+            $stmt->execute();
+            if ($stmt->get_result()->num_rows > 0) {
+                flash("Manager ID '$new_user_id' already exists.");
+                return;
+            }
+            $stmt->close();
+
+            // INSERT into managers
+            $sql = "INSERT INTO managers (user_id, full_name, role, password_hash) VALUES (?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+
+            if ($stmt && $stmt->bind_param("ssss", $new_user_id, $full_name, $role, $hash)) {
+                if ($stmt->execute()) {
+                    flash("Manager account created successfully!", "success");
+                } else {
+                    flash("Error creating manager: " . $conn->error);
+                }
+            }
+        }
+        // --- 4. STAFF LOGIC ---
+        elseif ($role === 'staff') {
+
+            // Check for duplicates
+            $checkSql = "SELECT id FROM staff WHERE user_id = ?";
+            $stmt = $conn->prepare($checkSql);
+            $stmt->bind_param("s", $new_user_id);
+            $stmt->execute();
+            if ($stmt->get_result()->num_rows > 0) {
+                flash("Staff ID '$new_user_id' already exists.");
+                return;
+            }
+            $stmt->close();
+
+            // INSERT into staff
+            $sql = "INSERT INTO staff (user_id, full_name, role, password_hash) VALUES (?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+
+            if ($stmt && $stmt->bind_param("ssss", $new_user_id, $full_name, $role, $hash)) {
+                if ($stmt->execute()) {
+                    flash("Staff account created successfully!", "success");
+                } else {
+                    flash("Error creating staff: " . $conn->error);
+                }
+            }
+        } else {
+            flash("Invalid Role selected.");
         }
     }
 }
@@ -151,4 +234,3 @@ if ($stmt->execute()) {
 
 header("Location: dashboard.php");
 exit;
-?>

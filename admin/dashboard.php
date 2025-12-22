@@ -1,5 +1,4 @@
 <?php
-// Include DB connection
 require "db.php";
 
 // Check if user is logged in
@@ -7,15 +6,30 @@ if (!isset($_SESSION["user_id"])) {
     header("Location: index.php");
     exit();
 }
-// 1. Get ID (safely handle if missing)
-$id = $_SESSION['id'] ?? 0;
 
-// 2. Run Query (Standard MySQLi style)
-$query = $conn->prepare("SELECT user_id, email, role FROM users WHERE id = ?");
+$id = $_SESSION['user_id'];
+
+// Fetch user data safely
+$query = $conn->prepare("SELECT id, email, role FROM users WHERE id = ?");
 $query->bind_param("i", $id);
 $query->execute();
-$u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
+$u = $query->get_result()->fetch_assoc();
+
+// Handle invalid user
+if (!$u) {
+    session_destroy();
+    header("Location: index.php");
+    exit();
+}
+
+// Example: restrict admin page
+if ($u['role'] !== 'admin') {
+    header("HTTP/1.1 403 Forbidden");
+    echo "Access denied!";
+    exit();
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -208,9 +222,47 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                     </div>
                 </div>
 
-                <!-- Empty spaces to ensure alignment -->
-                <div class="d-none d-lg-block col-lg-3 col-xl-3"></div>
-                <div class="d-none d-lg-block col-lg-3 col-xl-3"></div>
+                <!-- Add Staff and Managers -->
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="app-card p-4 d-flex align-items-center" style="cursor: pointer;" data-bs-toggle="modal"
+                        data-bs-target="#addUserModal">
+
+                        <div class="card-icon-box bg-green-grad me-3 rounded-circle 
+                    d-flex justify-content-center align-items-center p-4">
+                            <i class="ph-bold ph-user-plus fs-3"></i>
+                        </div>
+
+                        <div>
+                            <h5 class="fw-bold mb-0 fs-5">Add Staff</h5>
+                            <span class="text-secondary small fw-bold text-uppercase d-block mb-1">
+                                Create & Assign
+                            </span>
+                            <p class="text-secondary mb-0 small">Add Manager, Staff, or User credentials.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View Team -->
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="app-card p-4 d-flex align-items-center" style="cursor: pointer;" data-bs-toggle="modal"
+                        data-bs-target="#viewUsersModal">
+
+                        <div class="card-icon-box bg-primary bg-opacity-10 text-primary me-3 rounded-circle 
+                    d-flex justify-content-center align-items-center p-4">
+                            <i class="ph-bold ph-users-three fs-3"></i>
+                        </div>
+
+                        <div>
+                            <h5 class="fw-bold mb-0 fs-5">View Team</h5>
+                            <span class="text-secondary small fw-bold text-uppercase d-block mb-1">
+                                Manage Access
+                            </span>
+                            <p class="text-secondary mb-0 small">View credentials and delete users.</p>
+                        </div>
+                    </div>
+                </div>
+
+
             </div>
         </div>
     </section>
@@ -235,12 +287,14 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
                 <div class="row g-0 h-100">
 
-                    <div class="col-lg-2 d-none d-lg-flex flex-column bg-white border-end h-100 shadow-sm z-3 position-relative">
+                    <div
+                        class="col-lg-2 d-none d-lg-flex flex-column bg-white border-end h-100 shadow-sm z-3 position-relative">
 
                         <div class="p-4 border-bottom bg-white">
                             <div class="d-flex align-items-center gap-3">
                                 <div class="rounded-circle border p-1 shadow-sm" style="width: 48px; height: 48px;">
-                                    <img src="../images/logo.jpeg" alt="Logo" class="rounded-circle w-100 h-100 object-fit-cover">
+                                    <img src="../images/logo.jpeg" alt="Logo"
+                                        class="rounded-circle w-100 h-100 object-fit-cover">
                                 </div>
                                 <div class="d-flex flex-column lh-1">
                                     <span class="fw-bolder text-dark tracking-tight">CHOWDHURY</span>
@@ -253,8 +307,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                             <div class="d-flex flex-column gap-2">
                                 <?php foreach ($wizard_steps as $step_key => $label): ?>
                                     <div class="step-item d-flex align-items-center gap-3 p-3 rounded-3 border-start border-4 border-transparent hover-bg-light"
-                                        data-step="<?= $step_key ?>"
-                                        style="cursor: pointer; transition: all 0.2s ease;">
+                                        data-step="<?= $step_key ?>" style="cursor: pointer; transition: all 0.2s ease;">
 
                                         <div class="step-circle text-light border rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
                                             style="width: 32px; height: 32px;">
@@ -262,7 +315,8 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                         </div>
 
                                         <div class="d-flex flex-column">
-                                            <span class="step-label text-dark fw-medium" style="font-size: 0.95rem;"><?= $label ?></span>
+                                            <span class="step-label text-dark fw-medium"
+                                                style="font-size: 0.95rem;"><?= $label ?></span>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -271,13 +325,15 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                     </div>
 
                     <div class="col-12 col-lg-10 h-100 d-flex flex-column bg-light position-relative">
-                        <form action="vehicle_form.php" id="dealForm" method="POST" class="d-flex flex-column h-100" enctype="multipart/form-data" novalidate>
+                        <form action="vehicle_form.php" id="dealForm" method="POST" class="d-flex flex-column h-100"
+                            enctype="multipart/form-data" novalidate>
 
                             <input type="hidden" name="step" value="<?= isset($_GET['step']) ? $_GET['step'] : 1 ?>">
                             <input type="hidden" name="vehicle_id" value="<?= isset($_GET['id']) ? $_GET['id'] : '' ?>">
                             <input type="hidden" name="action" id="formAction" value="save_next">
 
-                            <div class="d-flex justify-content-between align-items-center p-3 px-md-4 border-bottom bg-white shadow-sm z-2 position-sticky top-0">
+                            <div
+                                class="d-flex justify-content-between align-items-center p-3 px-md-4 border-bottom bg-white shadow-sm z-2 position-sticky top-0">
                                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                                     <!-- Page Title -->
                                     <h5 class="m-0 fw-bold text-dark d-none d-lg-block">
@@ -287,18 +343,13 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
                                 <!-- Universal Toast Messages -->
                                 <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:1055;">
-                                    <div id="liveToast"
-                                        class="toast align-items-center border-0 shadow"
-                                        role="alert"
-                                        aria-live="assertive"
-                                        aria-atomic="true">
+                                    <div id="liveToast" class="toast align-items-center border-0 shadow" role="alert"
+                                        aria-live="assertive" aria-atomic="true">
 
                                         <div class="d-flex">
                                             <div class="toast-body fw-semibold" id="toastMessage"></div>
 
-                                            <button type="button"
-                                                class="btn-close me-2 m-auto"
-                                                data-bs-dismiss="toast"
+                                            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"
                                                 aria-label="Close">
                                             </button>
                                         </div>
@@ -308,46 +359,53 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                 <div class="d-lg-none fw-bold text-primary">
                                     <span id="mobile-step-indicator">Step 1</span>
                                 </div>
-                                <button type="button" class="btn-close bg-light p-2 rounded-circle" data-bs-dismiss="modal"></button>
+                                <button type="button" class="btn-close bg-light p-2 rounded-circle"
+                                    data-bs-dismiss="modal"></button>
                             </div>
 
                             <div class="flex-grow-1 overflow-y-auto p-3 p-md-5">
                                 <div class="container-fluid" style="max-width: 900px;">
                                     <!-- 1st step -->
                                     <div id="step-1" class="wizard-step fade-in-animation">
-                                        <div class="card steps-id p-4 border-0 shadow-sm position-relative sold-wrapper rounded-4">
+                                        <div
+                                            class="card steps-id p-4 border-0 shadow-sm position-relative sold-wrapper rounded-4">
                                             <div class="sold-stamp">SOLD OUT</div>
                                             <div class="sold-overlay"></div>
                                             <div>
-                                                <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Vehicle Details</h6>
+                                                <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Vehicle
+                                                    Details</h6>
                                                 <label class="mb-2">Vehicle Photos</label>
                                                 <div class="row g-3 mb-4">
                                                     <div class="col-6 col-md-3">
                                                         <div class="photo-upload-box">
                                                             <i class="ph-bold ph-camera fs-3 text-secondary"></i>
                                                             <img src="">
-                                                            <input required type="file" name="photo1" accept="image/*" hidden>
+                                                            <input required type="file" name="photo1" accept="image/*"
+                                                                hidden>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 col-md-3">
                                                         <div class="photo-upload-box">
                                                             <i class="ph-bold ph-camera fs-3 text-secondary"></i>
                                                             <img src="">
-                                                            <input required type="file" name="photo2" accept="image/*" hidden>
+                                                            <input required type="file" name="photo2" accept="image/*"
+                                                                hidden>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 col-md-3">
                                                         <div class="photo-upload-box">
                                                             <i class="ph-bold ph-camera fs-3 text-secondary"></i>
                                                             <img src="">
-                                                            <input required type="file" name="photo3" accept="image/*" hidden>
+                                                            <input required type="file" name="photo3" accept="image/*"
+                                                                hidden>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 col-md-3">
                                                         <div class="photo-upload-box">
                                                             <i class="ph-bold ph-camera fs-3 text-secondary"></i>
                                                             <img src="">
-                                                            <input required type="file" name="photo4" accept="image/*" hidden>
+                                                            <input required type="file" name="photo4" accept="image/*"
+                                                                hidden>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -355,7 +413,8 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                 <div class="row g-3 mb-3">
                                                     <div class="col-12 col-md-6">
                                                         <label for="vehicleType" class="form-label">Vehicle Type</label>
-                                                        <select id="vehicleType" name="vehicle_type" class="form-select fw-bold">
+                                                        <select id="vehicleType" name="vehicle_type"
+                                                            class="form-select fw-bold">
                                                             <option selected disabled>Choose Vehicle Type</option>
                                                             <option>Scooters</option>
                                                             <option>Mopeds</option>
@@ -374,15 +433,19 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                     </div>
                                                     <div class="col-12 col-md-6">
                                                         <label class="fw-bold">Bike Name</label>
-                                                        <input required type="text" id="nameField" name="name" class="form-control" placeholder="Enter Name">
+                                                        <input required type="text" id="nameField" name="name"
+                                                            class="form-control" placeholder="Enter Name">
                                                     </div>
                                                     <div class="col-12 col-md-6">
                                                         <label>Vehicle Number</label>
-                                                        <input required type="text" name="vehicle_number" class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000" value="WB ">
+                                                        <input required type="text" name="vehicle_number"
+                                                            class="form-control fw-bold text-uppercase"
+                                                            placeholder="WB 00 AA 0000" value="WB ">
                                                     </div>
                                                     <div class="col-12 col-md-6">
                                                         <label>Register Date</label>
-                                                        <input required type="date" name="register_date" class="form-control" value="2025-11-26">
+                                                        <input required type="date" name="register_date"
+                                                            class="form-control" value="2025-11-26">
                                                     </div>
                                                     <div class="col-12 col-md-4">
                                                         <label>Owner Serial</label>
@@ -396,12 +459,14 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                     </div>
                                                     <div class="col-12 col-md-4">
                                                         <label>Chassis Number</label>
-                                                        <input required type="text" name="chassis_number" class="form-control text-uppercase">
+                                                        <input required type="text" name="chassis_number"
+                                                            class="form-control text-uppercase">
                                                     </div>
 
                                                     <div class="col-12 col-md-4">
                                                         <label>Engine Number</label>
-                                                        <input required type="text" name="engine_number" class="form-control text-uppercase">
+                                                        <input required type="text" name="engine_number"
+                                                            class="form-control text-uppercase">
                                                     </div>
                                                 </div>
 
@@ -409,49 +474,91 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                     <div class="col-12 col-md-6">
                                                         <label class="fw-bold mb-2">Payment Type</label>
                                                         <div class="d-flex gap-2 mb-3">
-                                                            <input required type="radio" class="btn-check" name="payment_type" id="sp_cash" value="Cash" checked data-bs-toggle="collapse" data-bs-target="#cashBox" aria-controls="cashBox">
-                                                            <label class="btn btn-outline-success" for="sp_cash">Cash</label>
+                                                            <input required type="radio" class="btn-check"
+                                                                name="payment_type" id="sp_cash" value="Cash" checked
+                                                                data-bs-toggle="collapse" data-bs-target="#cashBox"
+                                                                aria-controls="cashBox">
+                                                            <label class="btn btn-outline-success"
+                                                                for="sp_cash">Cash</label>
 
-                                                            <input required type="radio" class="btn-check" name="payment_type" id="sp_online" value="Online" data-bs-toggle="collapse" data-bs-target="#onlineBox" aria-controls="onlineBox">
-                                                            <label class="btn btn-outline-primary" for="sp_online">Online</label>
+                                                            <input required type="radio" class="btn-check"
+                                                                name="payment_type" id="sp_online" value="Online"
+                                                                data-bs-toggle="collapse" data-bs-target="#onlineBox"
+                                                                aria-controls="onlineBox">
+                                                            <label class="btn btn-outline-primary"
+                                                                for="sp_online">Online</label>
                                                         </div>
 
                                                         <div id="payBoxes">
-                                                            <div id="cashBox" class="collapse show" data-bs-parent="#payBoxes">
-                                                                <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
+                                                            <div id="cashBox" class="collapse show"
+                                                                data-bs-parent="#payBoxes">
+                                                                <div
+                                                                    class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
                                                                     <label class="fw-bold small mb-1">Bike Price</label>
-                                                                    <input required type="number" name="cash_price" class="form-control form-control-sm mb-3" placeholder="Enter Amount">
+                                                                    <input required type="number" name="cash_price"
+                                                                        class="form-control form-control-sm mb-3"
+                                                                        placeholder="Enter Amount">
                                                                 </div>
                                                             </div>
 
-                                                            <div id="onlineBox" class="collapse" data-bs-parent="#payBoxes">
-                                                                <div class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
-                                                                    <label class="fw-bold small mb-2">Select Online Method</label>
+                                                            <div id="onlineBox" class="collapse"
+                                                                data-bs-parent="#payBoxes">
+                                                                <div
+                                                                    class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
+                                                                    <label class="fw-bold small mb-2">Select Online
+                                                                        Method</label>
                                                                     <div class="d-flex flex-wrap gap-3 mb-2">
                                                                         <div class="form-check">
-                                                                            <input required type="radio" class="form-check-input" name="online_method" id="om_gpay" value="Google Pay">
-                                                                            <label class="form-check-label small fw-bold" for="om_gpay">Google Pay</label>
+                                                                            <input required type="radio"
+                                                                                class="form-check-input"
+                                                                                name="online_method" id="om_gpay"
+                                                                                value="Google Pay">
+                                                                            <label
+                                                                                class="form-check-label small fw-bold"
+                                                                                for="om_gpay">Google Pay</label>
                                                                         </div>
                                                                         <div class="form-check">
-                                                                            <input required type="radio" class="form-check-input" name="online_method" id="om_paytm" value="Paytm">
-                                                                            <label class="form-check-label small fw-bold" for="om_paytm">Paytm</label>
+                                                                            <input required type="radio"
+                                                                                class="form-check-input"
+                                                                                name="online_method" id="om_paytm"
+                                                                                value="Paytm">
+                                                                            <label
+                                                                                class="form-check-label small fw-bold"
+                                                                                for="om_paytm">Paytm</label>
                                                                         </div>
                                                                         <div class="form-check">
-                                                                            <input required type="radio" class="form-check-input" name="online_method" id="om_phonepe" value="PhonePe">
-                                                                            <label class="form-check-label small fw-bold" for="om_phonepe">PhonePe</label>
+                                                                            <input required type="radio"
+                                                                                class="form-check-input"
+                                                                                name="online_method" id="om_phonepe"
+                                                                                value="PhonePe">
+                                                                            <label
+                                                                                class="form-check-label small fw-bold"
+                                                                                for="om_phonepe">PhonePe</label>
                                                                         </div>
                                                                         <div class="form-check">
-                                                                            <input required type="radio" class="form-check-input" name="online_method" id="om_bharatpe" value="BharatPe">
-                                                                            <label class="form-check-label small fw-bold" for="om_bharatpe">BharatPe</label>
+                                                                            <input required type="radio"
+                                                                                class="form-check-input"
+                                                                                name="online_method" id="om_bharatpe"
+                                                                                value="BharatPe">
+                                                                            <label
+                                                                                class="form-check-label small fw-bold"
+                                                                                for="om_bharatpe">BharatPe</label>
                                                                         </div>
                                                                     </div>
 
-                                                                    <input required type="text" name="online_transaction_id" class="form-control form-control-sm mb-3 text-uppercase" placeholder="Transaction / UPI Reference ID">
+                                                                    <input required type="text"
+                                                                        name="online_transaction_id"
+                                                                        class="form-control form-control-sm mb-3 text-uppercase"
+                                                                        placeholder="Transaction / UPI Reference ID">
 
                                                                     <label class="fw-bold small mb-1">Bike Price</label>
                                                                     <div class="input-group">
-                                                                        <span class="input-group-text bg-white border-end-0">₹</span>
-                                                                        <input required type="number" name="online_price" class="form-control border-start-0 ps-0" placeholder="Enter Price">
+                                                                        <span
+                                                                            class="input-group-text bg-white border-end-0">₹</span>
+                                                                        <input required type="number"
+                                                                            name="online_price"
+                                                                            class="form-control border-start-0 ps-0"
+                                                                            placeholder="Enter Price">
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -463,11 +570,17 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                     <label>Police Challan</label>
                                                     <div class="d-flex gap-3 mb-2">
                                                         <div class="form-check">
-                                                            <input required class="form-check-input" type="radio" name="police_challan" value="No" checked data-bs-toggle="collapse" data-bs-target="#challan-section">
+                                                            <input required class="form-check-input" type="radio"
+                                                                name="police_challan" value="No" checked
+                                                                data-bs-toggle="collapse"
+                                                                data-bs-target="#challan-section">
                                                             <label class="form-check-label fw-bold">No</label>
                                                         </div>
                                                         <div class="form-check">
-                                                            <input required class="form-check-input" type="radio" name="police_challan" value="Yes" data-bs-toggle="collapse" data-bs-target="#challan-section">
+                                                            <input required class="form-check-input" type="radio"
+                                                                name="police_challan" value="Yes"
+                                                                data-bs-toggle="collapse"
+                                                                data-bs-target="#challan-section">
                                                             <label class="form-check-label fw-bold">Yes</label>
                                                         </div>
                                                     </div>
@@ -477,18 +590,27 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                             <label class="fw-bold small">Challan 1</label>
                                                             <div class="row g-2">
                                                                 <div class="col-md-4">
-                                                                    <input required type="text" name="challan1_number" class="form-control text-uppercase" placeholder="Challan Number">
+                                                                    <input required type="text" name="challan1_number"
+                                                                        class="form-control text-uppercase"
+                                                                        placeholder="Challan Number">
                                                                 </div>
                                                                 <div class="col-md-4">
-                                                                    <input required type="number" name="challan1_amount" class="form-control" placeholder="Amount">
+                                                                    <input required type="number" name="challan1_amount"
+                                                                        class="form-control" placeholder="Amount">
                                                                 </div>
                                                                 <div class="col-md-4">
                                                                     <div class="btn-group w-100 btn-group-sm">
-                                                                        <input required type="radio" class="btn-check" name="challan1_status" id="pen1" value="Pending" checked>
-                                                                        <label class="btn btn-outline-danger" for="pen1">Pending</label>
+                                                                        <input required type="radio" class="btn-check"
+                                                                            name="challan1_status" id="pen1"
+                                                                            value="Pending" checked>
+                                                                        <label class="btn btn-outline-danger"
+                                                                            for="pen1">Pending</label>
 
-                                                                        <input required type="radio" class="btn-check" name="challan1_status" id="paid1" value="Paid">
-                                                                        <label class="btn btn-outline-success" for="paid1">Paid</label>
+                                                                        <input required type="radio" class="btn-check"
+                                                                            name="challan1_status" id="paid1"
+                                                                            value="Paid">
+                                                                        <label class="btn btn-outline-success"
+                                                                            for="paid1">Paid</label>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -498,18 +620,27 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                             <label class="fw-bold small">Challan 2</label>
                                                             <div class="row g-2">
                                                                 <div class="col-md-4">
-                                                                    <input required type="text" name="challan2_number" class="form-control text-uppercase" placeholder="Challan Number">
+                                                                    <input required type="text" name="challan2_number"
+                                                                        class="form-control text-uppercase"
+                                                                        placeholder="Challan Number">
                                                                 </div>
                                                                 <div class="col-md-4">
-                                                                    <input required type="number" name="challan2_amount" class="form-control" placeholder="Amount">
+                                                                    <input required type="number" name="challan2_amount"
+                                                                        class="form-control" placeholder="Amount">
                                                                 </div>
                                                                 <div class="col-md-4">
                                                                     <div class="btn-group w-100 btn-group-sm">
-                                                                        <input required type="radio" class="btn-check" name="challan2_status" id="pen2" value="Pending" checked>
-                                                                        <label class="btn btn-outline-danger" for="pen2">Pending</label>
+                                                                        <input required type="radio" class="btn-check"
+                                                                            name="challan2_status" id="pen2"
+                                                                            value="Pending" checked>
+                                                                        <label class="btn btn-outline-danger"
+                                                                            for="pen2">Pending</label>
 
-                                                                        <input required type="radio" class="btn-check" name="challan2_status" id="paid2" value="Paid">
-                                                                        <label class="btn btn-outline-success" for="paid2">Paid</label>
+                                                                        <input required type="radio" class="btn-check"
+                                                                            name="challan2_status" id="paid2"
+                                                                            value="Paid">
+                                                                        <label class="btn btn-outline-success"
+                                                                            for="paid2">Paid</label>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -519,18 +650,27 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                             <label class="fw-bold small">Challan 3</label>
                                                             <div class="row g-2">
                                                                 <div class="col-md-4">
-                                                                    <input required type="text" name="challan3_number" class="form-control text-uppercase" placeholder="Challan Number">
+                                                                    <input required type="text" name="challan3_number"
+                                                                        class="form-control text-uppercase"
+                                                                        placeholder="Challan Number">
                                                                 </div>
                                                                 <div class="col-md-4">
-                                                                    <input required type="number" name="challan3_amount" class="form-control" placeholder="Amount">
+                                                                    <input required type="number" name="challan3_amount"
+                                                                        class="form-control" placeholder="Amount">
                                                                 </div>
                                                                 <div class="col-md-4">
                                                                     <div class="btn-group w-100 btn-group-sm">
-                                                                        <input required type="radio" class="btn-check" name="challan3_status" id="pen3" value="Pending" checked>
-                                                                        <label class="btn btn-outline-danger" for="pen3">Pending</label>
+                                                                        <input required type="radio" class="btn-check"
+                                                                            name="challan3_status" id="pen3"
+                                                                            value="Pending" checked>
+                                                                        <label class="btn btn-outline-danger"
+                                                                            for="pen3">Pending</label>
 
-                                                                        <input required type="radio" class="btn-check" name="challan3_status" id="paid3" value="Paid">
-                                                                        <label class="btn btn-outline-success" for="paid3">Paid</label>
+                                                                        <input required type="radio" class="btn-check"
+                                                                            name="challan3_status" id="paid3"
+                                                                            value="Paid">
+                                                                        <label class="btn btn-outline-success"
+                                                                            for="paid3">Paid</label>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -538,10 +678,14 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                     </div>
                                                 </div>
 
-                                                <div class="mt-4 pt-3 border-top d-flex align-items-center justify-content-between">
-                                                    <label class="form-check-label fw-bold text-danger mb-0" for="soldToggle">Mark as Sold Out</label>
+                                                <div
+                                                    class="mt-4 pt-3 border-top d-flex align-items-center justify-content-between">
+                                                    <label class="form-check-label fw-bold text-danger mb-0"
+                                                        for="soldToggle">Mark as Sold Out</label>
                                                     <div class="form-check form-switch">
-                                                        <input required class="form-check-input" type="checkbox" id="soldToggle" name="sold_out" value="1" style="width: 3em; height: 1.5em;">
+                                                        <input required class="form-check-input" type="checkbox"
+                                                            id="soldToggle" name="sold_out" value="1"
+                                                            style="width: 3em; height: 1.5em;">
                                                     </div>
                                                 </div>
                                             </div>
@@ -550,7 +694,8 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                     <!-- 2nd step -->
                                     <div id="step-2" class="wizard-step d-none">
                                         <div class="card steps-id border-0 p-4 shadow-sm rounded-4">
-                                            <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Seller Details</h6>
+                                            <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Seller Details
+                                            </h6>
 
                                             <div class="row g-3 mb-3">
                                                 <div class="col-12 col-md-4">
@@ -561,41 +706,49 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                 <div class="col-12 col-md-4">
                                                     <label>Vehicle No</label>
                                                     <input type="text" name="seller_vehicle_number"
-                                                        class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000"
-                                                        value="WB ">
+                                                        class="form-control fw-bold text-uppercase"
+                                                        placeholder="WB 00 AA 0000" value="WB ">
                                                 </div>
 
                                                 <div class="col-12 col-md-4">
                                                     <label>Bike Name</label>
-                                                    <input type="text" name="seller_bike_name" class="form-control text-uppercase">
+                                                    <input type="text" name="seller_bike_name"
+                                                        class="form-control text-uppercase">
                                                 </div>
 
                                                 <div class="col-12 col-md-6">
                                                     <label>Chassis No</label>
-                                                    <input type="text" name="seller_chassis_no" class="form-control text-uppercase">
+                                                    <input type="text" name="seller_chassis_no"
+                                                        class="form-control text-uppercase">
                                                 </div>
 
                                                 <div class="col-12 col-md-6">
                                                     <label>Engine No</label>
-                                                    <input type="text" name="seller_engine_no" class="form-control text-uppercase">
+                                                    <input type="text" name="seller_engine_no"
+                                                        class="form-control text-uppercase">
                                                 </div>
 
                                                 <div class="col-12">
                                                     <label>Seller Name</label>
-                                                    <input type="text" name="seller_name" class="form-control text-uppercase">
+                                                    <input type="text" name="seller_name"
+                                                        class="form-control text-uppercase">
                                                 </div>
 
                                                 <div class="col-12">
                                                     <label>Address</label>
-                                                    <textarea name="seller_address" class="form-control text-uppercase" rows="2"></textarea>
+                                                    <textarea name="seller_address" class="form-control text-uppercase"
+                                                        rows="2"></textarea>
                                                 </div>
                                             </div>
 
                                             <label class="mb-2">Mobile Numbers</label>
                                             <div class="row g-2 mb-3">
-                                                <div class="col-12"><input type="tel" name="seller_mobile1" class="form-control" placeholder="Mob 1"></div>
-                                                <div class="col-12"><input type="tel" name="seller_mobile2" class="form-control" placeholder="Mob 2"></div>
-                                                <div class="col-12"><input type="tel" name="seller_mobile3" class="form-control" placeholder="Mob 3"></div>
+                                                <div class="col-12"><input type="tel" name="seller_mobile1"
+                                                        class="form-control" placeholder="Mob 1"></div>
+                                                <div class="col-12"><input type="tel" name="seller_mobile2"
+                                                        class="form-control" placeholder="Mob 2"></div>
+                                                <div class="col-12"><input type="tel" name="seller_mobile3"
+                                                        class="form-control" placeholder="Mob 3"></div>
                                             </div>
 
                                             <div class="mb-3">
@@ -605,28 +758,32 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                         <div class="photo-upload-box">
                                                             <span class="small text-muted fw-bold">Aadhar Front</span>
                                                             <img src="">
-                                                            <input type="file" name="doc_aadhar_front" accept="image/*" hidden>
+                                                            <input type="file" name="doc_aadhar_front" accept="image/*"
+                                                                hidden>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 col-md-3">
                                                         <div class="photo-upload-box">
                                                             <span class="small text-muted fw-bold">Aadhar Back</span>
                                                             <img src="">
-                                                            <input type="file" name="doc_aadhar_back" accept="image/*" hidden>
+                                                            <input type="file" name="doc_aadhar_back" accept="image/*"
+                                                                hidden>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 col-md-3">
                                                         <div class="photo-upload-box">
                                                             <span class="small text-muted fw-bold">Voter Front</span>
                                                             <img src="">
-                                                            <input type="file" name="doc_voter_front" accept="image/*" hidden>
+                                                            <input type="file" name="doc_voter_front" accept="image/*"
+                                                                hidden>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 col-md-3">
                                                         <div class="photo-upload-box">
                                                             <span class="small text-muted fw-bold">Voter Back</span>
                                                             <img src="">
-                                                            <input type="file" name="doc_voter_back" accept="image/*" hidden>
+                                                            <input type="file" name="doc_voter_back" accept="image/*"
+                                                                hidden>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -636,23 +793,30 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                 <label class="mb-2 fw-bold">Papers Received</label>
                                                 <div class="d-flex flex-wrap gap-3">
                                                     <div class="form-check">
-                                                        <input type="checkbox" name="pr_rc" class="form-check-input" id="pr_rc" data-bs-toggle="collapse" data-bs-target="#rcUploadBox">
+                                                        <input type="checkbox" name="pr_rc" class="form-check-input"
+                                                            id="pr_rc" data-bs-toggle="collapse"
+                                                            data-bs-target="#rcUploadBox">
                                                         <label class="fw-bold" for="pr_rc">RC</label>
                                                     </div>
                                                     <div class="form-check">
-                                                        <input type="checkbox" name="pr_tax" class="form-check-input" id="pr_tax">
+                                                        <input type="checkbox" name="pr_tax" class="form-check-input"
+                                                            id="pr_tax">
                                                         <label class="fw-bold" for="pr_tax">Tax Token</label>
                                                     </div>
                                                     <div class="form-check">
-                                                        <input type="checkbox" name="pr_insurance" class="form-check-input" id="pr_ins">
+                                                        <input type="checkbox" name="pr_insurance"
+                                                            class="form-check-input" id="pr_ins">
                                                         <label class="fw-bold" for="pr_ins">Insurance</label>
                                                     </div>
                                                     <div class="form-check">
-                                                        <input type="checkbox" name="pr_pucc" class="form-check-input" id="pr_puc">
+                                                        <input type="checkbox" name="pr_pucc" class="form-check-input"
+                                                            id="pr_puc">
                                                         <label class="fw-bold" for="pr_puc">PUCC</label>
                                                     </div>
                                                     <div class="form-check">
-                                                        <input type="checkbox" name="pr_noc" class="form-check-input" id="pr_noc" data-bs-toggle="collapse" data-bs-target="#nocUploadBox">
+                                                        <input type="checkbox" name="pr_noc" class="form-check-input"
+                                                            id="pr_noc" data-bs-toggle="collapse"
+                                                            data-bs-target="#nocUploadBox">
                                                         <label class="fw-bold" for="pr_noc">NOC</label>
                                                     </div>
                                                 </div>
@@ -662,14 +826,18 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                     <div class="row g-2">
                                                         <div class="col-6">
                                                             <div class="border rounded p-2 text-center bg-white">
-                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">RC FRONT</small>
-                                                                <input type="file" name="rc_front" class="form-control form-control-sm mt-1">
+                                                                <small class="fw-bold d-block mb-1"
+                                                                    style="font-size:10px">RC FRONT</small>
+                                                                <input type="file" name="rc_front"
+                                                                    class="form-control form-control-sm mt-1">
                                                             </div>
                                                         </div>
                                                         <div class="col-6">
                                                             <div class="border rounded p-2 text-center bg-white">
-                                                                <small class="fw-bold d-block mb-1" style="font-size:10px">RC BACK</small>
-                                                                <input type="file" name="rc_back" class="form-control form-control-sm mt-1">
+                                                                <small class="fw-bold d-block mb-1"
+                                                                    style="font-size:10px">RC BACK</small>
+                                                                <input type="file" name="rc_back"
+                                                                    class="form-control form-control-sm mt-1">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -678,12 +846,17 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                 <div class="collapse mt-3" id="nocUploadBox">
                                                     <label class="fw-bold small">NOC Status</label>
                                                     <div class="d-flex justify-content-center">
-                                                        <div class="btn-group w-75 btn-group-sm mb-3 mx-auto" role="group">
-                                                            <input type="radio" name="noc_status" class="btn-check" id="noc_paid" value="paid" checked>
-                                                            <label class="btn btn-outline-success" for="noc_paid">Paid</label>
+                                                        <div class="btn-group w-75 btn-group-sm mb-3 mx-auto"
+                                                            role="group">
+                                                            <input type="radio" name="noc_status" class="btn-check"
+                                                                id="noc_paid" value="paid" checked>
+                                                            <label class="btn btn-outline-success"
+                                                                for="noc_paid">Paid</label>
 
-                                                            <input type="radio" name="noc_status" class="btn-check" id="noc_due" value="due">
-                                                            <label class="btn btn-outline-danger" for="noc_due">Due</label>
+                                                            <input type="radio" name="noc_status" class="btn-check"
+                                                                id="noc_due" value="due">
+                                                            <label class="btn btn-outline-danger"
+                                                                for="noc_due">Due</label>
                                                         </div>
                                                     </div>
 
@@ -691,13 +864,15 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                         <div class="col-6">
                                                             <div class="border rounded small-box text-center p-2">
                                                                 <span class="small text-muted fw-bold">NOC Front</span>
-                                                                <input type="file" name="noc_front" class="form-control form-control-sm mt-1">
+                                                                <input type="file" name="noc_front"
+                                                                    class="form-control form-control-sm mt-1">
                                                             </div>
                                                         </div>
                                                         <div class="col-6">
                                                             <div class="border rounded small-box text-center p-2">
                                                                 <span class="small text-muted fw-bold">NOC Back</span>
-                                                                <input type="file" name="noc_back" class="form-control form-control-sm mt-1">
+                                                                <input type="file" name="noc_back"
+                                                                    class="form-control form-control-sm mt-1">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -708,52 +883,76 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                 <div class="col-12 col-md-6">
                                                     <label class="fw-bold mb-2">Payment Type</label>
                                                     <div class="d-flex gap-2 mb-3">
-                                                        <input type="radio" name="seller_payment_type" class="btn-check" id="pay_cash" value="cash" checked data-bs-toggle="collapse" data-bs-target="#cashBox">
-                                                        <label class="btn btn-outline-success" for="pay_cash">Cash</label>
+                                                        <input type="radio" name="seller_payment_type" class="btn-check"
+                                                            id="pay_cash" value="cash" checked data-bs-toggle="collapse"
+                                                            data-bs-target="#cashBox">
+                                                        <label class="btn btn-outline-success"
+                                                            for="pay_cash">Cash</label>
 
-                                                        <input type="radio" name="seller_payment_type" class="btn-check" id="pay_online" value="online" data-bs-toggle="collapse" data-bs-target="#onlineBox">
-                                                        <label class="btn btn-outline-primary" for="pay_online">Online</label>
+                                                        <input type="radio" name="seller_payment_type" class="btn-check"
+                                                            id="pay_online" value="online" data-bs-toggle="collapse"
+                                                            data-bs-target="#onlineBox">
+                                                        <label class="btn btn-outline-primary"
+                                                            for="pay_online">Online</label>
                                                     </div>
 
                                                     <div id="payAccordion">
-                                                        <div id="cashBox" class="collapse show" data-bs-parent="#payAccordion">
+                                                        <div id="cashBox" class="collapse show"
+                                                            data-bs-parent="#payAccordion">
                                                             <div class="p-3 bg-white border rounded shadow-sm">
                                                                 <label class="fw-bold small mb-1">Price</label>
                                                                 <div class="input-group">
-                                                                    <span class="input-group-text bg-white border-end-0">₹</span>
-                                                                    <input type="number" name="seller_cash_price" class="form-control border-start-0 ps-0" placeholder="Enter Price">
+                                                                    <span
+                                                                        class="input-group-text bg-white border-end-0">₹</span>
+                                                                    <input type="number" name="seller_cash_price"
+                                                                        class="form-control border-start-0 ps-0"
+                                                                        placeholder="Enter Price">
                                                                 </div>
                                                             </div>
                                                         </div>
 
-                                                        <div id="onlineBox" class="collapse" data-bs-parent="#payAccordion">
+                                                        <div id="onlineBox" class="collapse"
+                                                            data-bs-parent="#payAccordion">
                                                             <div class="p-3 bg-white border rounded shadow-sm">
                                                                 <label class="fw-bold small mb-2">Online Method</label>
                                                                 <div class="d-flex flex-wrap gap-3 mb-3">
                                                                     <label class="form-check">
-                                                                        <input type="radio" name="seller_online_method" class="form-check-input" value="Google Pay">
-                                                                        <span class="form-check-label fw-bold">Google Pay</span>
+                                                                        <input type="radio" name="seller_online_method"
+                                                                            class="form-check-input" value="Google Pay">
+                                                                        <span class="form-check-label fw-bold">Google
+                                                                            Pay</span>
                                                                     </label>
                                                                     <label class="form-check">
-                                                                        <input type="radio" name="seller_online_method" class="form-check-input" value="paytm">
-                                                                        <span class="form-check-label fw-bold">Paytm</span>
+                                                                        <input type="radio" name="seller_online_method"
+                                                                            class="form-check-input" value="paytm">
+                                                                        <span
+                                                                            class="form-check-label fw-bold">Paytm</span>
                                                                     </label>
                                                                     <label class="form-check">
-                                                                        <input type="radio" name="seller_online_method" class="form-check-input" value="phonepe">
-                                                                        <span class="form-check-label fw-bold">PhonePe</span>
+                                                                        <input type="radio" name="seller_online_method"
+                                                                            class="form-check-input" value="phonepe">
+                                                                        <span
+                                                                            class="form-check-label fw-bold">PhonePe</span>
                                                                     </label>
                                                                     <label class="form-check">
-                                                                        <input type="radio" name="seller_online_method" class="form-check-input" value="bharatpe">
-                                                                        <span class="form-check-label fw-bold">BharatPe</span>
+                                                                        <input type="radio" name="seller_online_method"
+                                                                            class="form-check-input" value="bharatpe">
+                                                                        <span
+                                                                            class="form-check-label fw-bold">BharatPe</span>
                                                                     </label>
                                                                 </div>
 
-                                                                <input type="text" name="seller_online_transaction_id" class="form-control form-control-sm mb-3 text-uppercase" placeholder="Transaction / UPI Reference ID">
+                                                                <input type="text" name="seller_online_transaction_id"
+                                                                    class="form-control form-control-sm mb-3 text-uppercase"
+                                                                    placeholder="Transaction / UPI Reference ID">
 
                                                                 <label class="fw-bold small mb-1">Price</label>
                                                                 <div class="input-group">
-                                                                    <span class="input-group-text bg-white border-end-0">₹</span>
-                                                                    <input type="number" name="seller_online_price" class="form-control border-start-0 ps-0" placeholder="Enter Price">
+                                                                    <span
+                                                                        class="input-group-text bg-white border-end-0">₹</span>
+                                                                    <input type="number" name="seller_online_price"
+                                                                        class="form-control border-start-0 ps-0"
+                                                                        placeholder="Enter Price">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -764,21 +963,29 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                             <div class="row g-3 mb-3">
                                                 <div class="col-12 col-md-6">
                                                     <label>Exchange Showroom Name</label>
-                                                    <input type="text" name="exchange_showroom_name" class="form-control text-uppercase" placeholder="Showroom Name">
+                                                    <input type="text" name="exchange_showroom_name"
+                                                        class="form-control text-uppercase" placeholder="Showroom Name">
                                                 </div>
                                                 <div class="col-12 col-md-6">
                                                     <label>Staff Name</label>
-                                                    <input type="text" name="staff_name" class="form-control text-uppercase" placeholder="Staff Name">
+                                                    <input type="text" name="staff_name"
+                                                        class="form-control text-uppercase" placeholder="Staff Name">
                                                 </div>
                                             </div>
 
                                             <div class="bg-light p-3 rounded-4 border">
                                                 <label class="text-primary">Payment Calculation</label>
                                                 <div class="row g-2">
-                                                    <div class="col-12"><input type="number" name="total_amount" class="form-control" placeholder="Total" id="s_total"></div>
-                                                    <div class="col-12"><input type="number" name="paid_amount" class="form-control" placeholder="Paid" id="s_paid"></div>
-                                                    <div class="col-12"><input type="number" name="due_amount" class="form-control bg-white fw-bold text-danger" placeholder="Due" id="s_due" readonly></div>
-                                                    <div class="col-12"><input type="text" name="due_reason" class="form-control d-none mt-1" id="s_due_reason" placeholder="Reason for due amount..."></div>
+                                                    <div class="col-12"><input type="number" name="total_amount"
+                                                            class="form-control" placeholder="Total" id="s_total"></div>
+                                                    <div class="col-12"><input type="number" name="paid_amount"
+                                                            class="form-control" placeholder="Paid" id="s_paid"></div>
+                                                    <div class="col-12"><input type="number" name="due_amount"
+                                                            class="form-control bg-white fw-bold text-danger"
+                                                            placeholder="Due" id="s_due" readonly></div>
+                                                    <div class="col-12"><input type="text" name="due_reason"
+                                                            class="form-control d-none mt-1" id="s_due_reason"
+                                                            placeholder="Reason for due amount..."></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -786,42 +993,52 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                     <!-- 3rd step -->
                                     <div id="step-3" class="wizard-step d-none">
                                         <div class="card steps-id border-0 p-4 shadow-sm rounded-4">
-                                            <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Purchaser Details</h6>
+                                            <h6 class="fw-bold text-primary mb-3 text-uppercase ls-1">Purchaser Details
+                                            </h6>
 
                                             <div class="row g-3 mb-3">
                                                 <div class="col-12 col-md-6">
                                                     <label>Date</label>
-                                                    <input type="date" name="purchaser_date" class="form-control" value="2025-11-26">
+                                                    <input type="date" name="purchaser_date" class="form-control"
+                                                        value="2025-11-26">
                                                 </div>
                                                 <div class="col-12 col-md-6">
                                                     <label>Purchaser Name</label>
-                                                    <input type="text" name="purchaser_name" class="form-control text-uppercase">
+                                                    <input type="text" name="purchaser_name"
+                                                        class="form-control text-uppercase">
                                                 </div>
                                                 <div class="col-12">
                                                     <label>Address</label>
-                                                    <textarea name="purchaser_address" class="form-control text-uppercase" rows="2"></textarea>
+                                                    <textarea name="purchaser_address"
+                                                        class="form-control text-uppercase" rows="2"></textarea>
                                                 </div>
                                                 <div class="col-12 col-md-6">
                                                     <label>Bike Name</label>
-                                                    <input type="text" name="purchaser_bike_name" class="form-control text-uppercase">
+                                                    <input type="text" name="purchaser_bike_name"
+                                                        class="form-control text-uppercase">
                                                 </div>
                                                 <div class="col-12 col-md-6">
                                                     <label>Vehicle No</label>
-                                                    <input type="text" name="purchaser_vehicle_no" class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000" value="WB ">
+                                                    <input type="text" name="purchaser_vehicle_no"
+                                                        class="form-control fw-bold text-uppercase"
+                                                        placeholder="WB 00 AA 0000" value="WB ">
                                                 </div>
                                             </div>
 
                                             <div class="bg-light p-3 rounded-4 border mb-4">
-                                                <label class="text-dark mb-3 d-block">Purchaser Paper Payment Fees</label>
+                                                <label class="text-dark mb-3 d-block">Purchaser Paper Payment
+                                                    Fees</label>
 
                                                 <div class="row g-2 align-items-end mb-3">
                                                     <div class="col-12 col-md-4">
                                                         <label>Transfer Amount</label>
-                                                        <input type="number" name="purchaser_transfer_amount" class="form-control" placeholder="Amount">
+                                                        <input type="number" name="purchaser_transfer_amount"
+                                                            class="form-control" placeholder="Amount">
                                                     </div>
                                                     <div class="col-12 col-md-4">
                                                         <label>Date</label>
-                                                        <input type="date" name="purchaser_transfer_date" class="form-control" value="2025-11-26">
+                                                        <input type="date" name="purchaser_transfer_date"
+                                                            class="form-control" value="2025-11-26">
                                                     </div>
                                                     <div class="col-12 col-md-4">
                                                         <label>Status</label>
@@ -835,11 +1052,13 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                 <div class="row g-2 align-items-end mb-3">
                                                     <div class="col-12 col-md-4">
                                                         <label>HPA</label>
-                                                        <input type="number" name="purchaser_hpa_amount" class="form-control" placeholder="Amount">
+                                                        <input type="number" name="purchaser_hpa_amount"
+                                                            class="form-control" placeholder="Amount">
                                                     </div>
                                                     <div class="col-12 col-md-4">
                                                         <label>Date</label>
-                                                        <input type="date" name="purchaser_hpa_date" class="form-control" value="2025-11-26">
+                                                        <input type="date" name="purchaser_hpa_date"
+                                                            class="form-control" value="2025-11-26">
                                                     </div>
                                                     <div class="col-12 col-md-4">
                                                         <label>Status</label>
@@ -853,11 +1072,13 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                 <div class="row g-2 align-items-end mb-3">
                                                     <div class="col-12 col-md-4">
                                                         <label>HP</label>
-                                                        <input type="number" name="purchaser_hp_amount" class="form-control" placeholder="Amount">
+                                                        <input type="number" name="purchaser_hp_amount"
+                                                            class="form-control" placeholder="Amount">
                                                     </div>
                                                     <div class="col-12 col-md-4">
                                                         <label>Date</label>
-                                                        <input type="date" name="purchaser_hp_date" class="form-control" value="2025-11-26">
+                                                        <input type="date" name="purchaser_hp_date" class="form-control"
+                                                            value="2025-11-26">
                                                     </div>
                                                     <div class="col-12 col-md-4">
                                                         <label>Status</label>
@@ -871,44 +1092,64 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                 <div class="row g-3 mb-3">
                                                     <div class="col-md-3">
                                                         <label class="fw-bold">Insurance Name</label>
-                                                        <select name="purchaser_insurance_name" class="form-control text-uppercase" required>
+                                                        <select name="purchaser_insurance_name"
+                                                            class="form-control text-uppercase" required>
                                                             <option value="">-- Select Insurance --</option>
-                                                            <option value="Tata AIG Insurance">Tata AIG Insurance</option>
+                                                            <option value="Tata AIG Insurance">Tata AIG Insurance
+                                                            </option>
                                                             <option value="Bharti AXA">Bharti AXA</option>
                                                             <option value="Bajaj Allianz">Bajaj Allianz</option>
                                                             <option value="ICICI Lombard">ICICI Lombard</option>
                                                             <option value="IFFCO Tokio">IFFCO Tokio</option>
-                                                            <option value="National Insurance">National Insurance</option>
-                                                            <option value="New India Assurance">New India Assurance</option>
-                                                            <option value="Oriental Insurance">Oriental Insurance</option>
-                                                            <option value="United India Insurance">United India Insurance</option>
-                                                            <option value="Reliance General Insurance">Reliance General Insurance</option>
-                                                            <option value="Royal Sundaram Insurance">Royal Sundaram Insurance</option>
-                                                            <option value="Chola MS Insurance">Chola MS Insurance</option>
+                                                            <option value="National Insurance">National Insurance
+                                                            </option>
+                                                            <option value="New India Assurance">New India Assurance
+                                                            </option>
+                                                            <option value="Oriental Insurance">Oriental Insurance
+                                                            </option>
+                                                            <option value="United India Insurance">United India
+                                                                Insurance</option>
+                                                            <option value="Reliance General Insurance">Reliance General
+                                                                Insurance</option>
+                                                            <option value="Royal Sundaram Insurance">Royal Sundaram
+                                                                Insurance</option>
+                                                            <option value="Chola MS Insurance">Chola MS Insurance
+                                                            </option>
                                                             <option value="HDFC ERGO">HDFC ERGO</option>
                                                             <option value="ECGC">ECGC</option>
-                                                            <option value="Agriculture Insurance Company of India (AIC)">Agriculture Insurance Company of India (AIC)</option>
-                                                            <option value="Star Health Insurance">Star Health Insurance</option>
+                                                            <option
+                                                                value="Agriculture Insurance Company of India (AIC)">
+                                                                Agriculture Insurance Company of India (AIC)</option>
+                                                            <option value="Star Health Insurance">Star Health Insurance
+                                                            </option>
                                                             <option value="Future Generali">Future Generali</option>
                                                             <option value="Universal Sompo">Universal Sompo</option>
-                                                            <option value="Shriram General Insurance">Shriram General Insurance</option>
+                                                            <option value="Shriram General Insurance">Shriram General
+                                                                Insurance</option>
                                                             <option value="Raheja QBE">Raheja QBE</option>
-                                                            <option value="SBI General Insurance">SBI General Insurance</option>
-                                                            <option value="Niva Bupa Health Insurance">Niva Bupa Health Insurance</option>
+                                                            <option value="SBI General Insurance">SBI General Insurance
+                                                            </option>
+                                                            <option value="Niva Bupa Health Insurance">Niva Bupa Health
+                                                                Insurance</option>
                                                             <option value="L&T Insurance">L&T Insurance</option>
-                                                            <option value="Care Health Insurance">Care Health Insurance</option>
+                                                            <option value="Care Health Insurance">Care Health Insurance
+                                                            </option>
                                                             <option value="Magma HDI">Magma HDI</option>
-                                                            <option value="Liberty General Insurance">Liberty General Insurance</option>
+                                                            <option value="Liberty General Insurance">Liberty General
+                                                                Insurance</option>
                                                             <option value="Manipal Cigna">Manipal Cigna</option>
-                                                            <option value="Kotak General Insurance">Kotak General Insurance</option>
-                                                            <option value="Aditya Birla Capital Health Insurance">Aditya Birla Capital Health Insurance</option>
+                                                            <option value="Kotak General Insurance">Kotak General
+                                                                Insurance</option>
+                                                            <option value="Aditya Birla Capital Health Insurance">Aditya
+                                                                Birla Capital Health Insurance</option>
                                                             <option value="Digit Insurance">Digit Insurance</option>
                                                         </select>
                                                     </div>
 
                                                     <div class="col-md-3">
                                                         <label class="fw-bold">Payment Status</label>
-                                                        <select name="purchaser_insurance_payment_status" class="form-control" required>
+                                                        <select name="purchaser_insurance_payment_status"
+                                                            class="form-control" required>
                                                             <option value="">-- Select Status --</option>
                                                             <option value="paid">Paid</option>
                                                             <option value="due">Due</option>
@@ -917,20 +1158,25 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
                                                     <div class="col-md-3">
                                                         <label class="fw-bold">Amount</label>
-                                                        <input type="number" name="purchaser_insurance_amount" class="form-control" placeholder="Enter Amount" required>
+                                                        <input type="number" name="purchaser_insurance_amount"
+                                                            class="form-control" placeholder="Enter Amount" required>
                                                     </div>
 
                                                     <div class="col-md-3">
                                                         <label class="fw-bold">Issue Date</label>
-                                                        <input type="date" name="purchaser_insurance_issue_date" class="form-control" id="issueDate" value="2025-11-26" required>
+                                                        <input type="date" name="purchaser_insurance_issue_date"
+                                                            class="form-control" id="issueDate" value="2025-11-26"
+                                                            required>
                                                     </div>
 
                                                     <div class="col-md-3">
                                                         <label class="fw-bold">Expiry Date</label>
-                                                        <input type="date" name="purchaser_insurance_expiry_date" class="form-control" id="expiryDate" readonly required>
+                                                        <input type="date" name="purchaser_insurance_expiry_date"
+                                                            class="form-control" id="expiryDate" readonly required>
                                                     </div>
 
-                                                    <span class="fw-bold text-primary">Validity:<span id="expiryText">--</span></span>
+                                                    <span class="fw-bold text-primary">Validity:<span
+                                                            id="expiryText">--</span></span>
                                                 </div>
                                             </div>
 
@@ -938,64 +1184,86 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                 <label class="mb-2">Price Breakdown</label>
                                                 <div class="row g-2 mb-3">
                                                     <div class="col-12">
-                                                        <input type="number" name="purchaser_total" id="p_total" class="form-control" placeholder="Total">
+                                                        <input type="number" name="purchaser_total" id="p_total"
+                                                            class="form-control" placeholder="Total">
                                                     </div>
                                                     <div class="col-12">
-                                                        <input type="number" name="purchaser_paid" id="p_paid" class="form-control" placeholder="Paid">
+                                                        <input type="number" name="purchaser_paid" id="p_paid"
+                                                            class="form-control" placeholder="Paid">
                                                     </div>
                                                     <div class="col-12">
-                                                        <input type="number" name="purchaser_due" id="p_due" class="form-control bg-white" placeholder="Due" readonly>
+                                                        <input type="number" name="purchaser_due" id="p_due"
+                                                            class="form-control bg-white" placeholder="Due" readonly>
                                                     </div>
                                                 </div>
 
                                                 <div class="d-flex gap-3 mb-2">
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="purchaser_payment_mode" id="rad_cash" value="cash" checked>
-                                                        <label class="fw-bold" for="rad_cash" data-bs-toggle="collapse" data-bs-target="#sec_cash" role="button">
+                                                        <input class="form-check-input" type="radio"
+                                                            name="purchaser_payment_mode" id="rad_cash" value="cash"
+                                                            checked>
+                                                        <label class="fw-bold" for="rad_cash" data-bs-toggle="collapse"
+                                                            data-bs-target="#sec_cash" role="button">
                                                             Cash
                                                         </label>
                                                     </div>
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="purchaser_payment_mode" id="rad_fin" value="finance">
-                                                        <label class="fw-bold" for="rad_fin" data-bs-toggle="collapse" data-bs-target="#sec_finance" role="button">
+                                                        <input class="form-check-input" type="radio"
+                                                            name="purchaser_payment_mode" id="rad_fin" value="finance">
+                                                        <label class="fw-bold" for="rad_fin" data-bs-toggle="collapse"
+                                                            data-bs-target="#sec_finance" role="button">
                                                             Finance
                                                         </label>
                                                     </div>
                                                 </div>
 
                                                 <div id="payment_details_group">
-                                                    <div id="sec_cash" class="collapse show border-top pt-2 mt-2" data-bs-parent="#payment_details_group">
+                                                    <div id="sec_cash" class="collapse show border-top pt-2 mt-2"
+                                                        data-bs-parent="#payment_details_group">
                                                         <div class="row g-2">
                                                             <div class="col-12">
                                                                 <label>Amount</label>
-                                                                <input type="number" name="purchaser_cash_amount" class="form-control" placeholder="Enter Amount">
+                                                                <input type="number" name="purchaser_cash_amount"
+                                                                    class="form-control" placeholder="Enter Amount">
                                                             </div>
                                                             <div class="col-12">
                                                                 <label>Mobile Number 1</label>
-                                                                <input type="tel" name="purchaser_cash_mobile1" class="form-control" placeholder="Enter Mobile Number">
+                                                                <input type="tel" name="purchaser_cash_mobile1"
+                                                                    class="form-control"
+                                                                    placeholder="Enter Mobile Number">
                                                             </div>
                                                             <div class="col-12">
                                                                 <label>Mobile Number 2</label>
-                                                                <input type="tel" name="purchaser_cash_mobile2" class="form-control" placeholder="Enter Mobile Number">
+                                                                <input type="tel" name="purchaser_cash_mobile2"
+                                                                    class="form-control"
+                                                                    placeholder="Enter Mobile Number">
                                                             </div>
                                                             <div class="col-12">
                                                                 <label>Mobile Number 3</label>
-                                                                <input type="tel" name="purchaser_cash_mobile3" class="form-control" placeholder="Enter Mobile Number">
+                                                                <input type="tel" name="purchaser_cash_mobile3"
+                                                                    class="form-control"
+                                                                    placeholder="Enter Mobile Number">
                                                             </div>
                                                         </div>
                                                     </div>
 
-                                                    <div id="sec_finance" class="collapse border-top pt-2 mt-2" data-bs-parent="#payment_details_group">
+                                                    <div id="sec_finance" class="collapse border-top pt-2 mt-2"
+                                                        data-bs-parent="#payment_details_group">
                                                         <div class="row g-2">
                                                             <div class="col-12">
                                                                 <label>HPA With</label>
-                                                                <input type="text" name="purchaser_fin_hpa_with" class="form-control text-uppercase" placeholder="Finance Company">
+                                                                <input type="text" name="purchaser_fin_hpa_with"
+                                                                    class="form-control text-uppercase"
+                                                                    placeholder="Finance Company">
                                                             </div>
                                                             <div class="col-12">
                                                                 <label>Disburse Amount</label>
                                                                 <div class="input-group">
-                                                                    <input type="number" name="purchaser_fin_disburse_amount" class="form-control" placeholder="Amt">
-                                                                    <select name="purchaser_fin_disburse_status" class="form-select" style="max-width:100px;">
+                                                                    <input type="number"
+                                                                        name="purchaser_fin_disburse_amount"
+                                                                        class="form-control" placeholder="Amt">
+                                                                    <select name="purchaser_fin_disburse_status"
+                                                                        class="form-select" style="max-width:100px;">
                                                                         <option value="paid">Paid</option>
                                                                         <option value="due">Due</option>
                                                                     </select>
@@ -1003,15 +1271,18 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                             </div>
                                                             <div class="col-12">
                                                                 <label>Mobile Number 1</label>
-                                                                <input type="tel" name="purchaser_fin_mobile1" class="form-control" placeholder="Mobile 1">
+                                                                <input type="tel" name="purchaser_fin_mobile1"
+                                                                    class="form-control" placeholder="Mobile 1">
                                                             </div>
                                                             <div class="col-12">
                                                                 <label>Mobile Number 2</label>
-                                                                <input type="tel" name="purchaser_fin_mobile2" class="form-control" placeholder="Mobile 2">
+                                                                <input type="tel" name="purchaser_fin_mobile2"
+                                                                    class="form-control" placeholder="Mobile 2">
                                                             </div>
                                                             <div class="col-12">
                                                                 <label>Mobile Number 3</label>
-                                                                <input type="tel" name="purchaser_fin_mobile3" class="form-control" placeholder="Mobile 3">
+                                                                <input type="tel" name="purchaser_fin_mobile3"
+                                                                    class="form-control" placeholder="Mobile 3">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1025,54 +1296,64 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                         <div class="photo-upload-box">
                                                             <span class="small text-muted fw-bold">Aadhar Front</span>
                                                             <img src="">
-                                                            <input type="file" name="purchaser_doc_aadhar_front" accept="image/*" hidden>
+                                                            <input type="file" name="purchaser_doc_aadhar_front"
+                                                                accept="image/*" hidden>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 col-md-3">
                                                         <div class="photo-upload-box">
                                                             <span class="small text-muted fw-bold">Aadhar Back</span>
                                                             <img src="">
-                                                            <input type="file" name="purchaser_doc_aadhar_back" accept="image/*" hidden>
+                                                            <input type="file" name="purchaser_doc_aadhar_back"
+                                                                accept="image/*" hidden>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 col-md-3">
                                                         <div class="photo-upload-box">
                                                             <span class="small text-muted fw-bold">Voter Front</span>
                                                             <img src="">
-                                                            <input type="file" name="purchaser_doc_voter_front" accept="image/*" hidden>
+                                                            <input type="file" name="purchaser_doc_voter_front"
+                                                                accept="image/*" hidden>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 col-md-3">
                                                         <div class="photo-upload-box">
                                                             <span class="small text-muted fw-bold">Voter Back</span>
                                                             <img src="">
-                                                            <input type="file" name="purchaser_doc_voter_back" accept="image/*" hidden>
+                                                            <input type="file" name="purchaser_doc_voter_back"
+                                                                accept="image/*" hidden>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="purchaser_payment_all_paid" id="all_paid">
-                                                <label class="form-check-label fw-bold text-success" for="all_paid">Payment All Paid</label>
+                                                <input class="form-check-input" type="checkbox"
+                                                    name="purchaser_payment_all_paid" id="all_paid">
+                                                <label class="form-check-label fw-bold text-success"
+                                                    for="all_paid">Payment All Paid</label>
                                             </div>
                                         </div>
                                     </div>
                                     <!-- 4rd step -->
                                     <div id="step-4" class="wizard-step d-none">
                                         <div class="card steps-id border-0 shadow-sm rounded-4">
-                                            <h6 class="fw-bold text-primary m-4 mb-3 text-uppercase ls-1">Ownership Transfer</h6>
+                                            <h6 class="fw-bold text-primary m-4 mb-3 text-uppercase ls-1">Ownership
+                                                Transfer</h6>
 
                                             <div class="p-3 border rounded-4 mb-4">
                                                 <div class="row g-3 mb-3">
                                                     <div class="col-12 col-md-4">
                                                         <label>Name Transfer</label>
-                                                        <input type="text" class="form-control text-uppercase" placeholder="Enter Name" name="ot_name_transfer">
+                                                        <input type="text" class="form-control text-uppercase"
+                                                            placeholder="Enter Name" name="ot_name_transfer">
                                                     </div>
 
                                                     <div class="col-12 col-md-4">
                                                         <label>Vehicle Number</label>
-                                                        <input type="text" class="form-control fw-bold text-uppercase" placeholder="WB 00 AA 0000" value="WB " name="ot_vehicle_number">
+                                                        <input type="text" class="form-control fw-bold text-uppercase"
+                                                            placeholder="WB 00 AA 0000" value="WB "
+                                                            name="ot_vehicle_number">
                                                     </div>
 
                                                     <div class="col-12 col-md-4">
@@ -1092,7 +1373,8 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                 <div class="row g-3 mb-4">
                                                     <div class="col-12 col-md-6">
                                                         <label>Vendor Name</label>
-                                                        <input type="text" class="form-control text-uppercase" placeholder="Vendor Name" name="ot_vendor_name">
+                                                        <input type="text" class="form-control text-uppercase"
+                                                            placeholder="Vendor Name" name="ot_vendor_name">
                                                     </div>
                                                 </div>
 
@@ -1102,11 +1384,13 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                     <div class="row g-2 align-items-end mb-3">
                                                         <div class="col-12 col-md-4">
                                                             <label>Transfer Amount</label>
-                                                            <input type="number" class="form-control" placeholder="Amount" name="ot_transfer_amount">
+                                                            <input type="number" class="form-control"
+                                                                placeholder="Amount" name="ot_transfer_amount">
                                                         </div>
                                                         <div class="col-12 col-md-4">
                                                             <label>Date</label>
-                                                            <input type="date" class="form-control" value="2025-11-26" name="ot_transfer_date">
+                                                            <input type="date" class="form-control" value="2025-11-26"
+                                                                name="ot_transfer_date">
                                                         </div>
                                                         <div class="col-12 col-md-4">
                                                             <label>Status</label>
@@ -1120,11 +1404,13 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                     <div class="row g-2 align-items-end mb-3">
                                                         <div class="col-12 col-md-4">
                                                             <label>HPA</label>
-                                                            <input type="number" class="form-control" placeholder="Amount" name="ot_hpa_amount">
+                                                            <input type="number" class="form-control"
+                                                                placeholder="Amount" name="ot_hpa_amount">
                                                         </div>
                                                         <div class="col-12 col-md-4">
                                                             <label>Date</label>
-                                                            <input type="date" class="form-control" value="2025-11-26" name="ot_hpa_date">
+                                                            <input type="date" class="form-control" value="2025-11-26"
+                                                                name="ot_hpa_date">
                                                         </div>
                                                         <div class="col-12 col-md-4">
                                                             <label>Status</label>
@@ -1138,11 +1424,13 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                     <div class="row g-2 align-items-end mb-3">
                                                         <div class="col-12 col-md-4">
                                                             <label>HP</label>
-                                                            <input type="number" class="form-control" placeholder="Amount" name="ot_hp_amount">
+                                                            <input type="number" class="form-control"
+                                                                placeholder="Amount" name="ot_hp_amount">
                                                         </div>
                                                         <div class="col-12 col-md-4">
                                                             <label>Date</label>
-                                                            <input type="date" class="form-control" value="2025-11-26" name="ot_hp_date">
+                                                            <input type="date" class="form-control" value="2025-11-26"
+                                                                name="ot_hp_date">
                                                         </div>
                                                         <div class="col-12 col-md-4">
                                                             <label>Status</label>
@@ -1156,44 +1444,65 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                     <div class="row g-3 mb-3">
                                                         <div class="col-md-3">
                                                             <label class="fw-bold">Insurance Name</label>
-                                                            <select class="form-control text-uppercase" required name="ot_insurance_name">
+                                                            <select class="form-control text-uppercase" required
+                                                                name="ot_insurance_name">
                                                                 <option value="">-- Select Insurance --</option>
-                                                                <option value="Tata AIG Insurance">Tata AIG Insurance</option>
+                                                                <option value="Tata AIG Insurance">Tata AIG Insurance
+                                                                </option>
                                                                 <option value="Bharti AXA">Bharti AXA</option>
                                                                 <option value="Bajaj Allianz">Bajaj Allianz</option>
                                                                 <option value="ICICI Lombard">ICICI Lombard</option>
                                                                 <option value="IFFCO Tokio">IFFCO Tokio</option>
-                                                                <option value="National Insurance">National Insurance</option>
-                                                                <option value="New India Assurance">New India Assurance</option>
-                                                                <option value="Oriental Insurance">Oriental Insurance</option>
-                                                                <option value="United India Insurance">United India Insurance</option>
-                                                                <option value="Reliance General Insurance">Reliance General Insurance</option>
-                                                                <option value="Royal Sundaram Insurance">Royal Sundaram Insurance</option>
-                                                                <option value="Chola MS Insurance">Chola MS Insurance</option>
+                                                                <option value="National Insurance">National Insurance
+                                                                </option>
+                                                                <option value="New India Assurance">New India Assurance
+                                                                </option>
+                                                                <option value="Oriental Insurance">Oriental Insurance
+                                                                </option>
+                                                                <option value="United India Insurance">United India
+                                                                    Insurance</option>
+                                                                <option value="Reliance General Insurance">Reliance
+                                                                    General Insurance</option>
+                                                                <option value="Royal Sundaram Insurance">Royal Sundaram
+                                                                    Insurance</option>
+                                                                <option value="Chola MS Insurance">Chola MS Insurance
+                                                                </option>
                                                                 <option value="HDFC ERGO">HDFC ERGO</option>
                                                                 <option value="ECGC">ECGC</option>
-                                                                <option value="Agriculture Insurance Company of India (AIC)">Agriculture Insurance Company of India (AIC)</option>
-                                                                <option value="Star Health Insurance">Star Health Insurance</option>
+                                                                <option
+                                                                    value="Agriculture Insurance Company of India (AIC)">
+                                                                    Agriculture Insurance Company of India (AIC)
+                                                                </option>
+                                                                <option value="Star Health Insurance">Star Health
+                                                                    Insurance</option>
                                                                 <option value="Future Generali">Future Generali</option>
                                                                 <option value="Universal Sompo">Universal Sompo</option>
-                                                                <option value="Shriram General Insurance">Shriram General Insurance</option>
+                                                                <option value="Shriram General Insurance">Shriram
+                                                                    General Insurance</option>
                                                                 <option value="Raheja QBE">Raheja QBE</option>
-                                                                <option value="SBI General Insurance">SBI General Insurance</option>
-                                                                <option value="Niva Bupa Health Insurance">Niva Bupa Health Insurance</option>
+                                                                <option value="SBI General Insurance">SBI General
+                                                                    Insurance</option>
+                                                                <option value="Niva Bupa Health Insurance">Niva Bupa
+                                                                    Health Insurance</option>
                                                                 <option value="L&T Insurance">L&T Insurance</option>
-                                                                <option value="Care Health Insurance">Care Health Insurance</option>
+                                                                <option value="Care Health Insurance">Care Health
+                                                                    Insurance</option>
                                                                 <option value="Magma HDI">Magma HDI</option>
-                                                                <option value="Liberty General Insurance">Liberty General Insurance</option>
+                                                                <option value="Liberty General Insurance">Liberty
+                                                                    General Insurance</option>
                                                                 <option value="Manipal Cigna">Manipal Cigna</option>
-                                                                <option value="Kotak General Insurance">Kotak General Insurance</option>
-                                                                <option value="Aditya Birla Capital Health Insurance">Aditya Birla Capital Health Insurance</option>
+                                                                <option value="Kotak General Insurance">Kotak General
+                                                                    Insurance</option>
+                                                                <option value="Aditya Birla Capital Health Insurance">
+                                                                    Aditya Birla Capital Health Insurance</option>
                                                                 <option value="Digit Insurance">Digit Insurance</option>
                                                             </select>
                                                         </div>
 
                                                         <div class="col-md-3">
                                                             <label class="fw-bold">Payment Status</label>
-                                                            <select class="form-control" required name="ot_insurance_payment_status">
+                                                            <select class="form-control" required
+                                                                name="ot_insurance_payment_status">
                                                                 <option value="">-- Select Status --</option>
                                                                 <option value="paid">Paid</option>
                                                                 <option value="due">Due</option>
@@ -1202,20 +1511,26 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
                                                         <div class="col-md-3">
                                                             <label class="fw-bold">Amount</label>
-                                                            <input type="number" class="form-control" placeholder="Enter Amount" required name="ot_insurance_amount">
+                                                            <input type="number" class="form-control"
+                                                                placeholder="Enter Amount" required
+                                                                name="ot_insurance_amount">
                                                         </div>
 
                                                         <div class="col-md-3">
                                                             <label class="fw-bold">Start Date</label>
-                                                            <input type="date" class="form-control" id="startDate" value="2025-11-26" required name="ot_insurance_start_date">
+                                                            <input type="date" class="form-control" id="startDate"
+                                                                value="2025-11-26" required
+                                                                name="ot_insurance_start_date">
                                                         </div>
 
                                                         <div class="col-md-3">
                                                             <label class="fw-bold">End Date</label>
-                                                            <input type="date" class="form-control" id="endDate" readonly required name="ot_insurance_end_date">
+                                                            <input type="date" class="form-control" id="endDate"
+                                                                readonly required name="ot_insurance_end_date">
                                                         </div>
 
-                                                        <span class="fw-bold text-primary">Duration:<span id="durationText">--</span></span>
+                                                        <span class="fw-bold text-primary">Duration:<span
+                                                                id="durationText">--</span></span>
                                                     </div>
                                                 </div>
 
@@ -1226,14 +1541,17 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                             <div class="row g-3">
                                                                 <div class="col-6">
                                                                     <label class="form-label small">Status</label>
-                                                                    <select class="form-select" name="ot_purchaser_sign_status">
+                                                                    <select class="form-select"
+                                                                        name="ot_purchaser_sign_status">
                                                                         <option>Yes</option>
                                                                         <option>No</option>
                                                                     </select>
                                                                 </div>
                                                                 <div class="col-6">
                                                                     <label class="form-label small">Date</label>
-                                                                    <input type="date" class="form-control" value="2025-11-26" name="ot_purchaser_sign_date">
+                                                                    <input type="date" class="form-control"
+                                                                        value="2025-11-26"
+                                                                        name="ot_purchaser_sign_date">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1245,14 +1563,16 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                                             <div class="row g-3">
                                                                 <div class="col-6">
                                                                     <label class="form-label small">Status</label>
-                                                                    <select class="form-select" name="ot_seller_sign_status">
+                                                                    <select class="form-select"
+                                                                        name="ot_seller_sign_status">
                                                                         <option>Yes</option>
                                                                         <option>No</option>
                                                                     </select>
                                                                 </div>
                                                                 <div class="col-6">
                                                                     <label class="form-label small">Date</label>
-                                                                    <input type="date" class="form-control" value="2025-11-26" name="ot_seller_sign_date">
+                                                                    <input type="date" class="form-control"
+                                                                        value="2025-11-26" name="ot_seller_sign_date">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1264,14 +1584,13 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                 </div>
                             </div>
 
-                            <div class="p-2 p-sm-3 bg-secondary border-top d-flex align-items-center justify-content-between shadow-lg position-sticky bottom-0 w-100" style="z-index: 1030;">
+                            <div class="p-2 p-sm-3 bg-secondary border-top d-flex align-items-center justify-content-between shadow-lg position-sticky bottom-0 w-100"
+                                style="z-index: 1030;">
 
                                 <!-- Back Button -->
                                 <button type="button"
                                     class="btn btn-outline-light px-3 px-sm-4 py-2 fw-bold d-flex align-items-center"
-                                    id="prevBtn"
-                                    style="display:none;"
-                                    onclick="prevStep()">
+                                    id="prevBtn" style="display:none;" onclick="prevStep()">
                                     <i class="ph-bold ph-arrow-left me-1"></i>
                                     <span class="d-none d-sm-inline">Back</span>
                                 </button>
@@ -1303,11 +1622,13 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
 
 
                             <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
-                                <div id="liveToast" class="toast align-items-center border-0 text-white shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+                                <div id="liveToast" class="toast align-items-center border-0 text-white shadow-lg"
+                                    role="alert" aria-live="assertive" aria-atomic="true">
                                     <div class="d-flex">
                                         <div class="toast-body fs-6 fw-bold" id="toastMessage">
                                         </div>
-                                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                                        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                                            data-bs-dismiss="toast" aria-label="Close"></button>
                                     </div>
                                 </div>
                             </div>
@@ -1319,68 +1640,102 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
         </div>
     </div>
 
-
-
     <!-- LEADS LIST MODAL -->
     <!-- Responsive: modal-fullscreen-sm-down for mobile view -->
-    <div class="modal fade" id="leadsListModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
-            <div class="modal-content">
-                <div class="modal-header border-0 pb-0">
-                    <h4 class="modal-title fw-bold ms-2 fs-5 fs-md-4">Manage Leads</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal fade" id="leadsListModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4">
+
+                <div class="modal-header border-0 pb-0 pt-4 px-4 d-flex flex-column align-items-start">
+                    <div class="d-flex justify-content-between w-100 align-items-center mb-3">
+                        <h4 class="modal-title fw-bold fs-4">Manage Leads</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="input-group w-100 mb-2">
+                        <span class="input-group-text bg-light border-0 ps-3">
+                            <i class="ph-bold ph-magnifying-glass text-secondary fs-5"></i>
+                        </span>
+                        <input type="text" id="leadSearchInput" class="form-control bg-light border-0 py-2"
+                            placeholder="Search by name, phone, or bike model..." autocomplete="off">
+                    </div>
                 </div>
-                <div class="modal-body p-4">
+
+                <div class="modal-body p-4 bg-light bg-opacity-10">
+
                     <div class="row g-3" id="leadsContainer">
                         <?php
-                        $result = $conn->query("SELECT id, name, phone, bike_model, created_at FROM leads ORDER BY id DESC");
-                        if ($result->num_rows > 0):
-                            while ($lead = $result->fetch_assoc()):
+                        $leadQuery = "SELECT id, name, phone, bike_model, created_at FROM leads ORDER BY id DESC";
+                        $leadResult = $conn->query($leadQuery);
+
+                        if ($leadResult && $leadResult->num_rows > 0):
+                            while ($lead = $leadResult->fetch_assoc()):
+                                // Clean phone number for WhatsApp URL (remove spaces, +, -)
+                                $wa_phone = preg_replace('/[^0-9]/', '', $lead['phone']);
                         ?>
-                                <div class="col-md-6 col-lg-4 mb-4">
-                                    <div class="card bg-primary bg-gradient text-white border-0 shadow h-100">
-                                        <div class="card-body position-relative overflow-hidden">
+                                <div class="col-md-6 col-lg-4 lead-item">
+                                    <div class="card bg-primary bg-gradient text-white border-0 shadow h-100 rounded-4 position-relative overflow-hidden">
+                                        <div class="card-body p-4 position-relative z-2">
 
-                                            <i class="ph-bold ph-motorcycle position-absolute text-white opacity-25"
-                                                style="font-size: 5rem; right: 20px; bottom: -18px;"></i>
-
-                                            <div class="d-flex justify-content-between align-items-start position-relative z-1">
-                                                <div>
-                                                    <h5 class="fw-bold mb-1"><?= htmlspecialchars($lead['name']) ?></h5>
-                                                    <div class="opacity-75 small mb-3">
-                                                        <i class="ph-bold ph-phone me-1"></i>
-                                                        <a href="tel:<?= htmlspecialchars($lead['phone']) ?>" class="text-decoration-none text-reset">
-                                                            <?= htmlspecialchars($lead['phone']) ?>
-                                                        </a>
-                                                    </div>
-
+                                            <!-- Name & Phone -->
+                                            <div class="mb-3">
+                                                <h5 class="fw-bold mb-1 fs-5 searchable-name">
+                                                    <?= htmlspecialchars($lead['name']) ?>
+                                                </h5>
+                                                <div class="text-white opacity-75 small searchable-phone">
+                                                    <?= htmlspecialchars($lead['phone']) ?>
                                                 </div>
-                                                <button
-                                                    class="btn btn-white bg-white text-danger btn-sm rounded-5 shadow-sm delete-lead"
-                                                    data-id="<?= $lead['id'] ?>">
-                                                    <i class="ph-bold ph-trash"></i>
-                                                </button>
                                             </div>
 
-                                            <div class="mt-2 position-relative z-1">
-                                                <span class="badge bg-white text-primary fw-bold me-2">
-                                                    <?= htmlspecialchars($lead['bike_model']) ?>
-                                                </span>
-                                                <small class="opacity-75">
-                                                    Added: <?= date('M d', strtotime($lead['created_at'])) ?>
+                                            <!-- Action Buttons -->
+                                            <div class="d-flex gap-2 mb-4">
+                                                <a href="tel:<?= htmlspecialchars($lead['phone']) ?>"
+                                                    class="btn btn-light text-primary fw-bold flex-grow-1 d-flex align-items-center justify-content-center shadow-sm">
+                                                    <i class="ph-bold ph-phone me-2"></i> Call
+                                                </a>
+
+                                                <a href="https://wa.me/<?= $wa_phone ?>" target="_blank"
+                                                    class="btn btn-success fw-bold flex-grow-1 d-flex align-items-center justify-content-center shadow-sm"
+                                                    style="background-color:#25D366;border-color:#25D366;color:white;">
+                                                    <i class="ph-bold ph-whatsapp-logo me-2"></i> WhatsApp
+                                                </a>
+                                            </div>
+
+                                            <!-- Date -->
+                                            <div class="mb-1">
+                                                <small class="opacity-75" style="font-size:0.75rem;">
+                                                    <?= date('M d', strtotime($lead['created_at'])) ?>
                                                 </small>
                                             </div>
+
+                                            <!-- Bike Model -->
+                                            <div>
+                                                <span class="badge bg-white text-primary fw-bold px-3 py-2 rounded-pill searchable-bike">
+                                                    <?= htmlspecialchars($lead['bike_model']) ?>
+                                                </span>
+                                            </div>
+
                                         </div>
+
+
+                                        <i class="ph-bold ph-motorcycle position-absolute text-white opacity-25"
+                                            style="font-size: 6rem; right: -10px; bottom: -20px; transform: rotate(-15deg);"></i>
                                     </div>
                                 </div>
                             <?php
                             endwhile;
                         else:
                             ?>
-                            <div class="col-12">
-                                <p class="text-center text-muted mb-0">No leads found.</p>
+                            <div class="col-12 text-center py-5">
+                                <p class="text-muted fw-medium">No leads found in database.</p>
                             </div>
                         <?php endif; ?>
+
+                        <div id="noResultsMsg" class="col-12 text-center py-5" style="display: none;">
+                            <div class="text-muted opacity-50 mb-2"><i class="ph-bold ph-magnifying-glass fs-1"></i></div>
+                            <p class="text-muted fw-medium">No matches found for your search.</p>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -1444,10 +1799,10 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                                     <option value="">Select Role</option>
                                     <option value="admin" <?= ($u['role'] ?? '') == 'admin' ? 'selected' : '' ?>>ADMIN
                                     </option>
-                                    <option value="user" <?= ($u['role'] ?? '') == 'user' ? 'selected' : '' ?>>USER
+                                    <!-- <option value="user" <?= ($u['role'] ?? '') == 'user' ? 'selected' : '' ?>>USER
                                     </option>
                                     <option value="manager" <?= ($u['role'] ?? '') == 'manager' ? 'selected' : '' ?>>
-                                        MANAGER</option>
+                                        MANAGER</option> -->
                                 </select>
                             </div>
 
@@ -1458,7 +1813,7 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                             </div>
 
                             <div class="mb-3">
-                                <label class="fw-bold small text-muted">Username / Login ID</label>
+                                <label class="fw-bold small text-muted">user_id / Login ID</label>
                                 <input type="text" name="user_id" class="form-control"
                                     value="<?= $u['user_id'] ?? '' ?>" required>
                                 <small class="text-muted">Used for login / User id.</small>
@@ -1467,7 +1822,8 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="fw-bold small text-muted">New Password</label>
-                                    <input type="password" name="password" class="form-control" placeholder="Add a new Password">
+                                    <input type="password" name="password" class="form-control"
+                                        placeholder="Add a new Password">
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="fw-bold small text-muted">Confirm Password</label>
@@ -1483,6 +1839,164 @@ $u = $query->get_result()->fetch_assoc(); // Data is now in the $u array
                     </div>
                 </div>
                 <!-- Form End -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign MANAGER & STAFF Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 bg-transparent shadow-none">
+
+                <div class="card shadow-sm">
+
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Add New Staff / Manager</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="card-body">
+
+                        <form method="POST" action="update_forms_data.php">
+                            <input type="hidden" name="form_type" value="create_user">
+
+                            <div class="mb-3">
+                                <label class="fw-bold small text-muted">Assign Role</label>
+                                <select class="form-select" name="role" required>
+                                    <option value="" selected disabled>Select Role</option>
+                                    <option value="manager">MANAGER</option>
+                                    <option value="staff">STAFF</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="fw-bold small text-muted">Full Name</label>
+                                <input type="text" name="full_name" class="form-control" placeholder="e.g. John Doe"
+                                    required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="fw-bold small text-muted">user_id / Login ID</label>
+                                <input type="text" name="user_id" class="form-control" placeholder="Create a login ID"
+                                    required>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="fw-bold small text-muted">Password</label>
+                                    <input type="password" name="password" class="form-control"
+                                        placeholder="Min 8 chars, 1 Upper, 1 Lower, 1 Symbol" required>
+                                    <small class="text-muted" style="font-size: 0.8em;">Must contain A-Z, a-z, 0-9, and
+                                        a symbol.</small>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold py-2">
+                                <i class="bi bi-person-plus-fill me-2"></i> Create Account
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Team -->
+    <div class="modal fade" id="viewUsersModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg modal-fullscreen-sm-down">
+            <div class="modal-content bg-light border-0">
+
+                <div class="modal-header bg-white shadow-sm" style="z-index: 1050;">
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark">User Management</h5>
+                        <p class="text-muted small mb-0">Manage access and roles</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body p-3 p-md-4">
+
+                    <div class="row g-3">
+                        <?php
+                        // SQL Query
+                        $sql = "
+                    (SELECT id, user_id, full_name, role, password_hash, 'managers' as source_table FROM managers)
+                    UNION ALL
+                    (SELECT id, user_id, full_name, role, password_hash, 'staff' as source_table FROM staff)
+                    ORDER BY role ASC, id DESC
+                    ";
+
+                        $result = $conn->query($sql);
+
+                        if ($result && $result->num_rows > 0) {
+                            while ($row = $result->fetch_assoc()) {
+                                // Variables
+                                $id = $row['id'];
+                                $name = $row['full_name'];
+                                $userId = $row['user_id'];
+                                $role = $row['role'];
+                                $tableName = $row['source_table'];
+
+                                // Design Logic
+                                if ($role == 'manager') {
+                                    $borderClass = 'border-primary';
+                                    $bgIcon = 'bg-primary-subtle text-primary';
+                                    $roleBadge = 'text-bg-primary';
+                                } else {
+                                    $borderClass = 'border-success';
+                                    $bgIcon = 'bg-success-subtle text-success';
+                                    $roleBadge = 'text-bg-success';
+                                }
+                        ?>
+
+                                <div class="col-12 col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm border-start border-4 <?php echo $borderClass; ?>">
+                                        <div class="card-body d-flex align-items-center position-relative p-3">
+
+                                            <div class="flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center me-3 <?php echo $bgIcon; ?>"
+                                                style="width: 50px; height: 50px;">
+                                                <i class="ph-fill ph-user fs-4"></i>
+                                            </div>
+
+                                            <div class="flex-grow-1 overflow-hidden">
+                                                <h6 class="fw-bold mb-1 text-truncate"><?php echo htmlspecialchars($name); ?></h6>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="badge <?php echo $roleBadge; ?> rounded-pill text-uppercase" style="font-size: 0.65rem;">
+                                                        <?php echo htmlspecialchars($role); ?>
+                                                    </span>
+                                                    <small class="text-muted" style="font-size: 0.75rem;">
+                                                        ID: <?php echo htmlspecialchars($userId); ?>
+                                                    </small>
+                                                </div>
+                                            </div>
+
+                                            <div class="flex-shrink-0 ms-2">
+                                                <a href="delete_ms.php?id=<?php echo $id; ?>&table=<?php echo $tableName; ?>"
+                                                    class="btn btn-light bg-white border text-danger shadow-sm rounded-3 p-2 d-flex align-items-center justify-content-center"
+                                                    onclick="return confirm('Are you sure you want to delete <?php echo htmlspecialchars($name); ?>?');"
+                                                    title="Delete User">
+                                                    <i class="ph-bold ph-trash fs-5"></i>
+                                                </a>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                        <?php
+                            }
+                        } else {
+                            // Empty State
+                            echo '
+                        <div class="col-12 text-center py-5">
+                            <div class="mb-3 text-muted opacity-50"><i class="ph-duotone ph-users fs-1"></i></div>
+                            <h6 class="text-muted">No managers or staff found.</h6>
+                        </div>';
+                        }
+                        ?>
+                    </div>
+                </div>
 
             </div>
         </div>
