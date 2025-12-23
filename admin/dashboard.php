@@ -1,36 +1,72 @@
 <?php
+// 1. SILENT INITIALIZATION
+ob_start(); // Buffer output
+
+// --- FIX: SETTINGS MUST GO FIRST ---
+// These must run BEFORE session_start() (which is likely inside db.php)
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+
+// 2. INCLUDE DB
 require "db.php";
 
-// Check if user is logged in
-if (!isset($_SESSION["user_id"])) {
-    header("Location: index.php");
-    exit();
+// 3. START SESSION (If db.php didn't start it)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-$id = $_SESSION['user_id'];
+// Anti-Cache Headers
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
 
-// Fetch user data safely
-$query = $conn->prepare("SELECT id, email, role FROM users WHERE id = ?");
+// ======================================================
+// 2. THE "KILL SWITCH" FUNCTION
+// ======================================================
+function force_404_exit()
+{
+    session_unset();
+    session_destroy();
+    header("Location: 404.php");
+    exit(); 
+}
+
+// ======================================================
+// 3. SECURITY CHECKS
+// ======================================================
+
+// CHECK A: Is user logged in?
+if (!isset($_SESSION["user_id"])) {
+    force_404_exit();
+}
+
+// CHECK B: Session Hijacking (Browser Fingerprint)
+if (!isset($_SESSION['user_agent'])) {
+    $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
+} elseif ($_SESSION['user_agent'] !== $_SERVER['HTTP_USER_AGENT']) {
+    force_404_exit();
+}
+
+// CHECK C: Database Verification
+$id = $_SESSION['id'] ?? 0;
+
+$query = $conn->prepare("SELECT user_id, email, role FROM users WHERE id = ? LIMIT 1");
 $query->bind_param("i", $id);
 $query->execute();
 $u = $query->get_result()->fetch_assoc();
 
-// Handle invalid user
+// If user does not exist
 if (!$u) {
-    session_destroy();
-    header("Location: index.php");
-    exit();
+    force_404_exit();
 }
 
-// Example: restrict admin page
+// CHECK D: The "Admin Only" Gate
 if ($u['role'] !== 'admin') {
-    header("HTTP/1.1 403 Forbidden");
-    echo "Access denied!";
-    exit();
+    error_log("Security Breach: Non-admin user " . $u['email'] . " tried to access Admin Panel.");
+    force_404_exit();
 }
+
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -1642,105 +1678,83 @@ if ($u['role'] !== 'admin') {
 
     <!-- LEADS LIST MODAL -->
     <!-- Responsive: modal-fullscreen-sm-down for mobile view -->
-    <div class="modal fade" id="leadsListModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content border-0 rounded-4">
-
-                <div class="modal-header border-0 pb-0 pt-4 px-4 d-flex flex-column align-items-start">
-                    <div class="d-flex justify-content-between w-100 align-items-center mb-3">
-                        <h4 class="modal-title fw-bold fs-4">Manage Leads</h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-
-                    <div class="input-group w-100 mb-2">
-                        <span class="input-group-text bg-light border-0 ps-3">
-                            <i class="ph-bold ph-magnifying-glass text-secondary fs-5"></i>
-                        </span>
-                        <input type="text" id="leadSearchInput" class="form-control bg-light border-0 py-2"
-                            placeholder="Search by name, phone, or bike model..." autocomplete="off">
-                    </div>
+    <div class="modal fade" id="leadsListModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h4 class="modal-title fw-bold ms-2 fs-5 fs-md-4">Manage Leads</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
+                <div class="modal-body p-4">
+                    <!-- Search bar -->
+                    <div class="mb-3">
+                        <input type="text" id="leadSearchInput" class="form-control form-control-sm" placeholder="Search leads...">
+                    </div>
 
-                <div class="modal-body p-4 bg-light bg-opacity-10">
-
-                    <div class="row g-3" id="leadsContainer">
-                        <?php
-                        $leadQuery = "SELECT id, name, phone, bike_model, created_at FROM leads ORDER BY id DESC";
-                        $leadResult = $conn->query($leadQuery);
-
-                        if ($leadResult && $leadResult->num_rows > 0):
-                            while ($lead = $leadResult->fetch_assoc()):
-                                // Clean phone number for WhatsApp URL (remove spaces, +, -)
-                                $wa_phone = preg_replace('/[^0-9]/', '', $lead['phone']);
-                        ?>
-                                <div class="col-md-6 col-lg-4 lead-item">
-                                    <div class="card bg-primary bg-gradient text-white border-0 shadow h-100 rounded-4 position-relative overflow-hidden">
-                                        <div class="card-body p-4 position-relative z-2">
-
-                                            <!-- Name & Phone -->
-                                            <div class="mb-3">
-                                                <h5 class="fw-bold mb-1 fs-5 searchable-name">
-                                                    <?= htmlspecialchars($lead['name']) ?>
-                                                </h5>
-                                                <div class="text-white opacity-75 small searchable-phone">
-                                                    <?= htmlspecialchars($lead['phone']) ?>
-                                                </div>
-                                            </div>
-
-                                            <!-- Action Buttons -->
-                                            <div class="d-flex gap-2 mb-4">
-                                                <a href="tel:<?= htmlspecialchars($lead['phone']) ?>"
-                                                    class="btn btn-light text-primary fw-bold flex-grow-1 d-flex align-items-center justify-content-center shadow-sm">
-                                                    <i class="ph-bold ph-phone me-2"></i> Call
+                    <!-- Leads Table -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle text-center" id="leadsTable">
+                            <thead class="table-primary text-primary">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>WhatsApp</th>
+                                    <th>Bike Model</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $result = $conn->query("SELECT id, name, phone, bike_model, created_at FROM leads ORDER BY id DESC");
+                                if ($result->num_rows > 0):
+                                    while ($lead = $result->fetch_assoc()):
+                                ?>
+                                        <tr class="lead-item">
+                                            <td class="text-nowrap"><?= date('M d', strtotime($lead['created_at'])) ?></td>
+                                            <td class="text-nowrap"><?= htmlspecialchars($lead['name']) ?></td>
+                                            <td class="text-nowrap">
+                                                <a href="tel:<?= htmlspecialchars($lead['phone']) ?>" class="btn btn-light btn-sm d-flex align-items-center gap-1">
+                                                    <i class="ph-bold ph-phone"></i> <?= htmlspecialchars($lead['phone']) ?>
                                                 </a>
-
-                                                <a href="https://wa.me/<?= $wa_phone ?>" target="_blank"
-                                                    class="btn btn-success fw-bold flex-grow-1 d-flex align-items-center justify-content-center shadow-sm"
-                                                    style="background-color:#25D366;border-color:#25D366;color:white;">
-                                                    <i class="ph-bold ph-whatsapp-logo me-2"></i> WhatsApp
+                                            </td>
+                                            <td class="text-nowrap">
+                                                <a href="https://wa.me/<?= preg_replace('/\D/', '', $lead['phone']) ?>" target="_blank" class="btn btn-success btn-sm d-flex align-items-center gap-1 text-white">
+                                                    <i class="ph-bold ph-whatsapp-logo"></i> <?= htmlspecialchars($lead['phone']) ?>
                                                 </a>
-                                            </div>
+                                            </td>
+                                            <td class="text-nowrap"><?= htmlspecialchars($lead['bike_model']) ?></td>
+                                            <td class="text-nowrap">
+                                                <button class="btn btn-danger btn-sm delete-lead" data-id="<?= $lead['id'] ?>">
+                                                    <i class="ph-bold ph-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
 
-                                            <!-- Date -->
-                                            <div class="mb-1">
-                                                <small class="opacity-75" style="font-size:0.75rem;">
-                                                    <?= date('M d', strtotime($lead['created_at'])) ?>
-                                                </small>
-                                            </div>
+                                    <?php
+                                    endwhile;
+                                else:
+                                    ?>
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">No leads found.</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
 
-                                            <!-- Bike Model -->
-                                            <div>
-                                                <span class="badge bg-white text-primary fw-bold px-3 py-2 rounded-pill searchable-bike">
-                                                    <?= htmlspecialchars($lead['bike_model']) ?>
-                                                </span>
-                                            </div>
-
-                                        </div>
-
-
-                                        <i class="ph-bold ph-motorcycle position-absolute text-white opacity-25"
-                                            style="font-size: 6rem; right: -10px; bottom: -20px; transform: rotate(-15deg);"></i>
-                                    </div>
-                                </div>
-                            <?php
-                            endwhile;
-                        else:
-                            ?>
-                            <div class="col-12 text-center py-5">
-                                <p class="text-muted fw-medium">No leads found in database.</p>
-                            </div>
-                        <?php endif; ?>
-
-                        <div id="noResultsMsg" class="col-12 text-center py-5" style="display: none;">
-                            <div class="text-muted opacity-50 mb-2"><i class="ph-bold ph-magnifying-glass fs-1"></i></div>
-                            <p class="text-muted fw-medium">No matches found for your search.</p>
-                        </div>
-
+                    <!-- No results message -->
+                    <div id="noResultsMsg" class="text-center text-muted mt-3" style="display: none;">
+                        No leads found.
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+
+
+
 
     <!-- LEAD MODAL -->
     <!-- Add Leads -->
@@ -1768,8 +1782,8 @@ if ($u['role'] !== 'admin') {
                     <div class="mb-3">
                         <label class="fw-bold">Bike Model</label>
                         <input type="text" name="bike_model" class="form-control" placeholder="e.g. Splendor"
-                            pattern="^[A-Za-z0-9\s\-]{2,30}$"
-                            title="Bike model can include letters, numbers, spaces, and hyphens (2-30 characters)."
+                            pattern="^[A-Za-z0-9\s\-]{2,15}$"
+                            title="Bike model can include letters, numbers, spaces, and hyphens (2-15 characters)."
                             required>
                     </div>
 

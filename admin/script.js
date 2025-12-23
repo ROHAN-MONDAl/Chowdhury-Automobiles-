@@ -366,6 +366,7 @@ function confirmDeleteVehicle() {
 
 
 
+
 // ==========================
 // ISSUE DATE → EXPIRY DATE
 // ==========================
@@ -435,24 +436,18 @@ $(".global-success-msg, .global-error-msg, .global-info-msg, .global-warning-msg
 // LEAD SEARCH FUNCTIONALITY
 // ==========================
 $(document).ready(function () {
-    // Listen for typing in the search box
     $("#leadSearchInput").on("keyup", function () {
         var value = $(this).val().toLowerCase();
         var hasVisibleItems = false;
 
-        // Loop through all items with class 'lead-item'
-        $("#leadsContainer .lead-item").filter(function () {
-            // Check if the text inside the card matches the search value
+        // Loop through all rows with class 'lead-item'
+        $("#leadsTable .lead-item").filter(function () {
             var isMatch = $(this).text().toLowerCase().indexOf(value) > -1;
-
-            // Toggle visibility
             $(this).toggle(isMatch);
-
-            // If we found a match, mark flag as true
             if (isMatch) hasVisibleItems = true;
         });
 
-        // Show "No Results" message if everything is hidden
+        // Show "No Results" message if nothing matches
         if (!hasVisibleItems && value.length > 0) {
             $("#noResultsMsg").show();
         } else {

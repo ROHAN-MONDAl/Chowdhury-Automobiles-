@@ -1,71 +1,92 @@
 <?php
-// 1. Connection & Session Logic
+// 1. SILENT START
+ob_start(); // Buffer output
+
+// ======================================================
+// FIX: SETTINGS MUST BE FIRST
+// ======================================================
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+
+// 2. CONNECT TO DB
 require_once 'db.php';
 
-// Start session if not already started
+// 3. ENSURE SESSION STARTED
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Security: Kick user if not logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: employers.php");
-    exit();
-}
+// Anti-Cache Headers
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
 
-// Default values
-$current_user = 'Unknown User';
-$current_role = 'Staff';
+// ======================================================
+// 4. THE "KILL SWITCH" FUNCTION
+// ======================================================
+function force_404_exit()
+{
+    // Optional: Log the attack
+    if (isset($_SESSION['user_id'])) {
+        error_log("Security Breach: User " . $_SESSION['user_id'] . " attempted unauthorized access.");
+    }
 
-// Fetch User Details from Database
-$userId = $_SESSION['user_id'] ?? 0;
-
-// Prepare a single query to check both managers and staff
-$stmt = $conn->prepare("
-    SELECT full_name, role 
-    FROM managers WHERE user_id = ? 
-    UNION
-    SELECT full_name, role 
-    FROM staff WHERE user_id = ? 
-    LIMIT 1
-");
-$stmt->bind_param("ss", $userId, $userId);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-
-// Handle user not found
-if (!$user) {
+    session_unset();
     session_destroy();
-    header("Location: employers.php");
+    header("Location: 404.php");
     exit();
 }
 
-// Set sanitized values
-$current_user = htmlspecialchars($user['full_name']);
-$current_role = htmlspecialchars($user['role']);
+// ======================================================
+// 5. SECURITY CHECKS
+// ======================================================
 
-// Update session for consistency
-$_SESSION['username'] = $current_user;
-$_SESSION['role'] = $current_role;
-
-// Helper for Role Badge Color in UI
-switch (strtolower($current_role)) {
-    case 'manager':
-        $role_badge_class = 'bg-primary-subtle text-primary';
-        break;
-    case 'staff':
-    default:
-        $role_badge_class = 'bg-success-subtle text-success';
-        break;
+// CHECK A: Is User Logged In?
+if (!isset($_SESSION['user_id'])) {
+    force_404_exit();
 }
 
-// Optional: Role-based page protection example (for admin/manager pages)
-if (strtolower($current_role) !== 'manager') {
-    header("HTTP/1.1 403 Forbidden");
-    echo "Access Denied";
-    exit();
+// CHECK B: Session Hijacking
+if (!isset($_SESSION['user_agent'])) {
+    $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
+} elseif ($_SESSION['user_agent'] !== $_SERVER['HTTP_USER_AGENT']) {
+    force_404_exit();
 }
+
+// CHECK C: Database Verification
+$userId = $_SESSION['user_id'];
+
+// Check users table
+$stmt = $conn->prepare("SELECT id, email, role FROM users WHERE user_id = ? LIMIT 1");
+$stmt->bind_param("s", $userId);
+$stmt->execute();
+$user_check = $stmt->get_result()->fetch_assoc();
+
+if (!$user_check) {
+    force_404_exit();
+}
+
+// CHECK D: Role Enforcement (UPDATED)
+$current_role = strtolower($user_check['role']);
+
+// *** FIX: Allow BOTH 'manager' AND 'admin' ***
+if ($current_role !== 'manager' && $current_role !== 'admin') {
+    force_404_exit();
+}
+
+// Try to get Manager Profile
+$stmt_profile = $conn->prepare("SELECT full_name FROM managers WHERE user_id = ?");
+$stmt_profile->bind_param("s", $userId);
+$stmt_profile->execute();
+$profile_res = $stmt_profile->get_result()->fetch_assoc();
+
+// If profile not found, fallback to email
+$display_name = $profile_res ? htmlspecialchars($profile_res['full_name']) : htmlspecialchars($user_check['email']);
+
+// *** FIX: Map the display name to the variable your HTML expects ***
+$current_user = $display_name;
+
+// HTML Content starts below...
 ?>
 
 
@@ -127,34 +148,46 @@ if (strtolower($current_role) !== 'manager') {
 
         <nav class="navbar fixed-top glass-nav px-3 py-3 animate-entry">
             <div class="container-fluid">
-                <a class="navbar-brand d-flex align-items-center gap-3" href="employers_dashboard.php">
-                    <div class="bg-white rounded-circle shadow-sm p-1 d-flex" style="width: 45px; height: 45px;">
-                        <img src="../images/logo.jpeg" alt="Logo" class="rounded-circle w-100 h-100" style="object-fit: cover;">
+                <a class="navbar-brand d-flex align-items-center gap-2" href="dashboard.php">
+                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-1"
+                        style="width: 48px; height: 48px; overflow: hidden; padding: 2px;">
+                        <img src="../images/logo.jpeg" alt="Chowdhury Automobile Logo" class="rounded-circle"
+                            style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
-                    <div class="d-none d-sm-block lh-1">
-                        <div class="fw-bold text-dark tracking-tight">CHOWDHURY</div>
-                        <small class="text-muted text-uppercase" style="font-size: 0.65rem; letter-spacing: 2px;">Automobile</small>
+
+                    <div class="d-flex flex-column lh-1">
+                        <span class="fs-5 fw-bolder text-dark">CHOWDHURY</span>
+                        <span class="text-secondary fw-bold text-uppercase"
+                            style="font-size: 0.7rem; letter-spacing: 1.5px;">
+                            Automobile
+                        </span>
                     </div>
                 </a>
 
                 <div class="d-flex align-items-center gap-4">
-                    <div class="d-flex align-items-center gap-3 text-end">
-                        <div class="d-none d-md-block lh-sm">
-                            <div class="fw-bold text-dark"><?= $current_user ?></div>
+                    <!-- User Info & Avatar -->
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-none d-md-flex flex-column text-end lh-sm">
+                            <div class="fw-bold text-dark mt-4"><?= $current_user ?></div>
                             <span class="badge rounded-pill <?= $role_badge_class ?> text-uppercase px-2" style="font-size: 0.65rem;">
                                 <?= $current_role ?>
                             </span>
                         </div>
-                        <div class="avatar-circle shadow-sm">
+                        <div class="avatar-circle shadow-sm d-flex align-items-center justify-content-center">
                             <?= substr($current_user, 0, 1) ?>
                         </div>
                     </div>
+
+                    <!-- Vertical Divider -->
                     <div class="vr d-none d-md-block mx-1"></div>
-                    <a href="employers_logout.php" class="btn btn-light border rounded-pill px-3 hover-card d-flex align-items-center gap-2 text-danger">
+
+                    <!-- Logout Button -->
+                    <a href="employers_logout.php" class="btn btn-light border rounded-pill px-3 d-flex align-items-center gap-2 text-danger">
                         <i class="ph-bold ph-sign-out"></i>
                         <span class="d-none d-md-inline fw-medium">Logout</span>
                     </a>
                 </div>
+
             </div>
         </nav>
 
