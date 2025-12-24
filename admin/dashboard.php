@@ -28,7 +28,7 @@ function force_404_exit()
     session_unset();
     session_destroy();
     header("Location: 404.php");
-    exit(); 
+    exit();
 }
 
 // ======================================================
@@ -378,19 +378,25 @@ if ($u['role'] !== 'admin') {
                                 </div>
 
                                 <!-- Universal Toast Messages -->
-                                <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:1055;">
+                                <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-2" style="z-index: 9999;">
                                     <div id="liveToast" class="toast align-items-center border-0 shadow" role="alert"
-                                        aria-live="assertive" aria-atomic="true">
-
-                                        <div class="d-flex">
-                                            <div class="toast-body fw-semibold" id="toastMessage"></div>
-
-                                            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"
-                                                aria-label="Close">
-                                            </button>
+                                        aria-live="assertive" aria-atomic="true"
+                                        style="min-width: 200px; max-width: 300px; border-radius: 0.5rem; 
+                background-color: #2b2b3a; color: #fff; padding: 0.5rem 0.75rem;">
+                                        <div class="d-flex align-items-center">
+                                            <div class="toast-body fw-semibold fs-7" id="toastMessage" style="flex: 1; line-height: 1.2;">
+                                                <!-- Toast message goes here -->
+                                            </div>
+                                            <button type="button" class="btn-close btn-close-white ms-1"
+                                                data-bs-dismiss="toast" aria-label="Close" style="opacity: 0.8; width: 1rem; height: 1rem;"></button>
                                         </div>
                                     </div>
                                 </div>
+
+
+
+
+
 
                                 <div class="d-lg-none fw-bold text-primary">
                                     <span id="mobile-step-indicator">Step 1</span>
@@ -1654,21 +1660,6 @@ if ($u['role'] !== 'admin') {
                                 </div>
 
                             </div>
-
-
-
-                            <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
-                                <div id="liveToast" class="toast align-items-center border-0 text-white shadow-lg"
-                                    role="alert" aria-live="assertive" aria-atomic="true">
-                                    <div class="d-flex">
-                                        <div class="toast-body fs-6 fw-bold" id="toastMessage">
-                                        </div>
-                                        <button type="button" class="btn-close btn-close-white me-2 m-auto"
-                                            data-bs-dismiss="toast" aria-label="Close"></button>
-                                    </div>
-                                </div>
-                            </div>
-
                         </form>
                     </div>
                 </div>
@@ -1688,7 +1679,8 @@ if ($u['role'] !== 'admin') {
                 <div class="modal-body p-4">
                     <!-- Search bar -->
                     <div class="mb-3">
-                        <input type="text" id="leadSearchInput" class="form-control form-control-sm" placeholder="Search leads...">
+                        <input type="text" id="leadSearchInput" class="form-control form-control-sm"
+                            placeholder="Search leads...">
                     </div>
 
                     <!-- Leads Table -->
@@ -1714,13 +1706,17 @@ if ($u['role'] !== 'admin') {
                                             <td class="text-nowrap"><?= date('M d', strtotime($lead['created_at'])) ?></td>
                                             <td class="text-nowrap"><?= htmlspecialchars($lead['name']) ?></td>
                                             <td class="text-nowrap">
-                                                <a href="tel:<?= htmlspecialchars($lead['phone']) ?>" class="btn btn-light btn-sm d-flex align-items-center gap-1">
+                                                <a href="tel:<?= htmlspecialchars($lead['phone']) ?>"
+                                                    class="btn btn-light btn-sm d-flex align-items-center gap-1">
                                                     <i class="ph-bold ph-phone"></i> <?= htmlspecialchars($lead['phone']) ?>
                                                 </a>
                                             </td>
                                             <td class="text-nowrap">
-                                                <a href="https://wa.me/<?= preg_replace('/\D/', '', $lead['phone']) ?>" target="_blank" class="btn btn-success btn-sm d-flex align-items-center gap-1 text-white">
-                                                    <i class="ph-bold ph-whatsapp-logo"></i> <?= htmlspecialchars($lead['phone']) ?>
+                                                <a href="https://wa.me/<?= preg_replace('/\D/', '', $lead['phone']) ?>"
+                                                    target="_blank"
+                                                    class="btn btn-success btn-sm d-flex align-items-center gap-1 text-white">
+                                                    <i class="ph-bold ph-whatsapp-logo"></i>
+                                                    <?= htmlspecialchars($lead['phone']) ?>
                                                 </a>
                                             </td>
                                             <td class="text-nowrap"><?= htmlspecialchars($lead['bike_model']) ?></td>
@@ -1965,25 +1961,29 @@ if ($u['role'] !== 'admin') {
                         ?>
 
                                 <div class="col-12 col-md-6">
-                                    <div class="card h-100 border-0 shadow-sm border-start border-4 <?php echo $borderClass; ?>">
+                                    <div
+                                        class="card h-100 border-0 shadow-sm border-start border-4 <?php echo $borderClass; ?>">
                                         <div class="card-body d-flex align-items-center position-relative p-3">
 
                                             <div class="flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center me-3 <?php echo $bgIcon; ?>"
                                                 style="width: 50px; height: 50px;">
                                                 <i class="ph-fill ph-user fs-4"></i>
                                             </div>
-
-                                            <div class="flex-grow-1 overflow-hidden">
-                                                <h6 class="fw-bold mb-1 text-truncate"><?php echo htmlspecialchars($name); ?></h6>
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <span class="badge <?php echo $roleBadge; ?> rounded-pill text-uppercase" style="font-size: 0.65rem;">
-                                                        <?php echo htmlspecialchars($role); ?>
-                                                    </span>
-                                                    <small class="text-muted" style="font-size: 0.75rem;">
+                                            <div class="flex-grow-1 text-start">
+                                                <h6 class="fw-bold mb-1 text-truncate">
+                                                    <?php echo htmlspecialchars($name); ?>
+                                                </h6>
+                                                <div class="mb-1">
+                                                    <small class="fw-bold text-muted" style="font-size: 0.75rem;">
                                                         ID: <?php echo htmlspecialchars($userId); ?>
                                                     </small>
                                                 </div>
+                                                <span class="badge <?php echo $roleBadge; ?> rounded-pill text-uppercase fw-bold"
+                                                    style="font-size: 0.65rem;">
+                                                    <?php echo htmlspecialchars($role); ?>
+                                                </span>
                                             </div>
+
 
                                             <div class="flex-shrink-0 ms-2">
                                                 <a href="delete_ms.php?id=<?php echo $id; ?>&table=<?php echo $tableName; ?>"

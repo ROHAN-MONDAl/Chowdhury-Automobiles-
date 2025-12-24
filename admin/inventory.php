@@ -243,12 +243,12 @@ LEFT JOIN vehicle_ot ot ON v.id = ot.vehicle_id" . $whereSQL;
 
                 <form method="GET" action="">
 
-                    <div style="position: -webkit-sticky; position: sticky; top: 0; z-index: 1020;">
+                    <div style="position: -webkit-sticky; position: sticky; top: 0;">
 
-                        <div class="bg-white shadow-sm rounded-4 p-2" style="border: 1px solid rgba(0,0,0,0.05);">
+                        <div class="bg-primary shadow-sm rounded-4 p-2" style="border: 1px solid rgba(0,0,0,0.05);">
 
                             <div class="d-flex align-items-center justify-content-between mb-2">
-                                <h2 class="fw-bold m-0 text-dark ps-1" style="font-size: 1rem;">Inventory</h2>
+                                <h2 class="fw-bold m-0 text-white ps-1" style="font-size: 1rem;">Inventory</h2>
 
                                 <a href="dashboard.php" class="btn btn-light btn-sm rounded-pill border px-3 fw-bold text-muted"
                                     style="font-size: 0.75rem;">
@@ -274,7 +274,8 @@ LEFT JOIN vehicle_ot ot ON v.id = ot.vehicle_id" . $whereSQL;
                                 </button>
                             </div>
 
-                            <div class="d-flex justify-content-between bg-light rounded-4 px-2 py-2 mx-0">
+                            <div class="d-flex justify-content-center rounded-4 px-2 py-2 mx-0 text-center gap-3"
+                                style="background: linear-gradient(90deg, #4facfe, #00f2fe);">
 
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow-sm"
@@ -522,18 +523,18 @@ LEFT JOIN vehicle_ot ot ON v.id = ot.vehicle_id" . $whereSQL;
                                                         class="rounded-circle"
                                                         style="width: 100%; height: 100%; object-fit: cover;">
                                                 </div>
-                                               <div class="lh-1 mb-2">
-    <h5 class="modal-title fw-bold text-dark text-uppercase mb-1">
-        <?= htmlspecialchars($row['vehicle_number']); ?>
-    </h5>
-    <div class="d-flex align-items-center gap-2 mb-1 small text-muted">
-        <span class="fw-bold text-uppercase"><?= htmlspecialchars($row['name']); ?></span>
-        <i class="ph-fill ph-dot text-muted" style="font-size: 8px;"></i>
-    </div>
-    <span class="badge <?= $row['sold_out'] ? 'bg-danger' : 'bg-success'; ?> text-white border border-danger-subtle rounded-pill">
-        <?= $row['sold_out'] ? 'Sold Out' : 'Available'; ?>
-    </span>
-</div>
+                                                <div class="lh-1 mb-2">
+                                                    <h5 class="modal-title fw-bold text-dark text-uppercase mb-1">
+                                                        <?= htmlspecialchars($row['vehicle_number']); ?>
+                                                    </h5>
+                                                    <div class="d-flex align-items-center gap-2 mb-1 small text-muted">
+                                                        <span class="fw-bold text-uppercase"><?= htmlspecialchars($row['name']); ?></span>
+                                                        <i class="ph-fill ph-dot text-muted" style="font-size: 8px;"></i>
+                                                    </div>
+                                                    <span class="badge <?= $row['sold_out'] ? 'bg-danger' : 'bg-success'; ?> text-white border border-danger-subtle rounded-pill">
+                                                        <?= $row['sold_out'] ? 'Sold Out' : 'Available'; ?>
+                                                    </span>
+                                                </div>
 
                                                 <button type="button" class="btn-close ms-auto bg-light rounded-circle p-2"
                                                     data-bs-dismiss="modal"></button>

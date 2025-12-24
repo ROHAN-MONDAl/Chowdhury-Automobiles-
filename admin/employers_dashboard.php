@@ -146,46 +146,59 @@ $current_user = $display_name;
 
     <section id="dashboard-section" class="pb-5">
 
-        <nav class="navbar fixed-top glass-nav px-3 py-3 animate-entry">
+        <nav class="navbar fixed-top glass-nav px-2 px-md-3 py-2 py-md-3 animate-entry">
             <div class="container-fluid">
-                <a class="navbar-brand d-flex align-items-center gap-2" href="dashboard.php">
+
+                <a class="navbar-brand d-flex align-items-center gap-2 me-auto" href="dashboard.php">
                     <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-1"
-                        style="width: 48px; height: 48px; overflow: hidden; padding: 2px;">
-                        <img src="../images/logo.jpeg" alt="Chowdhury Automobile Logo" class="rounded-circle"
+                        style="width: 42px; height: 42px; overflow: hidden; padding: 2px;">
+                        <img src="../images/logo.jpeg" alt="Logo" class="rounded-circle"
                             style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
 
                     <div class="d-flex flex-column lh-1">
-                        <span class="fs-5 fw-bolder text-dark">CHOWDHURY</span>
+                        <span class="fs-6 fs-md-5 fw-bolder text-dark">CHOWDHURY</span>
                         <span class="text-secondary fw-bold text-uppercase"
-                            style="font-size: 0.7rem; letter-spacing: 1.5px;">
+                            style="font-size: 0.65rem; letter-spacing: 1px;">
                             Automobile
                         </span>
                     </div>
                 </a>
 
-                <div class="d-flex align-items-center gap-4">
-                    <!-- User Info & Avatar -->
-                    <div class="d-flex align-items-center gap-3">
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center gap-2 text-decoration-none"
+                        id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+
                         <div class="d-none d-md-flex flex-column text-end lh-sm">
-                            <div class="fw-bold text-dark mt-4"><?= $current_user ?></div>
-                            <span class="badge rounded-pill <?= $role_badge_class ?> text-uppercase px-2" style="font-size: 0.65rem;">
-                                <?= $current_role ?>
-                            </span>
+                            <span class="fw-bold text-dark fs-6"><?= $current_user ?></span>
+                            <span class="text-muted" style="font-size: 0.7rem;"><?= $current_role ?></span>
                         </div>
-                        <div class="avatar-circle shadow-sm d-flex align-items-center justify-content-center">
+
+                        <div class="avatar-circle shadow-sm d-flex align-items-center justify-content-center bg-primary text-white"
+                            style="width: 40px; height: 40px; border-radius: 50%;">
                             <?= substr($current_user, 0, 1) ?>
                         </div>
-                    </div>
-
-                    <!-- Vertical Divider -->
-                    <div class="vr d-none d-md-block mx-1"></div>
-
-                    <!-- Logout Button -->
-                    <a href="employers_logout.php" class="btn btn-light border rounded-pill px-3 d-flex align-items-center gap-2 text-danger">
-                        <i class="ph-bold ph-sign-out"></i>
-                        <span class="d-none d-md-inline fw-medium">Logout</span>
                     </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 p-2" aria-labelledby="userDropdown">
+
+                        <li class="d-md-none px-3 py-2">
+                            <div class="fw-bold text-dark"><?= $current_user ?></div>
+                            <div class="badge rounded-pill <?= $role_badge_class ?> text-uppercase" style="font-size: 0.65rem;">
+                                <?= $current_role ?>
+                            </div>
+                        </li>
+                        <li class="d-md-none">
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 rounded-2 text-danger py-2" href="employers_logout.php">
+                                <i class="ph-bold ph-sign-out fs-5"></i>
+                                <span>Logout</span>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
 
             </div>

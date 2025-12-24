@@ -67,88 +67,115 @@ $(document).ready(function () {
         }
     }
 
-// --- 4. AJAX SAVE FUNCTION ---
+    /**
+     * Main Save Data Function
+     */
     function saveData(actionType, btnElement = null) {
 
-        // --- 1. SETUP LOADING UI ---
-        let originalBtnText = '';
+        // ============================================================
+        // 1. SETUP & SETTINGS
+        // ============================================================
+        const REDIRECT_DELAY = 1000;
+        const SAFETY_TIMEOUT = 5000;
+        const SERVER_TIMEOUT = 30000;
+
+        // --- DETERMINE LOADING TEXT BASED ON ACTION ---
+        let loadingText = "Processing..."; // Default fallback
+
+        if (actionType === 'save_only') {
+            loadingText = "Saving...";      // Draft button
+        } else if (actionType === 'finish') {
+            loadingText = "On way...";      // Finish button
+        } else if (actionType === 'save_next') {
+            loadingText = "Processing...";  // Next button
+        }
+
+        // ============================================================
+        // 2. UI PREPARATION (Loading State)
+        // ============================================================
         let $btn = null;
-        let shouldRedirect = false;
+        let originalBtnText = '';
+        let isRedirecting = false;
 
         if (btnElement) {
             $btn = $(btnElement);
             originalBtnText = $btn.html();
             $btn.prop('disabled', true);
-            $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...');
+
+            // 👇 Dynamic Text + Spinner + Space
+            $btn.html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>&nbsp; ${loadingText}`);
         }
 
-        // 2. Get Form Data
+        // ============================================================
+        // 3. GATHER DATA
+        // ============================================================
         let formData = new FormData($('#dealForm')[0]);
         formData.append('step', currentStep);
         formData.append('action', actionType);
 
-        // 3. Perform AJAX
+        // ============================================================
+        // 4. SEND TO SERVER (AJAX)
+        // ============================================================
         $.ajax({
             url: 'vehicle_form.php',
             type: 'POST',
             data: formData,
             processData: false,
             contentType: false,
-            timeout: 30000,
-            success: function (rawResponse) {
+            timeout: SERVER_TIMEOUT,
 
+            // A. SUCCESS
+            success: function (rawResponse) {
                 let response;
                 try {
                     response = typeof rawResponse === 'object' ? rawResponse : JSON.parse(rawResponse);
                 } catch (e) {
-                    console.error("JSON PARSE ERROR:", rawResponse);
-                    showGlobalToast("Server Error: Check Console (F12)", 'error');
-                    return; 
+                    console.error("SERVER CRASH:", rawResponse);
+                    showGlobalToast("Critical Error: Invalid Server Data.", 'error');
+                    return;
                 }
 
                 if (response.status === 'success') {
-                    $('input[name="vehicle_id"]').val(response.id);
+                    if (response.id) $('input[name="vehicle_id"]').val(response.id);
 
+                    // --- FINISH ACTION ---
                     if (actionType === 'finish') {
                         showGlobalToast("Success! Redirecting...", 'success');
-                        shouldRedirect = true; // Tell 'complete' NOT to reset button immediately
+                        isRedirecting = true;
 
-                        // 1. Attempt Redirect
                         setTimeout(function () {
-                            console.log("Redirecting to dashboard.php...");
                             window.location.href = 'dashboard.php';
-                        }, 1000);
+                        }, REDIRECT_DELAY);
 
-                        // 2. SAFETY VALVE: If we are still here after 5 seconds, something is wrong (e.g. 404). 
-                        // Reset the button so the user isn't stuck.
-                        setTimeout(function() {
-                            if ($btn) {
-                                console.warn("Redirect timed out or failed. Resetting button.");
-                                $btn.prop('disabled', false);
-                                $btn.html(originalBtnText);
-                            }
-                        }, 5000);
-
-                    } else {
-                        // Save Next / Save Only
-                        showGlobalToast(response.message, 'success');
+                        // Safety Unlock
+                        setTimeout(function () {
+                            if ($btn) $btn.prop('disabled', false).html(originalBtnText);
+                        }, SAFETY_TIMEOUT);
+                    }
+                    // --- NEXT / SAVE ACTIONS ---
+                    else {
+                        showGlobalToast(response.message || "Saved successfully", 'success');
                         if (actionType === 'save_next' && currentStep < totalSteps) {
                             currentStep++;
                             updateWizard();
                         }
                     }
-
                 } else {
-                    showGlobalToast(response.message, 'error');
+                    showGlobalToast(response.message || "Unknown error occurred", 'error');
                 }
             },
+
+            // B. ERROR
             error: function (xhr, status, error) {
-                console.error("AJAX FATAL ERROR:", xhr.responseText);
-                showGlobalToast("System Error: " + status, 'error');
+                let errorMsg = "System Error";
+                if (status === 'timeout') errorMsg = "Server took too long.";
+                else if (status === 'error') errorMsg = "Server Error (500).";
+                showGlobalToast(errorMsg, 'error');
             },
+
+            // C. COMPLETE
             complete: function () {
-                // FORCE RESET BUTTON unless we are waiting for a redirect
-                if ($btn && !shouldRedirect) {
+                if ($btn && !isRedirecting) {
                     $btn.prop('disabled', false);
                     $btn.html(originalBtnText);
                 }
@@ -156,39 +183,54 @@ $(document).ready(function () {
         });
     }
 
-    // --- EVENT HANDLERS ---
+    // ============================================================
+    // EVENT HANDLERS
+    // ============================================================
 
-    // Save Draft
+    // 1. SAVE DRAFT -> Shows "Saving..."
     $('#btn-save-draft').off('click').on('click', function (e) {
         e.preventDefault();
-        // Pass $(this) so we know which button to spin
-        saveData('save_only', $(this));
+        saveData('save_only', this);
     });
 
-    // Next
+    // 2. NEXT -> Shows "Processing..."
     $('#btn-next').off('click').on('click', function (e) {
         e.preventDefault();
-        saveData('save_next', $(this));
+        saveData('save_next', this);
     });
 
-    // Finish
+    // 3. FINISH -> Shows "On way..."
     $('#btn-finish').off('click').on('click', function (e) {
         e.preventDefault();
         if (confirm("Are you sure you want to finish?")) {
-            saveData('finish', $(this));
+            saveData('finish', this);
         }
     });
 
-    // Previous (Usually doesn't need AJAX save, but if it did, you would pass $(this) here too)
+    // 4. PREVIOUS -> Shows "Loading..." (Simulated)
     $('#prevBtn').off('click').on('click', function (e) {
         e.preventDefault();
+
         if (currentStep > 1) {
-            currentStep--;
-            updateWizard();
+            // A. Setup Button Visuals
+            let $btn = $(this);
+            let oldText = $btn.html();
+            $btn.prop('disabled', true);
+            $btn.html('<span class="spinner-border spinner-border-sm"></span>&nbsp; Loading...');
+
+            // B. Small Delay to allow user to see "Loading"
+            setTimeout(function () {
+                currentStep--;
+                updateWizard();
+
+                // Reset button (UpdateWizard might hide it, but this is safe)
+                $btn.prop('disabled', false).html(oldText);
+            }, 300); // 300ms delay for visual effect
         }
     });
 
 
+    
     // GLOBAL MESSAGE FOR FORM
     function showGlobalToast(message, type = 'success') {
         const toastElement = document.getElementById('liveToast');

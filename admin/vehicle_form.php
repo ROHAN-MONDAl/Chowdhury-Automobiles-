@@ -146,7 +146,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // 3. PAYMENT VALIDATION
         // ============================================
         if ($pay_type == 'Cash' && $c_price <= 0) {
-            echo json_encode(['status' => 'error', 'message' => '⚠️ Cash Price is required for Cash payment!']);
+            echo json_encode(['status' => 'error', 'message' => '⚠️ Cash Price is required!']);
             exit();
         }
 
@@ -156,11 +156,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 exit();
             }
             if ($on_price <= 0) {
-                echo json_encode(['status' => 'error', 'message' => '⚠️ Online Price is required for Online payment!']);
+                echo json_encode(['status' => 'error', 'message' => '⚠️ Online Price is required']);
                 exit();
             }
             if (empty($on_txn)) {
-                echo json_encode(['status' => 'error', 'message' => '⚠️ Transaction ID is required for Online payment!']);
+                echo json_encode(['status' => 'error', 'message' => '⚠️ Transaction ID is required']);
                 exit();
             }
         }
@@ -243,7 +243,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo json_encode([
                 'status' => 'success',
                 'id' => $vehicle_id,
-                'message' => '✅ Vehicle Details Saved & Synced Successfully!'
+                'message' => '✅ Vehicle Details Saved!'
             ]);
         } else {
             echo json_encode([
@@ -555,7 +555,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($conn->query($sql) === TRUE) {
             if ($action == 'finish') {
-                $_SESSION['success_message'] = "Vehicle Deal #$vehicle_id Saved Successfully!";
+                $_SESSION['success_message'] = "Vehicle Deal #$vehicle_id Saved!";
             }
             echo json_encode(['status' => 'success', 'id' => $vehicle_id, 'message' => 'Deal Completed']);
         } else {

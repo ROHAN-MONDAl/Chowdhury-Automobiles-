@@ -1524,20 +1524,28 @@ if (!$vehicle_data) {
         });
 
         // ==========================================
-        // 2. AJAX SUBMISSION (THE FIX IS HERE)
+        // 1. INITIALIZATION & VARIABLES
+        // ==========================================
+        var currentStep = 1;
+        var totalSteps = 4;
+        var vehicleId = "<?= isset($vehicle_id) ? $vehicle_id : (isset($id) ? $id : 0) ?>";
+
+        // ... (Your existing document.ready logic here) ...
+
+
+        // ==========================================
+        // 2. AJAX SUBMISSION
         // ==========================================
         window.submitAjax = function(actionType) {
             var form = $('#updateForm')[0];
             var formData = new FormData(form);
 
-            // MANUALLY APPEND DATA TO ENSURE IT IS SENT
+            // MANUALLY APPEND DATA
             formData.append('action', actionType);
             formData.append('step_number', currentStep);
-
-            // *** THE FIX: FORCE THE ID INTO THE DATA ***
             formData.append('vehicle_id', vehicleId);
 
-            // Determine which button to show loading state on
+            // UI: Loading State
             var $btn;
             if (actionType === 'save_only') {
                 $btn = $('#btn-draft');
@@ -1549,7 +1557,6 @@ if (!$vehicle_data) {
 
             var originalText = $btn.html();
             var loadingText = (actionType === 'save_only') ? 'Saving...' : 'Processing...';
-
             $btn.html(`<span class="spinner-border spinner-border-sm me-2"></span><span>${loadingText}</span>`).prop('disabled', true);
 
             $.ajax({
@@ -1562,21 +1569,48 @@ if (!$vehicle_data) {
                 timeout: 10000,
                 success: function(data) {
                     if (data.status === 'success') {
+
+                        // --- STEP 1: DEFINE THE CUSTOM MESSAGE BASED ON STEP ---
+                        var customMsg = "Saved Successfully"; // Default
+
+                        // Convert currentStep to integer to be safe
+                        var stepNum = parseInt(currentStep);
+
+                        if (stepNum === 1) {
+                            customMsg = "Vehicle Saved";
+                        } else if (stepNum === 2) {
+                            customMsg = "Seller Saved";
+                        } else if (stepNum === 3) {
+                            customMsg = "Purchaser Saved";
+                        } else if (stepNum === 4) {
+                            customMsg = "Ownership Saved";
+                        }
+
+                        // --- STEP 2: HANDLE BUTTON ACTIONS ---
                         if (actionType === 'save_only') {
-                            alert("Draft Saved Successfully!");
+                            // "Draft" button clicked
+                            showToast(customMsg);
+
                         } else if (actionType === 'save_next') {
-                            nextStep();
+                            // "Next" button clicked
+                            showToast(customMsg);
+                            nextStep(); // Move to next step
+
                         } else if (actionType === 'finish') {
-                            alert("Vehicle updated successfully!");
-                            window.location.href = "inventory.php";
+                            // "Finish" button clicked
+                            showToast("Vehicle updated successfully!");
+                            setTimeout(function() {
+                                window.location.href = "inventory.php";
+                            }, 1500);
                         }
                     } else {
-                        alert("Error: " + data.message);
+                        // Backend returned an error status
+                        showToast("Error: " + data.message, true);
                     }
                 },
                 error: function(xhr, status, error) {
                     console.error(xhr.responseText);
-                    alert("System Error: " + error + "\nCheck console for details.");
+                    showToast("System Error: " + error, true);
                 },
                 complete: function() {
                     if (actionType !== 'finish') {
@@ -1587,8 +1621,33 @@ if (!$vehicle_data) {
         };
 
         // ==========================================
-        // 3. NAVIGATION & UI
+        // 3. TOAST NOTIFICATION FUNCTION
         // ==========================================
+        function showToast(message, isError = false) {
+            var toastEl = document.getElementById('liveToast');
+            var toastBody = document.getElementById('toastMessage');
+
+            // Set message
+            toastBody.innerText = message;
+
+            // Set Color
+            if (isError) {
+                toastEl.classList.remove('text-bg-success');
+                toastEl.classList.add('text-bg-danger', 'text-white');
+            } else {
+                toastEl.classList.remove('text-bg-danger');
+                toastEl.classList.add('text-bg-success', 'text-white');
+            }
+
+            // Show
+            var toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+
+        // ==========================================
+        // 4. NAVIGATION & OTHER LOGIC
+        // ==========================================
+        // (Keep your existing nextStep, prevStep, goToStep, and image helper functions here)
         window.nextStep = function() {
             if (currentStep < totalSteps) goToStep(currentStep + 1);
         };
