@@ -69,60 +69,75 @@ $(document).ready(function () {
 
 
     // --- 4. AJAX SAVE FUNCTION ---
+// --- 4. AJAX SAVE FUNCTION ---
     function saveData(actionType, btnElement = null) {
 
         // --- 1. SETUP LOADING UI ---
         let originalBtnText = '';
         let $btn = null;
+        let shouldRedirect = false;
 
         if (btnElement) {
             $btn = $(btnElement);
-            originalBtnText = $btn.html(); // Save original text (e.g., "Next")
-
-            // Disable button and show spinner (Bootstrap class)
+            originalBtnText = $btn.html();
             $btn.prop('disabled', true);
             $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...');
-
         }
 
         // 2. Get Form Data
         let formData = new FormData($('#dealForm')[0]);
-
-        // 3. Append Manual Fields
         formData.append('step', currentStep);
         formData.append('action', actionType);
 
-        // 4. Perform AJAX with Timeout
+        // 3. Perform AJAX
         $.ajax({
             url: 'vehicle_form.php',
             type: 'POST',
             data: formData,
             processData: false,
             contentType: false,
-            dataType: 'json',
-            timeout: 5000, // Stop after 5 seconds
-            success: function (response) {
+            timeout: 30000,
+            success: function (rawResponse) {
+
+                let response;
+                try {
+                    response = typeof rawResponse === 'object' ? rawResponse : JSON.parse(rawResponse);
+                } catch (e) {
+                    console.error("JSON PARSE ERROR:", rawResponse);
+                    showGlobalToast("Server Error: Check Console (F12)", 'error');
+                    return; 
+                }
 
                 if (response.status === 'success') {
                     $('input[name="vehicle_id"]').val(response.id);
 
-                    if (actionType === 'save_next') {
+                    if (actionType === 'finish') {
+                        showGlobalToast("Success! Redirecting...", 'success');
+                        shouldRedirect = true; // Tell 'complete' NOT to reset button immediately
+
+                        // 1. Attempt Redirect
+                        setTimeout(function () {
+                            console.log("Redirecting to dashboard.php...");
+                            window.location.href = 'dashboard.php';
+                        }, 1000);
+
+                        // 2. SAFETY VALVE: If we are still here after 5 seconds, something is wrong (e.g. 404). 
+                        // Reset the button so the user isn't stuck.
+                        setTimeout(function() {
+                            if ($btn) {
+                                console.warn("Redirect timed out or failed. Resetting button.");
+                                $btn.prop('disabled', false);
+                                $btn.html(originalBtnText);
+                            }
+                        }, 5000);
+
+                    } else {
+                        // Save Next / Save Only
                         showGlobalToast(response.message, 'success');
-                        if (currentStep < totalSteps) {
+                        if (actionType === 'save_next' && currentStep < totalSteps) {
                             currentStep++;
                             updateWizard();
                         }
-                    } else if (actionType === 'save_only') {
-                        showGlobalToast(response.message, 'success');
-                    } else if (actionType === 'finish') {
-                        showGlobalToast("Deal Completed! Redirecting...", 'success');
-
-                        // Don't reset button if redirecting, keeps the "Processing..." state
-                        return;
-
-                        setTimeout(function () {
-                            window.location.href = 'dashboard.php';
-                        }, 1500);
                     }
 
                 } else {
@@ -130,23 +145,14 @@ $(document).ready(function () {
                 }
             },
             error: function (xhr, status, error) {
-                if (status === 'timeout') {
-                    console.error("Save timed out (> 5s)");
-                    showGlobalToast("Server taking too long. Redirecting...", 'error');
-                    setTimeout(function () {
-                        window.location.href = 'dashboard.php';
-                    }, 1500);
-                } else {
-                    console.error("AJAX Error:", xhr.responseText);
-                    showGlobalToast("System Error: Check console for details.", 'error');
-                }
+                console.error("AJAX FATAL ERROR:", xhr.responseText);
+                showGlobalToast("System Error: " + status, 'error');
             },
-            // --- 5. RESET LOADING UI (Runs on Success or Error) ---
             complete: function () {
-                // Only reset if we are NOT redirecting (Finish action usually redirects)
-                if ($btn && actionType !== 'finish') {
+                // FORCE RESET BUTTON unless we are waiting for a redirect
+                if ($btn && !shouldRedirect) {
                     $btn.prop('disabled', false);
-                    $btn.html(originalBtnText); // Restore original text
+                    $btn.html(originalBtnText);
                 }
             }
         });
