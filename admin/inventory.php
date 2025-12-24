@@ -1513,12 +1513,17 @@ LEFT JOIN vehicle_ot ot ON v.id = ot.vehicle_id" . $whereSQL;
                         endwhile;
                     else:
                         ?>
-                        <div class="col-12">
-                            <div class="alert alert-info text-center">
-                                <i class="ph-bold ph-info fs-1 d-block mb-2"></i>
-                                <h5>No vehicles found</h5>
-                                <p class="mb-0">Try adjusting your filters or <a href="?">reset them</a> to see all
-                                    vehicles.</p>
+                        <div class="col-12 col-lg-12 mx-auto">
+                            <div class="border border-2 border-dashed rounded-3 p-5 text-center">
+                                <i class="ph-bold ph-car fs-1 text-secondary mb-3 d-block"></i>
+
+                                <h5 class="text-secondary">No vehicles match your search</h5>
+
+                                <div class="mt-3">
+                                    <a href="?" class="btn btn-outline-secondary btn-sm">
+                                        Clear Filters
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     <?php endif; ?>

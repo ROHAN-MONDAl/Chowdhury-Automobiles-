@@ -1692,7 +1692,7 @@ if ($u['role'] !== 'admin') {
                                     <th>Name</th>
                                     <th>Phone</th>
                                     <th>WhatsApp</th>
-                                    <th>Bike Model</th>
+                                    <th>Model</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>

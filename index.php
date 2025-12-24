@@ -251,8 +251,10 @@ include 'admin/db.php';
                                                     style="width: 100%; height: 100%; object-fit: cover;">
                                             </div>
                                             <div class="lh-1">
-                                                <h5 class="modal-title fw-bold text-dark mb-1">
-                                                    <?php echo htmlspecialchars($row['vehicle_number']); ?></h5>
+                                                <h5 class="modal-title fw-bold text-dark text-uppercase mb-1 fs-6">
+                                                    <?php echo htmlspecialchars($row['vehicle_number']); ?>
+                                                </h5>
+
                                                 <div class="d-flex align-items-center gap-2 small text-muted">
                                                     <span
                                                         class="fw-bold text-uppercase"><?php echo htmlspecialchars($row['name']); ?></span>
@@ -267,7 +269,7 @@ include 'admin/db.php';
                                     </div>
 
                                     <div class="modal-body p-0 bg-light">
-                                        <div class="accordion accordion-flush p-3" id="dealDetailsAccordion">
+                                        <div class="accordion accordion-flush p-3 text-uppercase text-wrap" id="dealDetailsAccordion">
 
                                             <!-- ==========================
                              STEP 1: VEHICLE DETAILS
@@ -310,18 +312,18 @@ include 'admin/db.php';
 
                                                         <div class="p-3 bg-light rounded-4 border mb-3">
                                                             <div class="row g-3">
-                                                                <div class="col-6 col-md-4">
+                                                                <div class="col-12 col-md-4">
                                                                     <small class="text-muted text-uppercase fw-bold"
                                                                         style="font-size: 10px;">Register Date</small>
                                                                     <div class="fw-bold text-dark">
                                                                         <?= date('d-M-Y', strtotime($row['register_date'])); ?></div>
                                                                 </div>
-                                                                <div class="col-6 col-md-4">
+                                                                <div class="col-12 col-md-4">
                                                                     <small class="text-muted text-uppercase fw-bold"
                                                                         style="font-size: 10px;">Vehicle Type</small>
                                                                     <div class="fw-bold text-dark"><?= $row['vehicle_type']; ?></div>
                                                                 </div>
-                                                                <div class="col-6 col-md-4">
+                                                                <div class="col-12 col-md-4">
                                                                     <small class="text-muted text-uppercase fw-bold"
                                                                         style="font-size: 10px;">Owner Serial</small>
                                                                     <div class="fw-bold text-dark"><?= $row['owner_serial']; ?></div>
@@ -358,34 +360,36 @@ include 'admin/db.php';
                                                         $method = $isOnline ? $row['online_method'] : 'Cash Payment';
                                                         $txnId = $isOnline ? $row['online_transaction_id'] : 'N/A';
                                                         ?>
-                                                        <div class="d-flex justify-content-between align-items-center mb-4">
-                                                            <div>
-                                                                <small class="text-muted text-uppercase fw-bold">Payment Mode</small>
-                                                                <div class="fw-bold text-primary">
-                                                                    <i class="ph-bold <?= $isOnline ? 'ph-globe' : 'ph-money'; ?> me-1"></i>
-                                                                    <?= $method; ?>
-                                                                </div>
-                                                            </div>
-                                                            <div class="text-end">
-                                                                <small class="text-muted text-uppercase fw-bold">Price</small>
-                                                                <div class="fs-4 fw-bold text-dark">₹ <?= number_format($price, 2); ?></div>
-                                                            </div>
+
+                                                        <div class="table-responsive mb-4">
+                                                            <table class="table table-bordered text-uppercase mb-0" style="white-space: nowrap;">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <th class="fw-bold text-muted">Payment Mode</th>
+                                                                        <td class="fw-bold text-primary">
+                                                                            <i class="ph-bold <?= $isOnline ? 'ph-globe' : 'ph-money'; ?> me-1"></i>
+                                                                            <?= $method; ?>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th class="fw-bold text-muted">Price</th>
+                                                                        <td class="fw-bold text-dark">₹ <?= number_format($price, 2); ?></td>
+                                                                    </tr>
+                                                                    <?php if ($isOnline): ?>
+                                                                        <tr>
+                                                                            <th class="fw-bold text-muted">Transaction ID</th>
+                                                                            <td class="fw-bold text-primary"><?= $txnId; ?></td>
+                                                                        </tr>
+                                                                    <?php endif; ?>
+                                                                </tbody>
+                                                            </table>
                                                         </div>
 
-                                                        <?php if ($isOnline): ?>
-                                                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                                                <div>
-                                                                    <small class="text-muted text-uppercase fw-bold">Transaction ID</small>
-                                                                    <div class="fw-bold text-primary text-break"><?= $txnId; ?></div>
-                                                                </div>
-                                                            </div>
-                                                        <?php endif; ?>
 
                                                         <div class="border rounded-4 overflow-hidden">
                                                             <div
                                                                 class="bg-light px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
-                                                                <h6 class="fw-bold text-danger mb-0 small text-uppercase">Police Challan
-                                                                    Details</h6>
+                                                                <h6 class="fw-bold text-danger mb-0 small text-uppercase">Police Challan</h6>
                                                                 <span
                                                                     class="badge <?= ($row['police_challan'] == 'Yes') ? 'bg-danger' : 'bg-success'; ?>">
                                                                     <?= $row['police_challan']; ?>
@@ -457,18 +461,23 @@ include 'admin/db.php';
                                                     data-bs-parent="#dealDetailsAccordion">
                                                     <div class="accordion-body bg-white p-4 border-top">
 
-                                                        <div class="d-flex justify-content-between mb-3">
-                                                            <div>
-                                                                <small class="text-muted text-uppercase fw-bold">Seller Name</small>
-                                                                <div class="fs-5 fw-bold text-dark"><?= $row['seller_name']; ?></div>
-                                                            </div>
-                                                            <div class="text-end">
-                                                                <small class="text-muted text-uppercase fw-bold">Date</small>
-                                                                <div class="fw-bold text-dark">
-                                                                    <?= (!empty($row['seller_date'])) ? date('Y-m-d', strtotime($row['seller_date'])) : '-'; ?>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                        <table class="table table-borderless text-uppercase mb-3" style="table-layout: fixed; width: 100%;">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <th class="fw-bold text-muted" style="width: 50%;">Seller Name</th>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="fw-bold text-dark"><?= $row['seller_name']; ?></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th class="fw-bold text-muted">Date</th>
+                                                                    <td class="fw-bold text-dark">
+                                                                        <?= (!empty($row['seller_date'])) ? date('Y-m-d', strtotime($row['seller_date'])) : '-'; ?>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+
 
                                                         <div class="row g-2 mb-3">
                                                             <div class="col-12">
@@ -664,58 +673,58 @@ include 'admin/db.php';
                                                         <div class="bg-light border rounded-4 p-3 mb-3">
                                                             <h6 class="fw-bold small mb-2">Payment Details</h6>
 
-                                                            <div class="d-flex justify-content-between mb-1">
-                                                                <span class="small text-muted">Type:</span>
-                                                                <span class="fw-bold text-dark">
-                                                                    <?php if ($row['seller_payment_type'] == 'Online'): ?>
-                                                                        Online (<?= $row['seller_online_method']; ?>)
-                                                                    <?php else: ?>
-                                                                        Cash
-                                                                    <?php endif; ?>
-                                                                </span>
+                                                            <div class="mb-3">
+                                                                <div class="d-flex justify-content-between mb-1">
+                                                                    <small class="text-muted text-uppercase fw-bold">Type:</small>
+                                                                    <span class="fw-bold text-dark">
+                                                                        <?php if ($row['seller_payment_type'] == 'Online'): ?>
+                                                                            Online (<?= $row['seller_online_method']; ?>)
+                                                                        <?php else: ?>
+                                                                            Cash
+                                                                        <?php endif; ?>
+                                                                    </span>
+                                                                </div>
+                                                                <?php if ($row['seller_payment_type'] == 'Online'): ?>
+                                                                    <div class="d-flex justify-content-between mb-3">
+                                                                        <small class="text-muted text-uppercase fw-bold">Txn ID:</small>
+                                                                        <span class="fw-bold font-monospace small text-break"><?= $row['seller_online_transaction_id']; ?></span>
+                                                                    </div>
+                                                                <?php endif; ?>
                                                             </div>
 
-                                                            <?php if ($row['seller_payment_type'] == 'Online'): ?>
-                                                                <div class="d-flex justify-content-between mb-3">
-                                                                    <span class="small text-muted">Txn ID:</span>
-                                                                    <span
-                                                                        class="fw-bold font-monospace small text-break"><?= $row['seller_online_transaction_id']; ?></span>
-                                                                </div>
-                                                            <?php endif; ?>
-
-                                                            <div class="d-flex text-center border rounded overflow-hidden bg-white">
-                                                                <div class="flex-fill p-2 border-end">
+                                                            <div class="d-flex flex-column text-center border rounded overflow-hidden">
+                                                                <div class="p-2 border-bottom">
                                                                     <div class="small text-muted fw-bold" style="font-size:10px">TOTAL</div>
-                                                                    <div class="fw-bold">₹<?= number_format($row['total_amount'], 0); ?>
-                                                                    </div>
+                                                                    <div class="fw-bold">₹<?= number_format($row['total_amount'], 0); ?></div>
                                                                 </div>
-                                                                <div class="flex-fill p-2 border-end bg-success-subtle text-success">
+                                                                <div class="p-2 border-bottom bg-success-subtle text-success">
                                                                     <div class="small fw-bold" style="font-size:10px">PAID</div>
-                                                                    <div class="fw-bold">₹<?= number_format($row['paid_amount'], 0); ?>
-                                                                    </div>
+                                                                    <div class="fw-bold">₹<?= number_format($row['paid_amount'], 0); ?></div>
                                                                 </div>
-                                                                <div class="flex-fill p-2 bg-danger-subtle text-danger">
+                                                                <div class="p-2 bg-danger-subtle text-danger">
                                                                     <div class="small fw-bold" style="font-size:10px">DUE</div>
                                                                     <div class="fw-bold">₹<?= number_format($row['due_amount'], 0); ?></div>
                                                                 </div>
                                                             </div>
 
+
                                                             <?php if ($row['due_amount'] > 0 && !empty($row['due_reason'])): ?>
                                                                 <div class="small text-danger mt-2 fst-italic">
-                                                                    <i class="ph-bold ph-info me-1"></i> <?= $row['due_reason']; ?>
+                                                                    Remark <i class="ph-bold ph-info me-1"></i>: <?= $row['due_reason']; ?>
                                                                 </div>
                                                             <?php endif; ?>
                                                         </div>
 
-                                                        <div class="row g-2">
-                                                            <div class="col-6">
-                                                                <small class="text-muted fw-bold" style="font-size:10px">SHOWROOM</small>
-                                                                <div class="fw-bold small"><?= $row['exchange_showroom_name'] ?? '-'; ?>
-                                                                </div>
+
+
+                                                        <div class="row g-3 mb-3">
+                                                            <div class="col-12">
+                                                                <small class="text-muted fw-bold d-block" style="font-size:10px;">SHOWROOM</small>
+                                                                <div class="fw-bold small text-dark"><?= $row['exchange_showroom_name'] ?? '-'; ?></div>
                                                             </div>
-                                                            <div class="col-6">
-                                                                <small class="text-muted fw-bold" style="font-size:10px">STAFF</small>
-                                                                <div class="fw-bold small"><?= $row['staff_name'] ?? '-'; ?></div>
+                                                            <div class="col-12">
+                                                                <small class="text-muted fw-bold d-block" style="font-size:10px;">STAFF</small>
+                                                                <div class="fw-bold small text-dark"><?= $row['staff_name'] ?? '-'; ?></div>
                                                             </div>
                                                         </div>
 
@@ -751,11 +760,11 @@ include 'admin/db.php';
                                                                     <div><?= $row['purchaser_address']; ?></div>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12">
                                                                 <small class="text-muted fw-bold" style="font-size:10px;">BIKE NAME</small>
                                                                 <div class="fw-bold text-dark"><?= $row['purchaser_bike_name']; ?></div>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-12">
                                                                 <small class="text-muted fw-bold" style="font-size:10px;">VEHICLE NO</small>
                                                                 <div class="fw-bold text-dark text-uppercase">
                                                                     <?= $row['purchaser_vehicle_no']; ?></div>
@@ -767,7 +776,7 @@ include 'admin/db.php';
                                                                 <h6 class="fw-bold mb-0 small text-uppercase">Buyer Payment Fees</h6>
                                                             </div>
                                                             <div class="table-responsive">
-                                                                <table class="table table-sm align-middle mb-0 text-center">
+                                                                <table class="table table-sm align-middle mb-0 text-center nowrap">
                                                                     <thead>
                                                                         <tr class="text-muted small">
                                                                             <th class="py-2 text-start ps-3">Type</th>
@@ -821,51 +830,37 @@ include 'admin/db.php';
                                                                     class="position-absolute top-0 start-50 translate-middle badge bg-dark text-white border-light border">
                                                                     Insurance Details
                                                                 </span>
-                                                                <div class="row g-2 mt-1">
-                                                                    <div class="col-12">
-                                                                        <div class="d-flex justify-content-between">
-                                                                            <span class="small text-muted">Provider:</span>
-                                                                            <span
-                                                                                class="fw-bold"><?= $row['purchaser_insurance_name']; ?></span>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-12">
-                                                                        <div class="d-flex justify-content-between">
-                                                                            <span class="small text-muted">Payment Status:</span>
-                                                                            <span
-                                                                                class="fw-bold <?= ($row['purchaser_insurance_payment_status'] == 'paid') ? 'text-success' : 'text-danger'; ?>">
+                                                                <table class="table table-bordered text-uppercase mb-3">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <th class="small text-muted" style="width:35%;">Provider</th>
+                                                                            <td class="fw-bold"><?= $row['purchaser_insurance_name']; ?></td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th class="small text-muted">Payment Status</th>
+                                                                            <td class="fw-bold <?= ($row['purchaser_insurance_payment_status'] == 'paid') ? 'text-success' : 'text-danger'; ?>">
                                                                                 <?= strtoupper($row['purchaser_insurance_payment_status']); ?>
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-12">
-                                                                        <div class="d-flex justify-content-between">
-                                                                            <span class="small text-muted">Amount:</span>
-                                                                            <span class="fw-bold">₹
-                                                                                <?= number_format($row['purchaser_insurance_amount']); ?></span>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-12">
-                                                                        <div class="d-flex justify-content-between">
-                                                                            <span class="small text-muted">Issued On:</span>
-                                                                            <span
-                                                                                class="fw-bold"><?= $row['purchaser_insurance_issue_date']; ?></span>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-12">
-                                                                        <div class="d-flex justify-content-between">
-                                                                            <span class="small text-muted">Expiry Date:</span>
-                                                                            <span
-                                                                                class="fw-bold text-danger"><?= $row['purchaser_insurance_expiry_date']; ?></span>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-12">
-                                                                        <div class="d-flex justify-content-between">
-                                                                            <span class="small text-muted">Validity:</span>
-                                                                            <span class="fw-bold text-primary"><?= $validity; ?></span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th class="small text-muted">Amount</th>
+                                                                            <td class="fw-bold">₹<?= number_format($row['purchaser_insurance_amount']); ?></td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th class="small text-muted">Issued On</th>
+                                                                            <td class="fw-bold"><?= $row['purchaser_insurance_issue_date']; ?></td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th class="small text-muted">Expiry Date</th>
+                                                                            <td class="fw-bold text-danger"><?= $row['purchaser_insurance_expiry_date']; ?></td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th class="small text-muted">Validity</th>
+                                                                            <td class="fw-bold text-primary"><?= $validity; ?></td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+
                                                             </div>
                                                         <?php endif; ?>
 
@@ -917,20 +912,21 @@ include 'admin/db.php';
                                                             </div>
                                                         <?php endif; ?>
 
-                                                        <div class="d-flex text-center border rounded overflow-hidden bg-white mb-3">
-                                                            <div class="flex-fill p-2 border-end">
+                                                        <div class="d-flex flex-column text-center border rounded overflow-hidden bg-white mb-3">
+                                                            <div class="p-2 border-bottom">
                                                                 <div class="small text-muted fw-bold" style="font-size:10px">TOTAL</div>
                                                                 <div class="fw-bold">₹<?= number_format($row['purchaser_total']); ?></div>
                                                             </div>
-                                                            <div class="flex-fill p-2 border-end bg-success-subtle text-success">
+                                                            <div class="p-2 border-bottom bg-success-subtle text-success">
                                                                 <div class="small fw-bold" style="font-size:10px">PAID</div>
                                                                 <div class="fw-bold">₹<?= number_format($row['purchaser_paid']); ?></div>
                                                             </div>
-                                                            <div class="flex-fill p-2 bg-danger-subtle text-danger">
+                                                            <div class="p-2 bg-danger-subtle text-danger">
                                                                 <div class="small fw-bold" style="font-size:10px">DUE</div>
                                                                 <div class="fw-bold">₹<?= number_format($row['purchaser_due']); ?></div>
                                                             </div>
                                                         </div>
+
 
                                                         <div class="mb-4">
                                                             <label class="small text-muted fw-bold">PAYMENT ALL PAID?</label>
@@ -1083,55 +1079,44 @@ include 'admin/db.php';
                                                             $otValidity = $otInterval->y . " Year" . ($otInterval->y > 1 ? 's' : '');
                                                         ?>
                                                             <div class="p-3 border rounded-4 bg-light mb-4 position-relative">
-                                                                <span
-                                                                    class="position-absolute top-0 start-50 translate-middle badge bg-dark text-white border-light border">
+                                                                <span class="position-absolute top-0 start-50 translate-middle badge bg-dark text-white border-light border">
                                                                     Insurance Details
                                                                 </span>
 
-                                                                <div class="row g-2 mt-1">
-                                                                    <div class="col-12">
-                                                                        <div class="d-flex justify-content-between">
-                                                                            <span class="small text-muted">Provider:</span>
-                                                                            <span class="fw-bold"><?= $row['ot_insurance_name']; ?></span>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-12">
-                                                                        <div class="d-flex justify-content-between">
-                                                                            <span class="small text-muted">Payment Status:</span>
-                                                                            <span
-                                                                                class="fw-bold <?= ($row['ot_insurance_payment_status'] == 'paid') ? 'text-success' : 'text-danger'; ?>">
-                                                                                <?= strtoupper($row['ot_insurance_payment_status']); ?>
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-12">
-                                                                        <div class="d-flex justify-content-between">
-                                                                            <span class="small text-muted">Amount:</span>
-                                                                            <span class="fw-bold">₹
-                                                                                <?= number_format($row['ot_insurance_amount']); ?></span>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-12">
-                                                                        <div class="d-flex justify-content-between">
-                                                                            <span class="small text-muted">Issued On:</span>
-                                                                            <span class="fw-bold"><?= $row['ot_insurance_start_date']; ?></span>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-12">
-                                                                        <div class="d-flex justify-content-between">
-                                                                            <span class="small text-muted">Expiry Date:</span>
-                                                                            <span
-                                                                                class="fw-bold text-danger"><?= $row['ot_insurance_end_date']; ?></span>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-12">
-                                                                        <div class="d-flex justify-content-between">
-                                                                            <span class="small text-muted">Validity:</span>
-                                                                            <span class="fw-bold text-primary"><?= $otValidity; ?></span>
-                                                                        </div>
-                                                                    </div>
+                                                                <div class="table-responsive mt-3">
+                                                                    <table class="table table-bordered mb-0 text-uppercase">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <th class="small text-muted" style="width:35%;">Provider</th>
+                                                                                <td class="fw-bold"><?= $row['ot_insurance_name']; ?></td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <th class="small text-muted">Payment Status</th>
+                                                                                <td class="fw-bold <?= ($row['ot_insurance_payment_status'] == 'paid') ? 'text-success' : 'text-danger'; ?>">
+                                                                                    <?= strtoupper($row['ot_insurance_payment_status']); ?>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <th class="small text-muted">Amount</th>
+                                                                                <td class="fw-bold">₹<?= number_format($row['ot_insurance_amount']); ?></td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <th class="small text-muted">Issued On</th>
+                                                                                <td class="fw-bold"><?= $row['ot_insurance_start_date']; ?></td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <th class="small text-muted">Expiry Date</th>
+                                                                                <td class="fw-bold text-danger"><?= $row['ot_insurance_end_date']; ?></td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <th class="small text-muted">Validity</th>
+                                                                                <td class="fw-bold text-primary"><?= $otValidity; ?></td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
                                                                 </div>
                                                             </div>
+
                                                         <?php endif; ?>
 
                                                         <div class="row g-2">

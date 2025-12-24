@@ -149,7 +149,7 @@ $current_user = $display_name;
         <nav class="navbar fixed-top glass-nav px-2 px-md-3 py-2 py-md-3 animate-entry">
             <div class="container-fluid">
 
-                <a class="navbar-brand d-flex align-items-center gap-2 me-auto" href="dashboard.php">
+                <a class="navbar-brand d-flex align-items-center gap-2 me-auto" href="employers_dashboard.php">
                     <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm border border-1"
                         style="width: 42px; height: 42px; overflow: hidden; padding: 2px;">
                         <img src="../images/logo.jpeg" alt="Logo" class="rounded-circle"
