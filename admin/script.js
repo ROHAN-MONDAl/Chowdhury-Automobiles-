@@ -67,8 +67,6 @@ $(document).ready(function () {
         }
     }
 
-
-    // --- 4. AJAX SAVE FUNCTION ---
 // --- 4. AJAX SAVE FUNCTION ---
     function saveData(actionType, btnElement = null) {
 

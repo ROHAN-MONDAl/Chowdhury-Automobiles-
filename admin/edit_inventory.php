@@ -1,50 +1,100 @@
 <?php
-// 1. DATABASE CONNECTION
+// ======================================================
+// 1. SILENT INITIALIZATION & HEADERS
+// ======================================================
+ob_start();
+
+// Security Settings
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+
+// Include DB
 require "db.php";
 
-// 2. SECURITY: Check Login
-if (!isset($_SESSION["user_id"])) {
-    header("Location: index.php");
-    exit();
+// Start Session
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-// 3. SECURITY: Validate ID
-// Get ID safely (default to 0 if missing or text)
-$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+// Anti-Cache Headers (Prevent "Back" button after logout)
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
 
-// Condition 1: ID is invalid (0 or missing)
-if ($id == 0) {
-    // Destroy session and redirect to 404
+// ======================================================
+// 2. THE "KILL SWITCH" HELPER (PRODUCTION MODE)
+// ======================================================
+function force_404_exit()
+{
+    // Silent fail: Destroy session and hide existence of page
+    session_unset();
     session_destroy();
     header("Location: 404.php");
     exit();
 }
 
-// Condition 2: Check if this specific ID actually exists in the database
-$stmt = $conn->prepare("SELECT id, sold_out FROM vehicle WHERE id = ?");
-$stmt->bind_param("i", $id);
-$stmt->execute();
-$result = $stmt->get_result();
+// ======================================================
+// 3. PHASE 1: USER AUTHENTICATION (Who are you?)
+// ======================================================
 
-if ($result->num_rows === 0) {
-    // ID doesn't exist in DB - Destroy session and redirect
-    session_destroy();
-    header("Location: 404.php");
-    exit();
+// CHECK A: Is user logged in?
+// FIX: We check 'id' because your debug showed this holds the numeric ID (23)
+if (!isset($_SESSION["id"])) {
+    force_404_exit();
 }
 
-// Condition 3: Check if vehicle is already sold out
-$vehicle_check = $result->fetch_assoc();
-if ($vehicle_check['sold_out'] == 1) {
-    // Vehicle is sold out - prevent editing
-    session_destroy();
-    header("Location: 404.php");
-    exit();
+// CHECK B: Session Hijacking (Browser Fingerprint)
+if (!isset($_SESSION['user_agent'])) {
+    $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
+} elseif ($_SESSION['user_agent'] !== $_SERVER['HTTP_USER_AGENT']) {
+    force_404_exit();
 }
 
-$stmt->close();
+// CHECK C: Database Verification (User Role)
+// FIX: Use ['id'] (23) instead of ['user_id'] ("Rohan766")
+$session_db_id = $_SESSION['id'] ?? 0;
+
+// Update query to find user by numeric ID
+$user_query = $conn->prepare("SELECT id, user_id, role, email FROM users WHERE id = ? LIMIT 1");
+$user_query->bind_param("i", $session_db_id);
+$user_query->execute();
+$u = $user_query->get_result()->fetch_assoc();
+$user_query->close();
+
+// If user missing or not Admin
+if (!$u || $u['role'] !== 'admin') {
+    if ($u) {
+        // Log the breach attempt
+        error_log("Security Breach: Non-admin " . ($u['user_id'] ?? 'unknown') . " tried to access Vehicle Editor.");
+    }
+    force_404_exit();
+}
+
+// ======================================================
+// 4. PHASE 2: VEHICLE VALIDATION (What do you want?)
+// ======================================================
+
+// Get Vehicle ID safely from URL
+$vehicle_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+// CHECK D: Invalid ID format
+if ($vehicle_id === 0) {
+    force_404_exit();
+}
+
+// CHECK E: Does Vehicle Exist?
+$veh_query = $conn->prepare("SELECT id, sold_out FROM vehicle WHERE id = ? LIMIT 1");
+$veh_query->bind_param("i", $vehicle_id);
+$veh_query->execute();
+$result = $veh_query->get_result();
+$vehicle_data = $result->fetch_assoc();
+$veh_query->close();
+
+// If vehicle does not exist in DB, kill the page
+if (!$vehicle_data) {
+    force_404_exit();
+}
 ?>
-
 
 
 <!DOCTYPE html>
@@ -209,54 +259,58 @@ $stmt->close();
                 </div>
             </div>
 
-
             <?php
             // ====================================================
             // 1. FETCH DATA FROM ALL TABLES
             // ====================================================
 
             // A. MASTER VEHICLE DATA (Step 1)
+            // FIX: Changed $id to $vehicle_id
             $stmt = $conn->prepare("SELECT * FROM vehicle WHERE id = ?");
-            $stmt->bind_param("i", $id);
+            $stmt->bind_param("i", $vehicle_id);
             $stmt->execute();
             $vehicle = $stmt->get_result()->fetch_assoc();
 
             // Stop if the main vehicle doesn't exist
             if (!$vehicle) {
-                die("<div class='alert alert-danger m-4'>❌ Error: Vehicle ID #$id not found. <a href='inventory.php'>Go Back</a></div>");
+                die("<div class='alert alert-danger m-4'>❌ Error: Vehicle ID #$vehicle_id not found. <a href='inventory.php'>Go Back</a></div>");
             }
 
             // B. SELLER DATA (Step 2)
             $stmt = $conn->prepare("SELECT * FROM vehicle_seller WHERE vehicle_id = ?");
-            $stmt->bind_param("i", $id);
+            $stmt->bind_param("i", $vehicle_id);
             $stmt->execute();
             $sellerData = $stmt->get_result()->fetch_assoc();
 
             // ⭐ MERGE: Add seller data into the main $vehicle array
             if ($sellerData) {
                 $vehicle = array_merge($vehicle, $sellerData);
+                // CRITICAL FIX: Ensure the ID remains the Vehicle ID, not the Seller ID
+                $vehicle['id'] = $vehicle_id;
             }
 
             // C. PURCHASER DATA (Step 3)
             $stmt = $conn->prepare("SELECT * FROM vehicle_purchaser WHERE vehicle_id = ?");
-            $stmt->bind_param("i", $id);
+            $stmt->bind_param("i", $vehicle_id);
             $stmt->execute();
             $purchaserData = $stmt->get_result()->fetch_assoc();
 
             // ⭐ MERGE: Add purchaser data into the main $vehicle array
             if ($purchaserData) {
                 $vehicle = array_merge($vehicle, $purchaserData);
+                $vehicle['id'] = $vehicle_id; // Keep Vehicle ID safe
             }
 
             // D. TRANSFER / OT DATA (Step 4)
             $stmt = $conn->prepare("SELECT * FROM vehicle_ot WHERE vehicle_id = ?");
-            $stmt->bind_param("i", $id);
+            $stmt->bind_param("i", $vehicle_id);
             $stmt->execute();
             $otData = $stmt->get_result()->fetch_assoc();
 
             // ⭐ MERGE: Add OT data into the main $vehicle array
             if ($otData) {
                 $vehicle = array_merge($vehicle, $otData);
+                $vehicle['id'] = $vehicle_id; // Keep Vehicle ID safe
             }
 
             // ====================================================
@@ -267,9 +321,9 @@ $stmt->close();
             $vehicle['sold_out'] = $vehicle['sold_out'] ?? 0;
 
             // Step 2 Defaults (Seller)
-            $vehicle['seller_payment_type']  = $vehicle['seller_payment_type'] ?? 'cash'; // Default to Cash
+            $vehicle['seller_payment_type']  = $vehicle['seller_payment_type'] ?? 'Cash'; // Default to Cash
             $vehicle['seller_online_method'] = $vehicle['seller_online_method'] ?? '';
-            $vehicle['noc_status']           = $vehicle['noc_status'] ?? 'paid';
+            $vehicle['noc_status']           = $vehicle['noc_status'] ?? 'Paid';
 
             // Step 3 Defaults (Purchaser)
             $vehicle['purchaser_payment_all_paid'] = $vehicle['purchaser_payment_all_paid'] ?? 0;
@@ -288,16 +342,22 @@ $stmt->close();
 
                     <input type="hidden" name="action" id="action_input">
 
-                    <div class="d-lg-none bg-white px-4 py-3 border-bottom shadow-sm z-2">
-                        <div class="d-flex justify-content-between align-items-end mb-1">
-                            <span class="text-primary fw-bold text-uppercase small ls-1">Current Step</span>
-                            <span class="text-muted small fw-bold"><span id="mobile-current-step">1</span>/4</span>
+                    <div class="d-lg-none mt-4 px-4">
+                        <div class="progress rounded-pill position-relative" style="height: 18px;">
+                            <div
+                                class="progress-bar bg-primary rounded-pill d-flex align-items-center justify-content-center"
+                                role="progressbar"
+                                style="width: 25%"
+                                id="mobile-progress-bar">
+                                <span class="text-white small fw-semibold">
+                                    Step 1 of 4
+                                </span>
+                            </div>
                         </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-primary rounded-pill" role="progressbar" style="width: 25%" id="mobile-progress-bar"></div>
-                        </div>
-                        <h5 class="fw-bold mt-2 mb-0 text-dark" id="mobile-step-title">Vehicle Details</h5>
                     </div>
+
+
+
 
                     <div class="flex-grow-1 overflow-y-auto p-3 p-md-5">
                         <div class="container-fluid p-0" style="max-width: 1000px; margin: 0 auto;">
@@ -1386,35 +1446,40 @@ $stmt->close();
                         </button>
 
                         <!-- Spacer pushes next buttons to right -->
-                        <div class="ms-auto d-flex gap-2 gap-sm-3">
+                        <div class="d-flex align-items-center gap-2 p-3 bg-white border-top shadow-sm position-fixed bottom-0 w-100 z-3">
 
-                            <!-- Save Draft -->
                             <button type="button"
-                                id="btn-draft"
-                                class="btn btn-warning px-3 px-sm-4 d-flex align-items-center justify-content-center"
-                                onclick="submitAjax('save_only')">
-                                <i class="ph-bold ph-floppy-disk me-1"></i>
-                                <span>Draft</span>
+                                id="prevBtn"
+                                class="btn btn-outline-primary d-none px-3 px-sm-4 py-2 fw-bold d-flex align-items-center"
+                                onclick="prevStep()">
+                                <i class="ph-bold ph-arrow-left me-1"></i> Back
                             </button>
 
-                            <!-- Save & Next -->
-                            <button type="button"
-                                id="btn-next"
-                                class="btn btn-primary px-3 px-sm-4 d-flex align-items-center justify-content-center"
-                                onclick="submitAjax('save_next')">
-                                <i class="ph-bold ph-caret-right me-1"></i>
-                                <span>Next</span>
-                            </button>
+                            <div class="ms-auto d-flex gap-2 gap-sm-3">
+                                <button type="button"
+                                    id="btn-draft"
+                                    class="btn btn-warning px-3 px-sm-4 d-flex align-items-center justify-content-center"
+                                    onclick="submitAjax('save_only')">
+                                    <i class="ph-bold ph-floppy-disk me-1"></i>
+                                    <span>Draft</span>
+                                </button>
 
-                            <!-- Finish -->
-                            <button type="button"
-                                id="btn-finish"
-                                class="btn btn-success px-3 px-sm-4 d-flex align-items-center justify-content-center d-none"
-                                onclick="submitAjax('finish')">
-                                <i class="ph-bold ph-check-circle me-1"></i>
-                                <span>Finish</span>
-                            </button>
+                                <button type="button"
+                                    id="btn-next"
+                                    class="btn btn-primary px-3 px-sm-4 d-flex align-items-center justify-content-center"
+                                    onclick="submitAjax('save_next')">
+                                    <i class="ph-bold ph-caret-right me-1"></i>
+                                    <span>Next</span>
+                                </button>
 
+                                <button type="button"
+                                    id="btn-finish"
+                                    class="btn btn-success px-3 px-sm-4 d-flex align-items-center justify-content-center d-none"
+                                    onclick="submitAjax('finish')">
+                                    <i class="ph-bold ph-check-circle me-1"></i>
+                                    <span>Finish</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -1426,111 +1491,56 @@ $stmt->close();
 
 
     <script>
+        // ==========================================
+        // 1. INITIALIZATION
+        // ==========================================
         var currentStep = 1;
         var totalSteps = 4;
-        var vehicleId = "<?= $id ?>";
+
+        // CRITICAL FIX: Ensure we capture the ID from PHP, handling both variable names
+        var vehicleId = "<?= isset($vehicle_id) ? $vehicle_id : (isset($id) ? $id : 0) ?>";
 
         $(document).ready(function() {
+            // Safety Check: Alert if ID is missing on load
+            if (vehicleId == 0 || vehicleId == "") {
+                alert("CRITICAL WARNING: Vehicle ID is missing. You will not be able to save.");
+            }
+
             updateUI();
 
             // Auto-Calculate Due Amounts (Seller)
             $('#s_total, #s_paid').on('input', function() {
                 var total = parseFloat($('#s_total').val()) || 0;
                 var paid = parseFloat($('#s_paid').val()) || 0;
-                $('#s_due').val(total - paid);
+                $('#s_due').val((total - paid).toFixed(2));
             });
 
             // Auto-Calculate Due Amounts (Purchaser)
             $('#p_total, #p_paid').on('input', function() {
                 var total = parseFloat($('#p_total').val()) || 0;
                 var paid = parseFloat($('#p_paid').val()) || 0;
-                $('#p_due').val(total - paid);
+                $('#p_due').val((total - paid).toFixed(2));
             });
         });
 
-        // 1. Image Preview
-        window.previewImage = function(input, key) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    $('#preview_' + key).attr('src', e.target.result).show();
-                    $('#icon_' + key).hide();
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        };
-
-        // 2. Navigation Logic
-        window.nextStep = function() {
-            if (currentStep < totalSteps) goToStep(currentStep + 1);
-        };
-
-        window.prevStep = function() {
-            if (currentStep > 1) goToStep(currentStep - 1);
-        };
-
-        window.goToStep = function(stepNumber) {
-            // Hide current
-            $('#step-' + currentStep).addClass('d-none').removeClass('fade-in-animation');
-
-            // Show new
-            currentStep = stepNumber;
-            $('#step-' + currentStep).removeClass('d-none').addClass('fade-in-animation');
-
-            updateUI();
-        };
-
-        function updateUI() {
-            // --- 1. Button Visibility ---
-
-            // Logic for Back Button (Handles both inline styles and Bootstrap classes)
-            if (currentStep > 1) {
-                $('#prevBtn')
-                    .removeClass('d-none') // Removes Bootstrap hidden class
-                    .css('display', ''); // Removes inline 'display:none' style
-            } else {
-                $('#prevBtn').addClass('d-none');
-            }
-
-            // Logic for Next vs Finish Buttons
-            if (currentStep === totalSteps) {
-                $('#btn-next').addClass('d-none');
-                $('#btn-finish').removeClass('d-none');
-            } else {
-                $('#btn-next').removeClass('d-none');
-                $('#btn-finish').addClass('d-none');
-            }
-
-            // --- 2. Mobile Progress ---
-            var percentage = (currentStep / totalSteps) * 100;
-            $('#mobile-progress-bar').css('width', percentage + '%');
-            $('#mobile-current-step').text(currentStep);
-
-            // --- 3. Desktop Sidebar ---
-            // Reset all steps to default state
-            $('.step-item').removeClass('bg-light border-primary').addClass('border-transparent');
-            $('.step-circle').removeClass('bg-primary text-white').addClass('bg-light text-secondary');
-            $('.step-label').removeClass('text-primary fw-bold').addClass('text-secondary');
-
-            // Highlight current step
-            var $active = $('#sidebar-item-' + currentStep);
-            $active.addClass('bg-light border-primary').removeClass('border-transparent');
-            $active.find('.step-circle').addClass('bg-primary text-white').removeClass('bg-light text-secondary');
-            $active.find('.step-label').addClass('text-primary fw-bold').removeClass('text-secondary');
-        }
-        // 3. AJAX Logic
+        // ==========================================
+        // 2. AJAX SUBMISSION (THE FIX IS HERE)
+        // ==========================================
         window.submitAjax = function(actionType) {
             var form = $('#updateForm')[0];
             var formData = new FormData(form);
 
+            // MANUALLY APPEND DATA TO ENSURE IT IS SENT
             formData.append('action', actionType);
             formData.append('step_number', currentStep);
 
-            // 1. Determine which button to show loading state on
+            // *** THE FIX: FORCE THE ID INTO THE DATA ***
+            formData.append('vehicle_id', vehicleId);
+
+            // Determine which button to show loading state on
             var $btn;
-            if (actionType === '#btn-draft' || actionType === 'save_only') {
-                // Target the Draft button (btn-warning)
-                $btn = $('.btn-warning');
+            if (actionType === 'save_only') {
+                $btn = $('#btn-draft');
             } else if (actionType === 'finish') {
                 $btn = $('#btn-finish');
             } else {
@@ -1538,29 +1548,22 @@ $stmt->close();
             }
 
             var originalText = $btn.html();
-
-            // 2. Custom Loading Text
             var loadingText = (actionType === 'save_only') ? 'Saving...' : 'Processing...';
-            $btn.html(`
-    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-    <span>${loadingText}</span>
-`).prop('disabled', true);
 
+            $btn.html(`<span class="spinner-border spinner-border-sm me-2"></span><span>${loadingText}</span>`).prop('disabled', true);
 
             $.ajax({
-                url: 'vechicle_update_form.php',
+                url: 'vehicle_update_form.php',
                 type: 'POST',
                 data: formData,
                 processData: false,
                 contentType: false,
                 dataType: 'json',
-                timeout: 5000, // 3. Set timeout to 5 seconds (5000ms)
+                timeout: 10000,
                 success: function(data) {
                     if (data.status === 'success') {
                         if (actionType === 'save_only') {
-                            // Optional: remove alert if you want it smoother, or keep it
-                            alert("Draft Saved!");
-                            // Important: If you want to stay on page, we just reset button in complete()
+                            alert("Draft Saved Successfully!");
                         } else if (actionType === 'save_next') {
                             nextStep();
                         } else if (actionType === 'finish') {
@@ -1572,111 +1575,116 @@ $stmt->close();
                     }
                 },
                 error: function(xhr, status, error) {
-                    // 4. Handle Timeout specifically
-                    if (status === 'timeout') {
-                        alert("The server took too long to respond. Redirecting...");
-                        window.location.href = "edit_inventory.php"; // Redirect on timeout
-                    } else {
-                        console.error(xhr.responseText);
-                        alert("System Error: " + error);
-                    }
+                    console.error(xhr.responseText);
+                    alert("System Error: " + error + "\nCheck console for details.");
                 },
                 complete: function() {
-                    // 5. Always restore the button text and enable it
-                    $btn.html(originalText).prop('disabled', false);
+                    if (actionType !== 'finish') {
+                        $btn.html(originalText).prop('disabled', false);
+                    }
                 }
             });
         };
 
-        // ==========================
-        // ISSUE DATE → EXPIRY DATE
-        // ==========================
-        $("#issueDate").on("change", function() {
+        // ==========================================
+        // 3. NAVIGATION & UI
+        // ==========================================
+        window.nextStep = function() {
+            if (currentStep < totalSteps) goToStep(currentStep + 1);
+        };
 
-            // Get selected issue date
-            let issueDate = new Date($(this).val());
+        window.prevStep = function() {
+            if (currentStep > 1) goToStep(currentStep - 1);
+        };
 
-            // Boundary check: ensure selected date is valid
-            if (!isNaN(issueDate)) {
+        window.goToStep = function(stepNumber) {
+            $('#step-' + currentStep).addClass('d-none').removeClass('fade-in-animation');
+            currentStep = stepNumber;
+            $('#step-' + currentStep).removeClass('d-none').addClass('fade-in-animation');
+            updateUI();
+            window.scrollTo(0, 0);
+        };
 
-                // Add 1 year to issue date
-                let expiryDate = new Date(issueDate);
-                expiryDate.setFullYear(issueDate.getFullYear() + 1);
-
-                // Format date into yyyy-mm-dd (HTML date input format)
-                let year = expiryDate.getFullYear();
-                let month = String(expiryDate.getMonth() + 1).padStart(2, '0');
-                let day = String(expiryDate.getDate()).padStart(2, '0');
-
-                let formattedDate = `${year}-${month}-${day}`;
-
-                // Set calculated expiry date in input field
-                $("#expiryDate").val(formattedDate);
-
-                // Update validity text
-                $("#expiryText").text(" (1 Year)");
+        function updateUI() {
+            if (currentStep > 1) {
+                $('#prevBtn').removeClass('d-none').css('display', '');
+            } else {
+                $('#prevBtn').addClass('d-none');
             }
-        });
 
-
-        // ==========================
-        // START DATE → END DATE
-        // ==========================
-        $("#startDate").on("change", function() {
-
-            // Get selected start date
-            let start = new Date($(this).val());
-
-            // Boundary check: ensure selected date is valid
-            if (!isNaN(start)) {
-
-                // Add 1 year to start date
-                let end = new Date(start);
-                end.setFullYear(start.getFullYear() + 1);
-
-                // Format date into yyyy-mm-dd
-                let year = end.getFullYear();
-                let month = String(end.getMonth() + 1).padStart(2, '0');
-                let day = String(end.getDate()).padStart(2, '0');
-
-                let formatted = `${year}-${month}-${day}`;
-
-                // Set calculated end date in input
-                $("#endDate").val(formatted);
-
-                // Update duration text
-                $("#durationText").text(" (1 Year)");
+            if (currentStep === totalSteps) {
+                $('#btn-next').addClass('d-none');
+                $('#btn-finish').removeClass('d-none');
+            } else {
+                $('#btn-next').removeClass('d-none');
+                $('#btn-finish').addClass('d-none');
             }
-        });
+
+            var percentage = (currentStep / totalSteps) * 100;
+            $('#mobile-progress-bar').css('width', percentage + '%');
+            $('#mobile-current-step').text(currentStep);
+
+            $('.step-item').removeClass('bg-light border-primary').addClass('border-transparent');
+            $('.step-circle').removeClass('bg-primary text-white').addClass('bg-light text-secondary');
+            $('.step-label').removeClass('text-primary fw-bold').addClass('text-secondary');
+
+            var $active = $('#sidebar-item-' + currentStep);
+            $active.addClass('bg-light border-primary').removeClass('border-transparent');
+            $active.find('.step-circle').addClass('bg-primary text-white').removeClass('bg-light text-secondary');
+            $active.find('.step-label').addClass('text-primary fw-bold').removeClass('text-secondary');
+        }
+
+        // ==========================================
+        // 4. HELPERS (Images & Dates)
+        // ==========================================
+        window.previewImage = function(input, key) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#preview_' + key).attr('src', e.target.result).show();
+                    $('#icon_' + key).hide();
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
 
         function updateFileName(input) {
             if (input.files && input.files[0]) {
                 var file = input.files[0];
-                var elementId = input.id; // e.g., purchaser_doc_aadhar_front
-
-                // 1. Update the text display
+                var elementId = input.id;
                 var nameSpan = document.getElementById('filename_' + elementId);
                 if (nameSpan) {
-                    // Truncate name if long
-                    var displayName = file.name;
-                    if (displayName.length > 15) {
-                        displayName = displayName.substring(0, 12) + "...";
-                    }
+                    var displayName = file.name.length > 15 ? file.name.substring(0, 12) + "..." : file.name;
                     nameSpan.innerText = displayName;
                     nameSpan.classList.remove('text-muted');
                     nameSpan.classList.add('text-success');
                 }
-
-                // 2. Enable the View button with a temporary blob URL
                 var viewBtn = document.getElementById('view_' + elementId);
                 if (viewBtn) {
-                    var blobUrl = URL.createObjectURL(file);
-                    viewBtn.href = blobUrl;
+                    viewBtn.href = URL.createObjectURL(file);
                     viewBtn.classList.remove('btn-outline-secondary', 'disabled');
                     viewBtn.classList.add('btn-outline-primary');
                 }
             }
         }
+
+        $("#issueDate").on("change", function() {
+            let d = new Date($(this).val());
+            if (!isNaN(d)) {
+                d.setFullYear(d.getFullYear() + 1);
+                $("#expiryDate").val(d.toISOString().split('T')[0]);
+                $("#expiryText").text(" (1 Year)");
+            }
+        });
+
+        $("#startDate").on("change", function() {
+            let d = new Date($(this).val());
+            if (!isNaN(d)) {
+                d.setFullYear(d.getFullYear() + 1);
+                $("#endDate").val(d.toISOString().split('T')[0]);
+                $("#durationText").text(" (1 Year)");
+            }
+        });
     </script>
 </body>
 
