@@ -530,10 +530,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $check = $conn->query("SELECT id FROM vehicle_ot WHERE vehicle_id = $vehicle_id");
         if ($check->num_rows > 0) {
-            $sql = "UPDATE vehicle_ot SET 
+               $sql = "UPDATE vehicle_ot SET 
                     ot_vehicle_number='$ot_vno', 
                     ot_name_transfer='$ot_name', 
-                    ot_rto_name='$ot_rto' 
+                    ot_rto_name='$ot_rto',
+                    ot_vendor_name='$ot_vend',
+                    
+                    ot_transfer_amount='$ot_t_amt', 
+                    ot_transfer_date='$ot_t_date', 
+                    ot_transfer_status='$ot_t_stat',
+                    
+                    ot_hpa_amount='$ot_h_amt', 
+                    ot_hpa_date='$ot_h_date', 
+                    ot_hpa_status='$ot_h_stat',
+                    
+                    ot_hp_amount='$ot_hp_amt', 
+                    ot_hp_date='$ot_hp_date', 
+                    ot_hp_status='$ot_hp_stat',
+                    
+                    ot_insurance_name='$ot_i_name', 
+                    ot_insurance_payment_status='$ot_i_stat', 
+                    ot_insurance_amount='$ot_i_amt', 
+                    ot_insurance_start_date='$ot_i_start', 
+                    ot_insurance_end_date='$ot_i_end',
+                    
+                    ot_purchaser_sign_status='$ot_p_stat', 
+                    ot_purchaser_sign_date='$ot_p_date', 
+                    ot_seller_sign_status='$ot_s_stat', 
+                    ot_seller_sign_date='$ot_s_date'
+                    
                     WHERE vehicle_id=$vehicle_id";
         } else {
             $sql = "INSERT INTO vehicle_ot (
