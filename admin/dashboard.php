@@ -401,8 +401,10 @@ if ($u['role'] !== 'admin') {
                                 <div class="d-lg-none fw-bold text-primary">
                                     <span id="mobile-step-indicator">Step 1</span>
                                 </div>
-                                <button type="button" class="btn-close bg-light p-2 rounded-circle"
+                               <a href="dashboard.php">
+                                 <button type="button" class="btn-close bg-light p-2 rounded-circle"
                                     data-bs-dismiss="modal"></button>
+                               </a>
                             </div>
 
                             <div class="flex-grow-1 overflow-y-auto p-3 p-md-5">
