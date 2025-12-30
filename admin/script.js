@@ -77,21 +77,23 @@ $(document).ready(function () {
         // ============================================================
         const REDIRECT_DELAY = 1000;
         const SAFETY_TIMEOUT = 5000;
-        const SERVER_TIMEOUT = 30000;
+        const SERVER_TIMEOUT = 60000; // Increased to 60s for slow networks
 
-        // --- DETERMINE LOADING TEXT BASED ON ACTION ---
-        let loadingText = "Processing..."; // Default fallback
+        // --- DOM ELEMENTS FOR TOAST ---
+        const toastEl = document.getElementById('liveToast');
+        const bsToast = new bootstrap.Toast(toastEl); // Bootstrap 5 Init
+        const progressBar = document.getElementById('uploadProgressBar');
+        const progressText = document.getElementById('uploadPercentageText');
+        const toastMessage = document.getElementById('toastMessage');
 
-        if (actionType === 'save_only') {
-            loadingText = "Saving...";      // Draft button
-        } else if (actionType === 'finish') {
-            loadingText = "On way...";      // Finish button
-        } else if (actionType === 'save_next') {
-            loadingText = "Processing...";  // Next button
-        }
+        // --- DETERMINE LOADING TEXT ---
+        let loadingText = "Processing...";
+        if (actionType === 'save_only') loadingText = "Saving...";
+        else if (actionType === 'finish') loadingText = "Finishing...";
+        else if (actionType === 'save_next') loadingText = "Processing...";
 
         // ============================================================
-        // 2. UI PREPARATION (Loading State)
+        // 2. UI PREPARATION (Button & Toast)
         // ============================================================
         let $btn = null;
         let originalBtnText = '';
@@ -101,22 +103,60 @@ $(document).ready(function () {
             $btn = $(btnElement);
             originalBtnText = $btn.html();
             $btn.prop('disabled', true);
-
-            // 👇 Dynamic Text + Spinner + Space
             $btn.html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>&nbsp; ${loadingText}`);
         }
+
+        // SHOW TOAST INITIAL STATE
+        progressBar.style.width = "0%";
+        progressBar.className = "progress-bar bg-success"; // Reset color
+        progressText.innerText = "0%";
+        toastMessage.innerText = "Uploading Data...";
+        bsToast.show();
 
         // ============================================================
         // 3. GATHER DATA
         // ============================================================
-        let formData = new FormData($('#dealForm')[0]);
-        formData.append('step', currentStep);
+        // Check if form exists
+        let formElement = $('#dealForm')[0];
+        if (!formElement) {
+            alert("Error: Form not found!");
+            return;
+        }
+
+        let formData = new FormData(formElement);
+        // Assuming 'currentStep' is a global variable in your script
+        if (typeof currentStep !== 'undefined') {
+            formData.append('step', currentStep);
+        }
         formData.append('action', actionType);
 
         // ============================================================
-        // 4. SEND TO SERVER (AJAX)
+        // 4. SEND TO SERVER (AJAX with Upload Tracking)
         // ============================================================
         $.ajax({
+            xhr: function () {
+                var xhr = new window.XMLHttpRequest();
+                // Upload progress listener
+                xhr.upload.addEventListener("progress", function (evt) {
+                    if (evt.lengthComputable) {
+                        var percentComplete = Math.round((evt.loaded / evt.total) * 100);
+
+                        // Update UI
+                        progressBar.style.width = percentComplete + "%";
+                        progressText.innerText = percentComplete + "%";
+
+                        // UX Optimization for Slow Networks
+                        if (percentComplete === 100) {
+                            toastMessage.innerText = "Waiting for Server...";
+                            progressText.className = "badge bg-warning text-dark"; // Change badge color
+                            progressText.innerText = "Processing";
+                            // Add animated stripe to show it's still working
+                            progressBar.className = "progress-bar progress-bar-striped progress-bar-animated bg-warning";
+                        }
+                    }
+                }, false);
+                return xhr;
+            },
             url: 'vehicle_form.php',
             type: 'POST',
             data: formData,
@@ -131,46 +171,56 @@ $(document).ready(function () {
                     response = typeof rawResponse === 'object' ? rawResponse : JSON.parse(rawResponse);
                 } catch (e) {
                     console.error("SERVER CRASH:", rawResponse);
-                    showGlobalToast("Critical Error: Invalid Server Data.", 'error');
+                    toastMessage.innerText = "Critical Server Error";
+                    progressBar.className = "progress-bar bg-danger";
                     return;
                 }
 
                 if (response.status === 'success') {
+                    // UI: 100% Success Green
+                    progressBar.className = "progress-bar bg-success";
+                    toastMessage.innerText = "Success!";
+
                     if (response.id) $('input[name="vehicle_id"]').val(response.id);
 
-                    // --- FINISH ACTION ---
+                    // --- ACTION: FINISH ---
                     if (actionType === 'finish') {
-                        showGlobalToast("Success! Redirecting...", 'success');
+                        toastMessage.innerText = "Redirecting...";
                         isRedirecting = true;
 
                         setTimeout(function () {
                             window.location.href = 'dashboard.php';
                         }, REDIRECT_DELAY);
-
-                        // Safety Unlock
-                        setTimeout(function () {
-                            if ($btn) $btn.prop('disabled', false).html(originalBtnText);
-                        }, SAFETY_TIMEOUT);
                     }
-                    // --- NEXT / SAVE ACTIONS ---
+                    // --- ACTION: NEXT / SAVE ---
                     else {
-                        showGlobalToast(response.message || "Saved successfully", 'success');
-                        if (actionType === 'save_next' && currentStep < totalSteps) {
+                        toastMessage.innerText = response.message || "Saved!";
+
+                        // Hide toast after short delay if not redirecting
+                        setTimeout(() => { bsToast.hide(); }, 1500);
+
+                        if (actionType === 'save_next' && typeof totalSteps !== 'undefined' && currentStep < totalSteps) {
                             currentStep++;
-                            updateWizard();
+                            if (typeof updateWizard === 'function') updateWizard();
                         }
                     }
                 } else {
-                    showGlobalToast(response.message || "Unknown error occurred", 'error');
+                    // Logic Failure (e.g., Validation Error)
+                    toastMessage.innerText = "Validation Error";
+                    progressBar.className = "progress-bar bg-danger";
+                    // Optionally show specific error message in alert or another toast
+                    alert(response.message || "Unknown error occurred");
                 }
             },
 
-            // B. ERROR
+            // B. ERROR (Network/Server)
             error: function (xhr, status, error) {
                 let errorMsg = "System Error";
-                if (status === 'timeout') errorMsg = "Server took too long.";
-                else if (status === 'error') errorMsg = "Server Error (500).";
-                showGlobalToast(errorMsg, 'error');
+                if (status === 'timeout') errorMsg = "Slow Network Timeout";
+                else if (status === 'error') errorMsg = "Server Error (500)";
+
+                toastMessage.innerText = errorMsg;
+                progressBar.className = "progress-bar bg-danger";
             },
 
             // C. COMPLETE
@@ -230,7 +280,7 @@ $(document).ready(function () {
     });
 
 
-    
+
     // GLOBAL MESSAGE FOR FORM
     function showGlobalToast(message, type = 'success') {
         const toastElement = document.getElementById('liveToast');
