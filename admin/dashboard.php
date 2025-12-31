@@ -1262,21 +1262,35 @@ if ($u['role'] !== 'admin') {
                                             </div>
 
                                             <div class="bg-light p-3 rounded-4 border mb-3">
-                                                <label class="mb-2">Price Breakdown</label>
+                                                <label class="mb-2 fw-semibold text-primary">Price Breakdown</label>
+
                                                 <div class="row g-2 mb-3">
                                                     <div class="col-12">
-                                                        <input type="number" name="purchaser_total" id="p_total"
-                                                            class="form-control" placeholder="Total">
+                                                        <input type="number"
+                                                            name="purchaser_total"
+                                                            id="p_total"
+                                                            class="form-control border-primary"
+                                                            placeholder="Total Amount">
                                                     </div>
+
                                                     <div class="col-12">
-                                                        <input type="number" name="purchaser_paid" id="p_paid"
-                                                            class="form-control" placeholder="Paid">
+                                                        <input type="number"
+                                                            name="purchaser_paid"
+                                                            id="p_paid"
+                                                            class="form-control border-success text-success fw-semibold"
+                                                            placeholder="Paid Amount">
                                                     </div>
+
                                                     <div class="col-12">
-                                                        <input type="number" name="purchaser_due" id="p_due"
-                                                            class="form-control bg-white" placeholder="Due" readonly>
+                                                        <input type="number"
+                                                            name="purchaser_due"
+                                                            id="p_due"
+                                                            class="form-control bg-light text-danger fw-bold border-danger"
+                                                            placeholder="Due Amount"
+                                                            readonly>
                                                     </div>
                                                 </div>
+
 
                                                 <div class="d-flex gap-3 mb-2">
                                                     <div class="form-check">

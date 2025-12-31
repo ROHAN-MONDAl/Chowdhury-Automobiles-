@@ -25,20 +25,18 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // ==========================================
-// 2. SERVER LIMIT CHECK (CRITICAL)
+// 2. SERVER LIMIT CHECK (NO LIMITS)
 // ==========================================
-// Detect if the upload was blocked by the server limit immediately
 if (empty($_FILES) && empty($_POST) && isset($_SERVER['CONTENT_LENGTH']) && $_SERVER['CONTENT_LENGTH'] > 0) {
-    // Clear any previous output
     if (ob_get_length()) ob_clean();
-
     header('Content-Type: application/json');
-    $max_post = ini_get('post_max_size');
-    $max_upload = ini_get('upload_max_filesize');
+
+    $server_limit = ini_get('post_max_size');
 
     echo json_encode([
         'status' => 'error',
-        'message' => "File too large. Server Limit is $max_post. Please contact admin or use smaller files."
+        'message' => "Upload crashed the server! The total size sent was " . round($_SERVER['CONTENT_LENGTH'] / 1024 / 1024, 2) . "MB. Server Limit is: $server_limit.",
+        'error_type' => 'overflow'
     ]);
     exit;
 }
@@ -184,17 +182,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             return $new_filename;
         }
 
-        // --- SYNC FUNCTION ---
-        function syncAllTables($vehicle_id)
+        // --- NEW HELPER: GET MASTER DATA ---
+        // Retrieves Step 1 data to auto-fill other steps if blank
+        function getMasterData($vehicle_id)
         {
             global $conn;
             $sql = "SELECT vehicle_number, chassis_number, engine_number, name FROM vehicle WHERE id = '$vehicle_id'";
             $res = $conn->query($sql);
-            if ($res && $row = $res->fetch_assoc()) {
-                $v = cleanInput($row['vehicle_number']);
-                $c = cleanInput($row['chassis_number']);
-                $e = cleanInput($row['engine_number']);
-                $n = cleanInput($row['name']);
+            return ($res && $row = $res->fetch_assoc()) ? $row : null;
+        }
+
+        // --- SYNC FUNCTION (Only used for Step 1) ---
+        // Forces all tables to match Step 1 when Step 1 is saved.
+        function syncAllTables($vehicle_id)
+        {
+            global $conn;
+            $master = getMasterData($vehicle_id);
+            if ($master) {
+                $v = cleanInput($master['vehicle_number']);
+                $c = cleanInput($master['chassis_number']);
+                $e = cleanInput($master['engine_number']);
+                $n = cleanInput($master['name']);
 
                 $conn->query("UPDATE vehicle_seller SET seller_vehicle_number='$v', seller_chassis_no='$c', seller_engine_no='$e', seller_bike_name='$n' WHERE vehicle_id='$vehicle_id'");
                 $conn->query("UPDATE vehicle_purchaser SET purchaser_vehicle_no='$v', purchaser_bike_name='$n' WHERE vehicle_id='$vehicle_id'");
@@ -268,6 +276,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($conn->query($sql)) {
                 if ($vehicle_id == 0) $vehicle_id = $conn->insert_id;
+                // Force sync only on Step 1 Save
                 syncAllTables($vehicle_id);
             } else {
                 throw new Exception("SQL Error: " . $conn->error);
@@ -275,7 +284,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         // --- STEP 2: SELLER ---
         elseif ($current_step == 2) {
-            if ($vehicle_id == 0) throw new Exception("Vehicle ID is missing for Step 2");
+            if ($vehicle_id == 0) {
+                // If trying to save Step 2 without an ID, check if Step 1 data is present in POST to create it first
+                if (!empty($_POST['vehicle_number']) && !empty($_POST['name'])) {
+                    // Logic could go here to auto-create step 1, but for now we throw error
+                    throw new Exception("Please save Step 1 details first before adding Seller info.");
+                } else {
+                    throw new Exception("Vehicle ID missing.");
+                }
+            }
+
+            // SMART FILL: Get Master Data
+            $master = getMasterData($vehicle_id);
+
+            // If POST is empty, use Master. If POST has value, use POST (Manual Override).
+            $s_veh_no = !empty($_POST['seller_vehicle_number']) ? cleanInput($_POST['seller_vehicle_number']) : ($master['vehicle_number'] ?? '');
+            $s_chas   = !empty($_POST['seller_chassis_no'])     ? cleanInput($_POST['seller_chassis_no'])     : ($master['chassis_number'] ?? '');
+            $s_eng    = !empty($_POST['seller_engine_no'])      ? cleanInput($_POST['seller_engine_no'])      : ($master['engine_number'] ?? '');
+            $s_b_name = !empty($_POST['seller_bike_name'])      ? cleanInput($_POST['seller_bike_name'])      : ($master['name'] ?? '');
 
             $s_date = cleanInput($_POST['seller_date']);
             $s_name = cleanInput($_POST['seller_name']);
@@ -312,7 +338,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $check = $conn->query("SELECT id FROM vehicle_seller WHERE vehicle_id = '$vehicle_id'");
             if ($check->num_rows > 0) {
-                $sql = "UPDATE vehicle_seller SET seller_date='$s_date', seller_name='$s_name', seller_address='$s_addr',
+                $sql = "UPDATE vehicle_seller SET 
+                    seller_vehicle_number='$s_veh_no', seller_chassis_no='$s_chas', seller_engine_no='$s_eng', seller_bike_name='$s_b_name',
+                    seller_date='$s_date', seller_name='$s_name', seller_address='$s_addr',
                     seller_mobile1='$s_m1', seller_mobile2='$s_m2', seller_mobile3='$s_m3',
                     pr_rc='$pr_rc', pr_tax='$pr_tax', pr_insurance='$pr_ins', pr_pucc='$pr_puc', pr_noc='$pr_noc', noc_status='$noc_st',
                     seller_payment_type='$s_ptype', seller_cash_price='$s_cprice', seller_online_method='$s_omethod', seller_online_transaction_id='$s_otxn', seller_online_price='$s_oprice',
@@ -323,11 +351,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     noc_front=IF('$noc_f'!='','$noc_f',noc_front), noc_back=IF('$noc_b'!='','$noc_b',noc_back)
                     WHERE vehicle_id='$vehicle_id'";
             } else {
-                $sql = "INSERT INTO vehicle_seller (vehicle_id, seller_date, seller_name, seller_address, seller_mobile1, seller_mobile2, seller_mobile3,
+                $sql = "INSERT INTO vehicle_seller (vehicle_id, seller_vehicle_number, seller_chassis_no, seller_engine_no, seller_bike_name,
+                    seller_date, seller_name, seller_address, seller_mobile1, seller_mobile2, seller_mobile3,
                     pr_rc, pr_tax, pr_insurance, pr_pucc, pr_noc, noc_status, seller_payment_type, seller_cash_price, seller_online_method, seller_online_transaction_id, seller_online_price,
                     exchange_showroom_name, staff_name, total_amount, paid_amount, due_amount, due_reason,
                     doc_aadhar_front, doc_aadhar_back, doc_voter_front, doc_voter_back, rc_front, rc_back, noc_front, noc_back)
-                    VALUES ('$vehicle_id', '$s_date', '$s_name', '$s_addr', '$s_m1', '$s_m2', '$s_m3',
+                    VALUES ('$vehicle_id', '$s_veh_no', '$s_chas', '$s_eng', '$s_b_name', 
+                    '$s_date', '$s_name', '$s_addr', '$s_m1', '$s_m2', '$s_m3',
                     '$pr_rc', '$pr_tax', '$pr_ins', '$pr_puc', '$pr_noc', '$noc_st', '$s_ptype', '$s_cprice', '$s_omethod', '$s_otxn', '$s_oprice',
                     '$ex_show', '$st_name', '$tot_amt', '$pd_amt', '$due_amt', '$due_rsn',
                     '$doc_af', '$doc_ab', '$doc_vf', '$doc_vb', '$rc_f', '$rc_b', '$noc_f', '$noc_b')";
@@ -337,6 +367,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // --- STEP 3: PURCHASER ---
         elseif ($current_step == 3) {
             if ($vehicle_id == 0) throw new Exception("Vehicle ID is missing for Step 3");
+
+            // SMART FILL: Get Master Data
+            $master = getMasterData($vehicle_id);
+
+            // Manual Override or Auto Fill
+            $p_veh_no = !empty($_POST['purchaser_vehicle_no']) ? cleanInput($_POST['purchaser_vehicle_no']) : ($master['vehicle_number'] ?? '');
+            $p_b_name = !empty($_POST['purchaser_bike_name'])  ? cleanInput($_POST['purchaser_bike_name'])  : ($master['name'] ?? '');
 
             $p_date = cleanInput($_POST['purchaser_date']);
             $p_name = cleanInput($_POST['purchaser_name']);
@@ -377,7 +414,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $check = $conn->query("SELECT id FROM vehicle_purchaser WHERE vehicle_id = '$vehicle_id'");
             if ($check->num_rows > 0) {
-                $sql = "UPDATE vehicle_purchaser SET purchaser_date='$p_date', purchaser_name='$p_name', purchaser_address='$p_addr',
+                $sql = "UPDATE vehicle_purchaser SET 
+                    purchaser_vehicle_no='$p_veh_no', purchaser_bike_name='$p_b_name',
+                    purchaser_date='$p_date', purchaser_name='$p_name', purchaser_address='$p_addr',
                     purchaser_transfer_amount='$pt_amt', purchaser_transfer_date='$pt_date', purchaser_transfer_status='$pt_stat',
                     purchaser_hpa_amount='$ph_amt', purchaser_hpa_date='$ph_date', purchaser_hpa_status='$ph_stat',
                     purchaser_hp_amount='$php_amt', purchaser_hp_date='$php_date', purchaser_hp_status='$php_stat',
@@ -390,7 +429,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     purchaser_doc_voter_front=IF('$p_vf'!='','$p_vf',purchaser_doc_voter_front), purchaser_doc_voter_back=IF('$p_vb'!='','$p_vb',purchaser_doc_voter_back)
                     WHERE vehicle_id='$vehicle_id'";
             } else {
-                $sql = "INSERT INTO vehicle_purchaser (vehicle_id, purchaser_date, purchaser_name, purchaser_address,
+                $sql = "INSERT INTO vehicle_purchaser (vehicle_id, purchaser_vehicle_no, purchaser_bike_name, purchaser_date, purchaser_name, purchaser_address,
                     purchaser_transfer_amount, purchaser_transfer_date, purchaser_transfer_status,
                     purchaser_hpa_amount, purchaser_hpa_date, purchaser_hpa_status, purchaser_hp_amount, purchaser_hp_date, purchaser_hp_status,
                     purchaser_insurance_name, purchaser_insurance_payment_status, purchaser_insurance_amount, purchaser_insurance_issue_date, purchaser_insurance_expiry_date,
@@ -398,7 +437,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     purchaser_cash_amount, purchaser_cash_mobile1, purchaser_cash_mobile2, purchaser_cash_mobile3,
                     purchaser_fin_hpa_with, purchaser_fin_disburse_amount, purchaser_fin_disburse_status, purchaser_fin_mobile1, purchaser_fin_mobile2, purchaser_fin_mobile3,
                     purchaser_doc_aadhar_front, purchaser_doc_aadhar_back, purchaser_doc_voter_front, purchaser_doc_voter_back)
-                    VALUES ('$vehicle_id', '$p_date', '$p_name', '$p_addr',
+                    VALUES ('$vehicle_id', '$p_veh_no', '$p_b_name', '$p_date', '$p_name', '$p_addr',
                     '$pt_amt', '$pt_date', '$pt_stat', '$ph_amt', '$ph_date', '$ph_stat', '$php_amt', '$php_date', '$php_stat',
                     '$pi_name', '$pi_stat', '$pi_amt', '$pi_iss', '$pi_exp',
                     '$p_tot', '$p_pd', '$p_due', '$p_mode', '$all_pd',
@@ -411,6 +450,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // --- STEP 4: OT ---
         elseif ($current_step == 4) {
             if ($vehicle_id == 0) throw new Exception("Vehicle ID is missing for Step 4");
+
+            // SMART FILL: Get Master Data
+            $master = getMasterData($vehicle_id);
+
+            // Manual Override or Auto Fill
+            $ot_v_no = !empty($_POST['ot_vehicle_number']) ? cleanInput($_POST['ot_vehicle_number']) : ($master['vehicle_number'] ?? '');
 
             $ot_name = cleanInput($_POST['ot_name_transfer']);
             $ot_rto = cleanInput($_POST['ot_rto_name']);
@@ -436,7 +481,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $check = $conn->query("SELECT id FROM vehicle_ot WHERE vehicle_id = '$vehicle_id'");
             if ($check->num_rows > 0) {
-                $sql = "UPDATE vehicle_ot SET ot_name_transfer='$ot_name', ot_rto_name='$ot_rto', ot_vendor_name='$ot_vend',
+                $sql = "UPDATE vehicle_ot SET 
+                    ot_vehicle_number='$ot_v_no',
+                    ot_name_transfer='$ot_name', ot_rto_name='$ot_rto', ot_vendor_name='$ot_vend',
                     ot_transfer_amount='$ot_t_amt', ot_transfer_date='$ot_t_date', ot_transfer_status='$ot_t_stat',
                     ot_hpa_amount='$ot_h_amt', ot_hpa_date='$ot_h_date', ot_hpa_status='$ot_h_stat',
                     ot_hp_amount='$ot_hp_amt', ot_hp_date='$ot_hp_date', ot_hp_status='$ot_hp_stat',
@@ -444,17 +491,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ot_purchaser_sign_status='$ot_p_stat', ot_purchaser_sign_date='$ot_p_date', ot_seller_sign_status='$ot_s_stat', ot_seller_sign_date='$ot_s_date'
                     WHERE vehicle_id='$vehicle_id'";
             } else {
-                $sql = "INSERT INTO vehicle_ot (vehicle_id, ot_name_transfer, ot_rto_name, ot_vendor_name,
+                $sql = "INSERT INTO vehicle_ot (vehicle_id, ot_vehicle_number, ot_name_transfer, ot_rto_name, ot_vendor_name,
                     ot_transfer_amount, ot_transfer_date, ot_transfer_status, ot_hpa_amount, ot_hpa_date, ot_hpa_status,
                     ot_hp_amount, ot_hp_date, ot_hp_status, ot_insurance_name, ot_insurance_payment_status, ot_insurance_amount, ot_insurance_start_date, ot_insurance_end_date,
                     ot_purchaser_sign_status, ot_purchaser_sign_date, ot_seller_sign_status, ot_seller_sign_date)
-                    VALUES ('$vehicle_id', '$ot_name', '$ot_rto', '$ot_vend',
+                    VALUES ('$vehicle_id', '$ot_v_no', '$ot_name', '$ot_rto', '$ot_vend',
                     '$ot_t_amt', '$ot_t_date', '$ot_t_stat', '$ot_h_amt', '$ot_h_date', '$ot_h_stat',
                     '$ot_hp_amt', '$ot_hp_date', '$ot_hp_stat', '$ot_i_name', '$ot_i_stat', '$ot_i_amt', '$ot_i_start', '$ot_i_end',
                     '$ot_p_stat', '$ot_p_date', '$ot_s_stat', '$ot_s_date')";
             }
             if (!$conn->query($sql)) throw new Exception("SQL Error Step 4: " . $conn->error);
-            syncAllTables($vehicle_id);
+            // syncAllTables($vehicle_id); // <--- REMOVED TO PREVENT OVERWRITING MANUAL EDITS
         }
 
         // ==========================================
@@ -495,3 +542,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit; // EXIT HERE
     }
 }
+?>

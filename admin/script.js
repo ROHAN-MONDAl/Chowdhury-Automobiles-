@@ -58,27 +58,82 @@ $(document).ready(function () {
     setOneYearExpiry("#startDate", "#endDate", "#durationText");
 
     // ==========================
-    // 4. SEARCH FUNCTIONALITY
+    // PAYMENT CALCULATION LOGIC
     // ==========================
+    $('#s_total, #s_paid').on('input', function () {
+        // 1. Get values (Default to 0 if empty)
+        let total = parseFloat($('#s_total').val()) || 0;
+        let paid = parseFloat($('#s_paid').val()) || 0;
 
-    $("#leadSearchInput").on("keyup", function () {
-        var value = $(this).val().toLowerCase();
-        var hasVisibleItems = false;
+        // 2. Calculate Due
+        let due = total - paid;
 
-        $("#leadsTable .lead-item").filter(function () {
-            var isMatch = $(this).text().toLowerCase().indexOf(value) > -1;
-            $(this).toggle(isMatch);
-            if (isMatch) hasVisibleItems = true;
-        });
+        // --- FIX FOR -0.00 ---
+        // If due is essentially 0 (or -0), force it to positive 0
+        if (Math.abs(due) < 0.001) {
+            due = 0;
+        }
 
-        // Toggle "No Results" message
-        if (!hasVisibleItems && value.length > 0) {
-            $("#noResultsMsg").show();
+        // 3. Update Due Field
+        $('#s_due').val(due.toFixed(2));
+
+        // 4. Show/Hide Reason Field Logic
+        // If Due is strictly greater than 0.01 (allowing for tiny float variance), show reason
+        if (due > 0.01) {
+            $('#s_due_reason').removeClass('d-none');
         } else {
-            $("#noResultsMsg").hide();
+            // Hide it and clear the text if paid in full (or overpaid)
+            $('#s_due_reason').addClass('d-none').val('');
         }
     });
 
+    // ==========================
+    // PAYMENT CALCULATION LOGIC
+    // ==========================
+    $('#s_total, #s_paid').on('input', function () {
+        // 1. Get values (Default to 0 if empty)
+        let total = parseFloat($('#s_total').val()) || 0;
+        let paid = parseFloat($('#s_paid').val()) || 0;
+
+        // 2. Calculate Due
+        let due = total - paid;
+
+        // 3. VALIDATION: Prevent Negative Due & -0
+        if (due < 0) {
+            due = 0;
+        }
+
+        // 4. Update Due Field
+        $('#s_due').val(due.toFixed(2));
+
+        // 5. Show/Hide Reason Field Logic
+        // Only show if due is strictly positive (e.g. 0.01 or more)
+        if (due > 0) {
+            $('#s_due_reason').removeClass('d-none');
+        } else {
+            $('#s_due_reason').addClass('d-none').val('');
+        }
+    });
+
+    // ==========================
+    // PURCHASER PRICE CALCULATION
+    // ==========================
+    $('#p_total, #p_paid').on('input', function () {
+        // 1. Get values
+        let total = parseFloat($('#p_total').val()) || 0;
+        let paid = parseFloat($('#p_paid').val()) || 0;
+
+        // 2. Calculate Due
+        let due = total - paid;
+
+        // 3. VALIDATION: Prevent Negative Due & -0
+        if (due < 0) {
+            due = 0;
+        }
+
+        // 4. Update Due Field
+        $('#p_due').val(due.toFixed(2));
+    });
     // ==========================
     // 5. DELETE LEAD (AJAX)
     // ==========================
@@ -210,28 +265,48 @@ $(document).ready(function () {
 
 
         // Previous Button Logic
+        // ==========================
+        // FIXED PREVIOUS BUTTON LOGIC
+        // ==========================
+        // Use a flag to prevent double-clicks
+        // Add this variable at the very top of your $(document).ready block
+        let isNavigating = false;
+
         window.prevStep = function (e) {
             if (e) e.preventDefault();
 
-            // Block navigation if data is processing
+            // 1. Prevent double-triggering if the user clicks too fast or if events overlap
+            if (isNavigating) return false;
+
+            // 2. Block if buttons are disabled (during upload)
             const btn = document.getElementById('prevBtn');
             if (btn && btn.disabled) return false;
 
             if (currentStep > 1) {
-                currentStep--;
-                $('input[name="step"]').val(currentStep);
-                updateWizardUI();
+                isNavigating = true; // Set lock
 
-                // SYNC URL: keep the ID if it exists, otherwise leave empty
+                currentStep--; // Move back exactly one step
+
+                // 3. Update Hidden Field
+                $('input[name="step"]').val(currentStep);
+
+                // 4. Update UI
+                if (typeof updateWizardUI === 'function') {
+                    updateWizardUI();
+                }
+
+                // 5. Sync URL
                 const vehicleId = $('input[name="vehicle_id"]').val() || '';
                 const newurl = window.location.pathname + `?step=${currentStep}&id=${vehicleId}`;
                 window.history.pushState({ path: newurl }, '', newurl);
+
+                // 6. Release lock after animation/transition finishes
+                setTimeout(() => {
+                    isNavigating = false;
+                }, 300);
             }
         };
 
-        $('#prevBtn').on('click', function (e) {
-            window.prevStep(e);
-        });
 
         // Image Preview Logic
         $('.photo-upload-box').on('click', function () {
@@ -280,7 +355,6 @@ $(document).ready(function () {
         function validateStep1() {
             function check(selector, errorMsg) {
                 const el = $(selector);
-                // Special handling for Radio Groups
                 if (el.attr('type') === 'radio') {
                     const name = el.attr('name');
                     if ($(`input[name="${name}"]:checked`).length === 0) {
@@ -289,56 +363,108 @@ $(document).ready(function () {
                     }
                     return true;
                 }
-
-                // Standard handling for Input/Select
                 if (!el.val() || el.val().trim() === '') {
-                    showToast(errorMsg, 'danger'); // Show modern toast
-                    el.addClass('is-invalid');    // Add red border
-                    el.focus();
-
-                    // Auto-remove red border when user starts typing/fixing
-                    el.off('input change').on('input change', function () {
-                        $(this).removeClass('is-invalid');
-                    });
+                    showToast(errorMsg, 'danger');
+                    el.addClass('is-invalid').focus();
+                    el.off('input change').on('input change', function () { $(this).removeClass('is-invalid'); });
                     return false;
                 }
                 el.removeClass('is-invalid');
                 return true;
             }
 
-            // A. Core Fields
+            // Core Fields
             if (!check('select[name="vehicle_type"]', "Mandatory: Select Vehicle Type")) return false;
             if (!check('input[name="name"]', "Mandatory: Bike Name")) return false;
             if (!check('input[name="vehicle_number"]', "Mandatory: Vehicle Number")) return false;
             if (!check('input[name="chassis_number"]', "Mandatory: Chassis Number")) return false;
             if (!check('input[name="engine_number"]', "Mandatory: Engine Number")) return false;
 
-            // B. Photo Check (Only for new vehicles)
+            // Photo 1 Mandatory Check
             const vid = $('input[name="vehicle_id"]').val();
             const photoInput = $('input[name="photo1"]');
-            if (!vid && (!photoInput.val() || photoInput[0].files.length === 0)) {
-                showToast("Mandatory: Upload Vehicle Photo", 'danger');
-                photoInput.closest('.photo-upload-box').addClass('border-danger');
+            const photoBox = photoInput.closest('.photo-upload-box');
+
+            if (!vid && (!photoInput[0].files || photoInput[0].files.length === 0)) {
+                showToast("Mandatory: Upload Vehicle Photo (Photo 1)", 'danger');
+                photoBox.addClass('border-danger');
+
+                photoInput.one('change', function () {
+                    if (this.files.length > 0) photoBox.removeClass('border-danger');
+                });
                 return false;
             }
 
-            // C. Payment Logic
+            // Payment Logic
             const payType = $('input[name="payment_type"]:checked').val();
+            if (!payType) { showToast("Select Payment Type", "danger"); return false; }
             if (payType === 'Cash') {
                 if (!check('input[name="cash_price"]', "Mandatory: Enter Cash Price")) return false;
             } else {
-                // Check if radio button for online method is picked
-                if ($('input[name="online_method"]:checked').length === 0) {
-                    showToast("Mandatory: Select Online Payment Method", 'danger');
-                    return false;
-                }
-                if (!check('input[name="online_transaction_id"]', "Mandatory: Enter Transaction ID")) return false;
-                if (!check('input[name="online_price"]', "Mandatory: Enter Online Price")) return false;
+                if ($('input[name="online_method"]:checked').length === 0) { showToast("Select Online Method", 'danger'); return false; }
+                if (!check('input[name="online_transaction_id"]', "Enter Transaction ID")) return false;
+                if (!check('input[name="online_price"]', "Enter Online Price")) return false;
             }
-
-            return true; // Everything is valid
+            return true;
         }
 
+        // Minimum requirements to allow a Draft save
+        function validateDraft() {
+            // 1. Get Values
+            const vehicleNumber = $('input[name="vehicle_number"]').val();
+            const bikeName = $('input[name="name"]').val();
+            const vehicleType = $('select[name="vehicle_type"]').val();
+
+            // Photo 1 Check Logic
+            const vid = $('input[name="vehicle_id"]').val();
+            const photoInput = $('input[name="photo1"]');
+            const photoBox = photoInput.closest('.photo-upload-box');
+
+            // 2. Clear previous errors
+            $('input[name="vehicle_number"], input[name="name"], select[name="vehicle_type"]').removeClass('is-invalid');
+            photoBox.removeClass('border-danger');
+
+            // 3. Validate Vehicle Number
+            if (!vehicleNumber || vehicleNumber.trim() === "") {
+                showToast("Draft Error: Vehicle Number is required.", "warning");
+                $('input[name="vehicle_number"]').addClass('is-invalid').focus();
+                return false;
+            }
+
+            // 4. Validate Bike Name
+            if (!bikeName || bikeName.trim() === "") {
+                showToast("Draft Error: Enter Bike Name.", "warning");
+                $('input[name="name"]').addClass('is-invalid').focus();
+                return false;
+            }
+
+            // 5. Validate Vehicle Type
+            if (!vehicleType) {
+                showToast("Draft Error: Select Vehicle Type.", "warning");
+                $('select[name="vehicle_type"]').addClass('is-invalid').focus();
+                return false;
+            }
+
+            // 6. Validate Photo 1 (Mandatory for Drafts too now)
+            // If it's a NEW vehicle (no vid) AND no file selected
+            if (!vid && (!photoInput[0].files || photoInput[0].files.length === 0)) {
+                showToast("Draft Error: Vehicle Photo 1 is Mandatory.", "warning");
+                photoBox.addClass('border-danger');
+
+                // Scroll to photo if needed or focus nearby
+                $('html, body').animate({
+                    scrollTop: photoBox.offset().top - 100
+                }, 500);
+
+                // Auto-remove border
+                photoInput.one('change', function () {
+                    if (this.files.length > 0) photoBox.removeClass('border-danger');
+                });
+                return false;
+            }
+
+            return true;
+        }
         // Toast Notification Function A-> B
         window.showToast = function (message, type = 'danger') {
             const toastEl = document.getElementById('validationToast');
@@ -356,12 +482,13 @@ $(document).ready(function () {
             toast.show();
         };
 
+
         // -------------------------
-        // B. BUTTON SETUP
+        // B. BUTTON SETUP (Client-Side Nav -> Final Save)
         // -------------------------
-        setupButton('btn-save-draft', 'save_draft', true); // Draft = No Validation
-        setupButton('btn-next', 'save_next', true);  // Next = Validate
-        setupButton('btn-finish', 'finish', true);  // Finish = Validate
+        setupButton('btn-save-draft', 'save_draft', false);
+        setupButton('btn-next', 'save_next', true);
+        setupButton('btn-finish', 'finish', true);
 
         function setupButton(btnId, actionName, validate) {
             const btn = document.getElementById(btnId);
@@ -370,33 +497,81 @@ $(document).ready(function () {
             btn.addEventListener('click', function (e) {
                 e.preventDefault();
 
-                // --- NEW: STEP 1 INSTANT JUMP (No Server Call) ---
-                if (currentStep === 1 && actionName === 'save_next') {
-                    if (validate && !validateStep1()) return;
+                // ============================================================
+                // 1. NEXT BUTTON: (Client-Side Only)
+                //    Validates Step 1, then simply moves to the next view.
+                //    Does NOT save to DB yet.
+                // ============================================================
+                // Locate this section inside your setupButton function
+                if (actionName === 'save_next') {
 
-                    currentStep = 2;
-                    $('input[name="step"]').val(currentStep);
-                    updateWizardUI();
+                    // ============================================================
+                    // NEW LOGIC: Enforce "Save Draft" on Step 1
+                    // ============================================================
+                    if (currentStep === 1) {
 
-                    // URL Sync for Jump
-                    const jumpUrl = window.location.pathname + `?step=2&id=`;
-                    window.history.pushState({ path: jumpUrl }, '', jumpUrl);
+                        // 1. Check if the Vehicle ID exists (Populated by a successful Draft Save)
+                        const existingId = $('input[name="vehicle_id"]').val();
 
-                    showToast("Step 1 Validated. Enter Seller Details.", "info");
+                        // 2. If no ID, stop navigation and alert the user
+                        if (!existingId) {
+                            showToast("⚠️ Action Required: Please click 'Save Draft' to create the record before proceeding.", "warning");
+
+                            // Optional: Add a temporary visual cue to the Save Draft button
+                            $('#btn-save-draft').addClass('btn-warning').removeClass('btn-secondary');
+                            setTimeout(() => {
+                                $('#btn-save-draft').removeClass('btn-warning').addClass('btn-secondary');
+                            }, 2000);
+
+                            return; // STOP EXECUTION HERE
+                        }
+
+                        // 3. Run Standard Validation
+                        if (!validateStep1()) return;
+                    }
+                    // ============================================================
+
+                    // B. Simple Navigation Logic (Existing Code)
+                    if (currentStep < 4) {
+                        currentStep++;
+                        $('input[name="step"]').val(currentStep);
+                        updateWizardUI();
+
+                        const vid = $('input[name="vehicle_id"]').val();
+                        const nextUrl = window.location.pathname + `?step=${currentStep}&id=${vid}`;
+                        window.history.pushState({ path: nextUrl }, '', nextUrl);
+                        return;
+                    }
+                }
+
+                // ============================================================
+                // 2. DRAFT BUTTON: (Optional Save)
+                //    User manually asks to save progress.
+                // ============================================================
+                if (actionName === 'save_draft') {
+                    if (!validateDraft()) return;
+                    actionInput.value = actionName;
+                    uploadData(btn, actionName);
                     return;
                 }
 
-                // --- Normal Save Logic for other steps ---
-                if (validate && !form.checkValidity()) {
-                    form.reportValidity();
-                    return;
-                }
+                // ============================================================
+                // 3. FINISH BUTTON: (The Big Save)
+                //    This sends Step 1 + 2 + 3 + 4 data all at once.
+                // ============================================================
+                if (actionName === 'finish') {
+                    // Check standard HTML5 validity
+                    if (!form.checkValidity()) {
+                        form.reportValidity();
+                        return;
+                    }
 
-                actionInput.value = actionName;
-                uploadData(btn, actionName);
+                    // Trigger the upload of the entire form
+                    actionInput.value = actionName;
+                    uploadData(btn, actionName);
+                }
             });
         }
-
         // Helper to disable/enable all buttons
         function toggleButtons(disabledState) {
             // List all buttons that need to be locked during processing
@@ -426,114 +601,100 @@ $(document).ready(function () {
         // C. UPLOAD FUNCTION (ROBUST)
         // -------------------------
         function uploadData(clickedBtn, actionName) {
+            // ------------------------------------------------
+            // 1. PRE-VALIDATION: FILE SIZE CHECK (Max 5MB)
+            // ------------------------------------------------
+            let fileError = false;
+
+            $('input[type="file"]').each(function () {
+                if (this.files.length > 0) {
+                    const file = this.files[0];
+                    const fileSizeMB = file.size / 1024 / 1024;
+                    const $box = $(this).closest('.photo-upload-box');
+
+                    // Reset previous errors
+                    $box.css('border', '');
+                    $box.find('.file-error-tag').remove();
+
+                    if (fileSizeMB > 5) {
+                        fileError = true;
+                        $box.css('border', '2px solid red');
+                        $box.append('<small class="file-error-tag text-danger fw-bold d-block">File too large (>5MB)</small>');
+
+                        // Auto-clear error when user picks a new file
+                        $(this).one('change', function () {
+                            $box.css('border', '');
+                            $box.find('.file-error-tag').remove();
+                        });
+                    }
+                }
+            });
+
+            if (fileError) {
+                showToast("Upload Failed: One or more files are larger than 5MB.", "danger");
+                return; // STOP EXECUTION HERE
+            }
+
+            // ------------------------------------------------
+            // 2. PROCEED WITH UPLOAD
+            // ------------------------------------------------
             const formData = new FormData(form);
 
-            // Swap files with compressed versions if stored in jQuery data
+            // ... (Rest of your existing uploadData logic: compression, xhr, etc.) ...
             $('.photo-upload-box input[type="file"]').each(function () {
                 const comp = $(this).data('compressed');
                 if (comp) formData.set($(this).attr('name'), comp);
             });
 
             const xhr = new XMLHttpRequest();
-
-            // 1. Increase Timeout to 5 minutes (300,000 ms)
-            xhr.timeout = 300000;
-
-            // 2. RESET UI STATE (Removes the "stuck" error look)
             toggleButtons(true);
             progressContainer.classList.remove('d-none');
-            progressBar.classList.remove('bg-danger', 'bg-success'); // Clear previous colors
-            progressBar.classList.add('bg-primary'); // Set back to blue
+            // ... continue with your existing UI reset code ...
+            progressBar.classList.remove('bg-danger', 'bg-success', 'bg-warning');
+            progressBar.classList.add('bg-primary');
             progressBar.style.width = '0%';
             progressText.innerText = '0%';
             overlayTitle.innerText = "Processing Data";
-            overlayTitle.className = "fw-bold mb-0 text-dark";
             overlaySubtitle.innerText = "Please wait while we upload...";
 
-            // Prevent accidental tab close
-            window.onbeforeunload = () => "Data is processing. Are you sure you want to leave?";
+            // ... (Keep your existing slow network check, xhr.upload, xhr.onload logic) ...
+
+            let slowNetworkCheck = setInterval(() => {
+                if (xhr.readyState > 0 && xhr.readyState < 4) {
+                    if (parseInt(progressText.innerText) < 100) {
+                        overlaySubtitle.innerText = "Slow connection detected... still working.";
+                        progressBar.classList.replace('bg-primary', 'bg-warning');
+                    }
+                }
+            }, 10000);
+
+            window.onbeforeunload = () => "Upload in progress...";
 
             xhr.upload.addEventListener("progress", function (evt) {
                 if (evt.lengthComputable) {
                     const percent = Math.round((evt.loaded / evt.total) * 100);
                     progressBar.style.width = percent + "%";
                     progressText.innerText = percent + "%";
-
-                    // Helpful text for slow networks
                     if (percent === 100) {
                         uploadLabel.innerText = "Processing on Server...";
-                        overlaySubtitle.innerText = "Files sent! Waiting for database to save...";
+                        overlaySubtitle.innerText = "Files sent! Finalizing...";
+                        progressBar.classList.replace('bg-warning', 'bg-primary');
                     }
                 }
             });
 
             xhr.addEventListener("load", function () {
+                clearInterval(slowNetworkCheck);
                 window.onbeforeunload = null;
                 try {
-                    if (!xhr.responseText) throw new Error("Empty response");
                     const res = JSON.parse(xhr.responseText);
-
                     if (xhr.status === 200 && res.status === 'success') {
-
-                        // 1. Capture ID: Priority to server response, fallback to existing input
-                        let currentId = res.id || $('input[name="vehicle_id"]').val() || '';
-
-                        if (res.id) {
-                            $('input[name="vehicle_id"]').val(res.id);
-                        }
-
-                        if (actionName === 'save_next') {
-                            // Increment step
-                            currentStep++;
-                            $('input[name="step"]').val(currentStep);
-
-                            // Update UI
-                            updateWizardUI();
-
-                            // 2. SYNC URL BAR
-                            // This ensures Step 3 shows the ID (e.g., ?step=3&id=242)
-                            const newurl = window.location.pathname + `?step=${currentStep}&id=${currentId}`;
-                            window.history.pushState({ path: newurl }, '', newurl);
-
-                            progressContainer.classList.add('d-none');
-                            toggleButtons(false);
-                            showToast("Step " + (currentStep - 1) + " Saved!", "success");
-
-                        } else if (actionName === 'save_draft') {
-                            // Update URL for Draft so the ID appears in the address bar immediately
-                            const draftUrl = window.location.pathname + `?step=${currentStep}&id=${currentId}`;
-                            window.history.pushState({ path: draftUrl }, '', draftUrl);
-
-                            progressContainer.classList.add('d-none');
-                            toggleButtons(false);
-                            showToast("Draft Saved!", "success");
-                        } else {
-                            window.location.href = 'dashboard.php';
-                        }
-                    } else {
-                        showError(res.message || "Logic error occurred.");
-                    }
-                } catch (e) {
-                    showError("Server Error: Check PHP response.");
-                }
+                        handleSuccess(res, actionName);
+                    } else { showError(res.message || "Logic error.", res); }
+                } catch (e) { showError("Server Error: Check PHP response."); }
             });
 
-            // 3. ACTUAL NETWORK ERROR CHECK
-            xhr.onerror = function () {
-                window.onbeforeunload = null;
-                // Only show "Network Lost" if xhr.status is 0 (browser could not reach server)
-                if (xhr.status === 0) {
-                    showError("Network connection lost. Check your internet.");
-                } else {
-                    showError("An unexpected error occurred (Code: " + xhr.status + ")");
-                }
-            };
-
-            xhr.ontimeout = function () {
-                window.onbeforeunload = null;
-                showError("Upload timed out due to slow connection. Try again.");
-            };
-
+            xhr.onerror = () => { clearInterval(slowNetworkCheck); showError("Network connection lost."); };
             xhr.open("POST", "vehicle_form.php", true);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
             xhr.send(formData);
@@ -576,22 +737,43 @@ $(document).ready(function () {
         // -------------------------
         // D. ERROR HANDLER
         // -------------------------
-        function showError(msg) {
-            // UI Red Bar
-            progressBar.classList.remove('bg-primary');
-            progressBar.classList.add('bg-danger');
+        function showError(msg, xhrResponse = null) {
+            progressBar.classList.replace('bg-primary', 'bg-danger');
             progressBar.style.width = '100%';
 
             overlayTitle.innerText = "Error";
             overlayTitle.className = "fw-bold mb-0 text-danger";
             overlaySubtitle.innerText = msg;
 
-            // UNLOCK BUTTONS after 1.5 seconds so user can fix and retry
+            // --- NEW: Highlight large files if it's an overflow error ---
+            if (xhrResponse && xhrResponse.error_type === 'overflow') {
+                let largeFileFound = false;
+
+                $('input[type="file"]').each(function () {
+                    const file = this.files[0];
+                    if (file && file.size > (5 * 1024 * 1024)) { // 5MB limit
+                        largeFileFound = true;
+                        const $box = $(this).closest('.photo-upload-box');
+
+                        // Add red border and a specific error message
+                        $box.css('border', '2px solid red');
+                        if ($box.find('.file-error-tag').length === 0) {
+                            $box.append('<small class="file-error-tag text-danger fw-bold">Too Large (>5MB)</small>');
+                        }
+                    }
+                });
+
+                if (largeFileFound) {
+                    overlaySubtitle.innerText = "One or more images are over 5MB. Please replace the marked images.";
+                }
+            }
+
             setTimeout(() => {
-                alert(msg);
                 progressContainer.classList.add('d-none');
                 toggleButtons(false);
-            }, 1500);
+                // We use the toast instead of an alert for a better UX
+                showToast(msg, 'danger');
+            }, 2000);
         }
 
     }
