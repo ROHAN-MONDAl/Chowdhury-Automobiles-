@@ -409,6 +409,8 @@ if ($u['role'] !== 'admin') {
 
 
 
+
+
                         <form action="vehicle_form.php" id="dealForm" method="POST" class="d-flex flex-column h-100" enctype="multipart/form-data" novalidate>
 
                             <input type="hidden" name="step" value="<?= isset($_GET['step']) ? $_GET['step'] : 1 ?>">
@@ -444,6 +446,14 @@ if ($u['role'] !== 'admin') {
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="alert alert-warning d-flex align-items-center gap-2 py-1 px-2 mb-2 small" role="alert">
+    <i class="bi bi-info-circle-fill"></i>
+    <span>
+        <strong>Notice:</strong>
+        Please press <b>Save Draft</b>, otherwise your data will <b>NOT</b> be saved.
+    </span>
+</div>
 
 
                             <div class="flex-grow-1 overflow-y-auto p-3 p-md-5" style="background-color:gray;">
