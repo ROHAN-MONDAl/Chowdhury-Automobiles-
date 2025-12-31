@@ -309,7 +309,7 @@ if ($u['role'] !== 'admin') {
     <!-- ADD vechical form -->
     <div class="modal fade" id="dealModal" data-bs-backdrop="static" tabindex="-1">
         <div class="modal-dialog modal-fullscreen">
-            <div class="modal-content border-0 bg-light">
+            <div class="modal-content border-0">
 
                 <?php
                 // PHP: Define Steps Array
@@ -323,14 +323,12 @@ if ($u['role'] !== 'admin') {
 
                 <div class="row g-0 h-100">
 
-                    <div
-                        class="col-lg-2 d-none d-lg-flex flex-column bg-white border-end h-100 shadow-sm z-3 position-relative">
+                    <div class="col-lg-2 d-none d-lg-flex flex-column border-end h-100 shadow-sm z-3 position-relative sidebar-gradient">
 
-                        <div class="p-4 border-bottom bg-white">
+                        <div class="p-4 border-bottom">
                             <div class="d-flex align-items-center gap-3">
-                                <div class="rounded-circle border p-1 shadow-sm" style="width: 48px; height: 48px;">
-                                    <img src="../images/logo.jpeg" alt="Logo"
-                                        class="rounded-circle w-100 h-100 object-fit-cover">
+                                <div class="rounded-circle border p-1 shadow-sm" style="width: 48px; height: 48px; background: rgba(255,255,255,0.5);">
+                                    <img src="../images/logo.jpeg" alt="Logo" class="rounded-circle w-100 h-100 object-fit-cover">
                                 </div>
                                 <div class="d-flex flex-column lh-1">
                                     <span class="fw-bolder text-dark tracking-tight">CHOWDHURY</span>
@@ -339,20 +337,19 @@ if ($u['role'] !== 'admin') {
                             </div>
                         </div>
 
-                        <div class="p-3 overflow-y-auto flex-grow-1 bg-white">
+                        <div class="p-3 overflow-y-auto flex-grow-1">
                             <div class="d-flex flex-column gap-2">
                                 <?php foreach ($wizard_steps as $step_key => $label): ?>
-                                    <div class="step-item d-flex align-items-center gap-3 p-3 rounded-3 border-start border-4 border-transparent hover-bg-light"
+                                    <div class="step-item d-flex align-items-center gap-3 p-3 rounded-3 border-start border-4 border-transparent"
                                         data-step="<?= $step_key ?>" style="cursor: pointer; transition: all 0.2s ease;">
 
-                                        <div class="step-circle text-light border rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                        <div class="step-circle border rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
                                             style="width: 32px; height: 32px;">
                                             <span class="small fw-bold"><?= $step_key ?></span>
                                         </div>
 
                                         <div class="d-flex flex-column">
-                                            <span class="step-label text-dark fw-medium"
-                                                style="font-size: 0.95rem;"><?= $label ?></span>
+                                            <span class="step-label text-dark fw-medium" style="font-size: 0.95rem;"><?= $label ?></span>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -360,59 +357,100 @@ if ($u['role'] !== 'admin') {
                         </div>
                     </div>
 
-                    <div class="col-12 col-lg-10 h-100 d-flex flex-column bg-light position-relative">
-                        <form action="vehicle_form.php" id="dealForm" method="POST" class="d-flex flex-column h-100"
-                            enctype="multipart/form-data" novalidate>
+                    <div class="col-12 col-lg-10 h-100 d-flex flex-column position-relative">
+
+                        <!-- Upload Progress Container -->
+                        <div id="uploadProgressContainer" class="d-none"
+                            style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; z-index: 10000; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 0 50px rgba(0,0,0,0.5);">
+
+                            <div class="text-center mb-3">
+                                <h5 id="overlayTitle" class="fw-bold mb-0">Processing Data</h5>
+                                <small id="overlaySubtitle" class="text-muted">Please wait...</small>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-1">
+                                <span id="uploadLabel" class="fw-bold" style="font-size: 0.9rem;">Uploading</span>
+                                <span id="progressPercent" class="fw-bold" style="font-size: 0.9rem;">0%</span>
+                            </div>
+
+                            <div class="progress" style="height: 12px; border-radius: 6px;">
+                                <div id="progressBar"
+                                    class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                                    role="progressbar"
+                                    style="width: 0%">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Toast Notification -->
+                        <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3"
+                            style="z-index: 11000;">
+
+                            <div id="validationToast"
+                                class="toast align-items-center text-white bg-danger border-0"
+                                role="alert"
+                                aria-live="assertive"
+                                aria-atomic="true">
+
+                                <div class="d-flex">
+                                    <div class="toast-body d-flex align-items-center gap-2">
+                                        <i class="ph-bold ph-warning-circle fs-5"></i>
+                                        <span id="toastMessage">Please fill all mandatory fields.</span>
+                                    </div>
+
+                                    <button type="button"
+                                        class="btn-close btn-close-white me-2 m-auto"
+                                        data-bs-dismiss="toast"
+                                        aria-label="Close">
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <form action="vehicle_form.php" id="dealForm" method="POST" class="d-flex flex-column h-100" enctype="multipart/form-data" novalidate>
 
                             <input type="hidden" name="step" value="<?= isset($_GET['step']) ? $_GET['step'] : 1 ?>">
                             <input type="hidden" name="vehicle_id" value="<?= isset($_GET['id']) ? $_GET['id'] : '' ?>">
                             <input type="hidden" name="action" id="formAction" value="save_next">
 
-                            <div
-                                class="d-flex justify-content-between align-items-center p-3 px-md-4 border-bottom bg-white shadow-sm z-2 position-sticky top-0">
-                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                                    <!-- Page Title -->
-                                    <h5 class="m-0 fw-bold text-dark d-none d-lg-block">
-                                        Chowdhury Automobile
-                                    </h5>
-                                </div>
+                            <div class="position-sticky top-0 border-bottom shadow-sm z-3">
+                                <div class="container-fluid">
+                                    <div class="d-flex align-items-center justify-content-between py-2 px-2 px-md-4 gap-2">
 
-                                <!-- Universal Toast Messages -->
-                                <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-2" style="z-index: 9999;">
-                                    <div id="liveToast" class="toast align-items-center border-0 shadow" role="alert"
-                                        aria-live="assertive" aria-atomic="true"
-                                        style="min-width: 200px; max-width: 300px; border-radius: 0.5rem; 
-                background-color: #2b2b3a; color: #fff; padding: 0.5rem 0.75rem;">
-                                        <div class="d-flex align-items-center">
-                                            <div class="toast-body fw-semibold fs-7" id="toastMessage" style="flex: 1; line-height: 1.2;">
-                                                <!-- Toast message goes here -->
-                                            </div>
-                                            <button type="button" class="btn-close btn-close-white ms-1"
-                                                data-bs-dismiss="toast" aria-label="Close" style="opacity: 0.8; width: 1rem; height: 1rem;"></button>
+                                        <!-- Page Title (Desktop) -->
+                                        <h5 class="m-0 fw-semibold text-dark d-none d-lg-block">
+                                            Chowdhury Automobile
+                                        </h5>
+
+                                        <!-- Step Indicator (Mobile) -->
+                                        <div class="fw-semibold text-primary d-lg-none">
+                                            <span id="mobile-step-indicator">Step 1</span>
                                         </div>
+
+                                        <!-- Close / Back to Dashboard -->
+                                        <a href="dashboard.php" class="text-decoration-none">
+                                            <button type="button"
+                                                class="btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center shadow-sm p-0"
+                                                style="width: 40px; height: 40px;"
+                                                aria-label="Close">
+                                                <i class="ph-bold ph-x fs-5 text-white"></i>
+                                            </button>
+                                        </a>
+
+
+
                                     </div>
                                 </div>
-
-
-
-
-
-
-                                <div class="d-lg-none fw-bold text-primary">
-                                    <span id="mobile-step-indicator">Step 1</span>
-                                </div>
-                               <a href="dashboard.php">
-                                 <button type="button" class="btn-close bg-light p-2 rounded-circle"
-                                    data-bs-dismiss="modal"></button>
-                               </a>
                             </div>
 
-                            <div class="flex-grow-1 overflow-y-auto p-3 p-md-5">
+
+                            <div class="flex-grow-1 overflow-y-auto p-3 p-md-5" style="background-color:gray;">
                                 <div class="container-fluid" style="max-width: 900px;">
                                     <!-- 1st step -->
                                     <div id="step-1" class="wizard-step fade-in-animation">
-                                        <div
-                                            class="card steps-id p-4 border-0 shadow-sm position-relative sold-wrapper rounded-4">
+                                        <div class="card  steps-id p-4 border-0 shadow-sm position-relative sold-wrapper rounded-4">
                                             <div class="sold-stamp">SOLD OUT</div>
                                             <div class="sold-overlay"></div>
                                             <div>
@@ -424,7 +462,7 @@ if ($u['role'] !== 'admin') {
                                                         <div class="photo-upload-box">
                                                             <i class="ph-bold ph-camera fs-3 text-secondary"></i>
                                                             <img src="">
-                                                            <input required type="file" name="photo1" accept="image/*"
+                                                            <input type="file" name="photo1" accept="image/*"
                                                                 hidden>
                                                         </div>
                                                     </div>
@@ -432,7 +470,7 @@ if ($u['role'] !== 'admin') {
                                                         <div class="photo-upload-box">
                                                             <i class="ph-bold ph-camera fs-3 text-secondary"></i>
                                                             <img src="">
-                                                            <input required type="file" name="photo2" accept="image/*"
+                                                            <input type="file" name="photo2" accept="image/*"
                                                                 hidden>
                                                         </div>
                                                     </div>
@@ -440,7 +478,7 @@ if ($u['role'] !== 'admin') {
                                                         <div class="photo-upload-box">
                                                             <i class="ph-bold ph-camera fs-3 text-secondary"></i>
                                                             <img src="">
-                                                            <input required type="file" name="photo3" accept="image/*"
+                                                            <input type="file" name="photo3" accept="image/*"
                                                                 hidden>
                                                         </div>
                                                     </div>
@@ -448,7 +486,7 @@ if ($u['role'] !== 'admin') {
                                                         <div class="photo-upload-box">
                                                             <i class="ph-bold ph-camera fs-3 text-secondary"></i>
                                                             <img src="">
-                                                            <input required type="file" name="photo4" accept="image/*"
+                                                            <input type="file" name="photo4" accept="image/*"
                                                                 hidden>
                                                         </div>
                                                     </div>
@@ -477,18 +515,18 @@ if ($u['role'] !== 'admin') {
                                                     </div>
                                                     <div class="col-12 col-md-6">
                                                         <label class="fw-bold">Bike Name</label>
-                                                        <input required type="text" id="nameField" name="name"
+                                                        <input type="text" id="nameField" name="name"
                                                             class="form-control" placeholder="Enter Name">
                                                     </div>
                                                     <div class="col-12 col-md-6">
                                                         <label>Vehicle Number</label>
-                                                        <input required type="text" name="vehicle_number"
+                                                        <input type="text" name="vehicle_number"
                                                             class="form-control fw-bold text-uppercase"
                                                             placeholder="WB 00 AA 0000" value="WB ">
                                                     </div>
                                                     <div class="col-12 col-md-6">
                                                         <label>Register Date</label>
-                                                        <input required type="date" name="register_date"
+                                                        <input type="date" name="register_date"
                                                             class="form-control" value="2025-11-26">
                                                     </div>
                                                     <div class="col-12 col-md-4">
@@ -503,13 +541,13 @@ if ($u['role'] !== 'admin') {
                                                     </div>
                                                     <div class="col-12 col-md-4">
                                                         <label>Chassis Number</label>
-                                                        <input required type="text" name="chassis_number"
+                                                        <input type="text" name="chassis_number"
                                                             class="form-control text-uppercase">
                                                     </div>
 
                                                     <div class="col-12 col-md-4">
                                                         <label>Engine Number</label>
-                                                        <input required type="text" name="engine_number"
+                                                        <input type="text" name="engine_number"
                                                             class="form-control text-uppercase">
                                                     </div>
                                                 </div>
@@ -518,14 +556,14 @@ if ($u['role'] !== 'admin') {
                                                     <div class="col-12 col-md-6">
                                                         <label class="fw-bold mb-2">Payment Type</label>
                                                         <div class="d-flex gap-2 mb-3">
-                                                            <input required type="radio" class="btn-check"
+                                                            <input type="radio" class="btn-check"
                                                                 name="payment_type" id="sp_cash" value="Cash" checked
                                                                 data-bs-toggle="collapse" data-bs-target="#cashBox"
                                                                 aria-controls="cashBox">
                                                             <label class="btn btn-outline-success"
                                                                 for="sp_cash">Cash</label>
 
-                                                            <input required type="radio" class="btn-check"
+                                                            <input type="radio" class="btn-check"
                                                                 name="payment_type" id="sp_online" value="Online"
                                                                 data-bs-toggle="collapse" data-bs-target="#onlineBox"
                                                                 aria-controls="onlineBox">
@@ -539,7 +577,7 @@ if ($u['role'] !== 'admin') {
                                                                 <div
                                                                     class="p-3 mb-3 bg-white rounded-3 border shadow-sm">
                                                                     <label class="fw-bold small mb-1">Bike Price</label>
-                                                                    <input required type="number" name="cash_price"
+                                                                    <input type="number" name="cash_price"
                                                                         class="form-control form-control-sm mb-3"
                                                                         placeholder="Enter Amount">
                                                                 </div>
@@ -553,7 +591,7 @@ if ($u['role'] !== 'admin') {
                                                                         Method</label>
                                                                     <div class="d-flex flex-wrap gap-3 mb-2">
                                                                         <div class="form-check">
-                                                                            <input required type="radio"
+                                                                            <input type="radio"
                                                                                 class="form-check-input"
                                                                                 name="online_method" id="om_gpay"
                                                                                 value="Google Pay">
@@ -562,7 +600,7 @@ if ($u['role'] !== 'admin') {
                                                                                 for="om_gpay">Google Pay</label>
                                                                         </div>
                                                                         <div class="form-check">
-                                                                            <input required type="radio"
+                                                                            <input type="radio"
                                                                                 class="form-check-input"
                                                                                 name="online_method" id="om_paytm"
                                                                                 value="Paytm">
@@ -571,7 +609,7 @@ if ($u['role'] !== 'admin') {
                                                                                 for="om_paytm">Paytm</label>
                                                                         </div>
                                                                         <div class="form-check">
-                                                                            <input required type="radio"
+                                                                            <input type="radio"
                                                                                 class="form-check-input"
                                                                                 name="online_method" id="om_phonepe"
                                                                                 value="PhonePe">
@@ -580,7 +618,7 @@ if ($u['role'] !== 'admin') {
                                                                                 for="om_phonepe">PhonePe</label>
                                                                         </div>
                                                                         <div class="form-check">
-                                                                            <input required type="radio"
+                                                                            <input type="radio"
                                                                                 class="form-check-input"
                                                                                 name="online_method" id="om_bharatpe"
                                                                                 value="BharatPe">
@@ -590,7 +628,7 @@ if ($u['role'] !== 'admin') {
                                                                         </div>
                                                                     </div>
 
-                                                                    <input required type="text"
+                                                                    <input type="text"
                                                                         name="online_transaction_id"
                                                                         class="form-control form-control-sm mb-3 text-uppercase"
                                                                         placeholder="Transaction / UPI Reference ID">
@@ -599,7 +637,7 @@ if ($u['role'] !== 'admin') {
                                                                     <div class="input-group">
                                                                         <span
                                                                             class="input-group-text bg-white border-end-0">₹</span>
-                                                                        <input required type="number"
+                                                                        <input type="number"
                                                                             name="online_price"
                                                                             class="form-control border-start-0 ps-0"
                                                                             placeholder="Enter Price">
@@ -614,14 +652,14 @@ if ($u['role'] !== 'admin') {
                                                     <label>Police Challan</label>
                                                     <div class="d-flex gap-3 mb-2">
                                                         <div class="form-check">
-                                                            <input required class="form-check-input" type="radio"
+                                                            <input class="form-check-input" type="radio"
                                                                 name="police_challan" value="No" checked
                                                                 data-bs-toggle="collapse"
                                                                 data-bs-target="#challan-section">
                                                             <label class="form-check-label fw-bold">No</label>
                                                         </div>
                                                         <div class="form-check">
-                                                            <input required class="form-check-input" type="radio"
+                                                            <input class="form-check-input" type="radio"
                                                                 name="police_challan" value="Yes"
                                                                 data-bs-toggle="collapse"
                                                                 data-bs-target="#challan-section">
@@ -634,23 +672,23 @@ if ($u['role'] !== 'admin') {
                                                             <label class="fw-bold small">Challan 1</label>
                                                             <div class="row g-2">
                                                                 <div class="col-md-4">
-                                                                    <input required type="text" name="challan1_number"
+                                                                    <input type="text" name="challan1_number"
                                                                         class="form-control text-uppercase"
                                                                         placeholder="Challan Number">
                                                                 </div>
                                                                 <div class="col-md-4">
-                                                                    <input required type="number" name="challan1_amount"
+                                                                    <input type="number" name="challan1_amount"
                                                                         class="form-control" placeholder="Amount">
                                                                 </div>
                                                                 <div class="col-md-4">
                                                                     <div class="btn-group w-100 btn-group-sm">
-                                                                        <input required type="radio" class="btn-check"
+                                                                        <input type="radio" class="btn-check"
                                                                             name="challan1_status" id="pen1"
                                                                             value="Pending" checked>
                                                                         <label class="btn btn-outline-danger"
                                                                             for="pen1">Pending</label>
 
-                                                                        <input required type="radio" class="btn-check"
+                                                                        <input type="radio" class="btn-check"
                                                                             name="challan1_status" id="paid1"
                                                                             value="Paid">
                                                                         <label class="btn btn-outline-success"
@@ -664,23 +702,23 @@ if ($u['role'] !== 'admin') {
                                                             <label class="fw-bold small">Challan 2</label>
                                                             <div class="row g-2">
                                                                 <div class="col-md-4">
-                                                                    <input required type="text" name="challan2_number"
+                                                                    <input type="text" name="challan2_number"
                                                                         class="form-control text-uppercase"
                                                                         placeholder="Challan Number">
                                                                 </div>
                                                                 <div class="col-md-4">
-                                                                    <input required type="number" name="challan2_amount"
+                                                                    <input type="number" name="challan2_amount"
                                                                         class="form-control" placeholder="Amount">
                                                                 </div>
                                                                 <div class="col-md-4">
                                                                     <div class="btn-group w-100 btn-group-sm">
-                                                                        <input required type="radio" class="btn-check"
+                                                                        <input type="radio" class="btn-check"
                                                                             name="challan2_status" id="pen2"
                                                                             value="Pending" checked>
                                                                         <label class="btn btn-outline-danger"
                                                                             for="pen2">Pending</label>
 
-                                                                        <input required type="radio" class="btn-check"
+                                                                        <input type="radio" class="btn-check"
                                                                             name="challan2_status" id="paid2"
                                                                             value="Paid">
                                                                         <label class="btn btn-outline-success"
@@ -694,23 +732,23 @@ if ($u['role'] !== 'admin') {
                                                             <label class="fw-bold small">Challan 3</label>
                                                             <div class="row g-2">
                                                                 <div class="col-md-4">
-                                                                    <input required type="text" name="challan3_number"
+                                                                    <input type="text" name="challan3_number"
                                                                         class="form-control text-uppercase"
                                                                         placeholder="Challan Number">
                                                                 </div>
                                                                 <div class="col-md-4">
-                                                                    <input required type="number" name="challan3_amount"
+                                                                    <input type="number" name="challan3_amount"
                                                                         class="form-control" placeholder="Amount">
                                                                 </div>
                                                                 <div class="col-md-4">
                                                                     <div class="btn-group w-100 btn-group-sm">
-                                                                        <input required type="radio" class="btn-check"
+                                                                        <input type="radio" class="btn-check"
                                                                             name="challan3_status" id="pen3"
                                                                             value="Pending" checked>
                                                                         <label class="btn btn-outline-danger"
                                                                             for="pen3">Pending</label>
 
-                                                                        <input required type="radio" class="btn-check"
+                                                                        <input type="radio" class="btn-check"
                                                                             name="challan3_status" id="paid3"
                                                                             value="Paid">
                                                                         <label class="btn btn-outline-success"
@@ -727,7 +765,7 @@ if ($u['role'] !== 'admin') {
                                                     <label class="form-check-label fw-bold text-danger mb-0"
                                                         for="soldToggle">Mark as Sold Out</label>
                                                     <div class="form-check form-switch">
-                                                        <input required class="form-check-input" type="checkbox"
+                                                        <input class="form-check-input" type="checkbox"
                                                             id="soldToggle" name="sold_out" value="1"
                                                             style="width: 3em; height: 1.5em;">
                                                     </div>
@@ -868,7 +906,7 @@ if ($u['role'] !== 'admin') {
                                                 <div class="collapse mt-3" id="rcUploadBox">
                                                     <label class="fw-bold small">RC Upload</label>
                                                     <div class="row g-2">
-                                                        <div class="col-6">
+                                                        <div class="col-12">
                                                             <div class="border rounded p-2 text-center bg-white">
                                                                 <small class="fw-bold d-block mb-1"
                                                                     style="font-size:10px">RC FRONT</small>
@@ -876,7 +914,7 @@ if ($u['role'] !== 'admin') {
                                                                     class="form-control form-control-sm mt-1">
                                                             </div>
                                                         </div>
-                                                        <div class="col-6">
+                                                        <div class="col-12">
                                                             <div class="border rounded p-2 text-center bg-white">
                                                                 <small class="fw-bold d-block mb-1"
                                                                     style="font-size:10px">RC BACK</small>
@@ -905,14 +943,14 @@ if ($u['role'] !== 'admin') {
                                                     </div>
 
                                                     <div class="row g-2">
-                                                        <div class="col-6">
+                                                        <div class="col-12">
                                                             <div class="border rounded small-box text-center p-2">
                                                                 <span class="small text-muted fw-bold">NOC Front</span>
                                                                 <input type="file" name="noc_front"
                                                                     class="form-control form-control-sm mt-1">
                                                             </div>
                                                         </div>
-                                                        <div class="col-6">
+                                                        <div class="col-12">
                                                             <div class="border rounded small-box text-center p-2">
                                                                 <span class="small text-muted fw-bold">NOC Back</span>
                                                                 <input type="file" name="noc_back"
@@ -1137,7 +1175,7 @@ if ($u['role'] !== 'admin') {
                                                     <div class="col-md-3">
                                                         <label class="fw-bold">Insurance Name</label>
                                                         <select name="purchaser_insurance_name"
-                                                            class="form-control text-uppercase" required>
+                                                            class="form-control text-uppercase">
                                                             <option value="">-- Select Insurance --</option>
                                                             <option value="Tata AIG Insurance">Tata AIG Insurance
                                                             </option>
@@ -1193,7 +1231,7 @@ if ($u['role'] !== 'admin') {
                                                     <div class="col-md-3">
                                                         <label class="fw-bold">Payment Status</label>
                                                         <select name="purchaser_insurance_payment_status"
-                                                            class="form-control" required>
+                                                            class="form-control">
                                                             <option value="">-- Select Status --</option>
                                                             <option value="paid">Paid</option>
                                                             <option value="due">Due</option>
@@ -1203,20 +1241,19 @@ if ($u['role'] !== 'admin') {
                                                     <div class="col-md-3">
                                                         <label class="fw-bold">Amount</label>
                                                         <input type="number" name="purchaser_insurance_amount"
-                                                            class="form-control" placeholder="Enter Amount" required>
+                                                            class="form-control" placeholder="Enter Amount">
                                                     </div>
 
                                                     <div class="col-md-3">
                                                         <label class="fw-bold">Issue Date</label>
                                                         <input type="date" name="purchaser_insurance_issue_date"
-                                                            class="form-control" id="issueDate" value="2025-11-26"
-                                                            required>
+                                                            class="form-control" id="issueDate" value="2025-11-26">
                                                     </div>
 
                                                     <div class="col-md-3">
                                                         <label class="fw-bold">Expiry Date</label>
                                                         <input type="date" name="purchaser_insurance_expiry_date"
-                                                            class="form-control" id="expiryDate" readonly required>
+                                                            class="form-control" id="expiryDate" readonly>
                                                     </div>
 
                                                     <span class="fw-bold text-primary">Validity:<span
@@ -1488,7 +1525,7 @@ if ($u['role'] !== 'admin') {
                                                     <div class="row g-3 mb-3">
                                                         <div class="col-md-3">
                                                             <label class="fw-bold">Insurance Name</label>
-                                                            <select class="form-control text-uppercase" required
+                                                            <select class="form-control text-uppercase"
                                                                 name="ot_insurance_name">
                                                                 <option value="">-- Select Insurance --</option>
                                                                 <option value="Tata AIG Insurance">Tata AIG Insurance
@@ -1545,7 +1582,7 @@ if ($u['role'] !== 'admin') {
 
                                                         <div class="col-md-3">
                                                             <label class="fw-bold">Payment Status</label>
-                                                            <select class="form-control" required
+                                                            <select class="form-control"
                                                                 name="ot_insurance_payment_status">
                                                                 <option value="">-- Select Status --</option>
                                                                 <option value="paid">Paid</option>
@@ -1556,21 +1593,21 @@ if ($u['role'] !== 'admin') {
                                                         <div class="col-md-3">
                                                             <label class="fw-bold">Amount</label>
                                                             <input type="number" class="form-control"
-                                                                placeholder="Enter Amount" required
+                                                                placeholder="Enter Amount"
                                                                 name="ot_insurance_amount">
                                                         </div>
 
                                                         <div class="col-md-3">
                                                             <label class="fw-bold">Start Date</label>
                                                             <input type="date" class="form-control" id="startDate"
-                                                                value="2025-11-26" required
+                                                                value="2025-11-26"
                                                                 name="ot_insurance_start_date">
                                                         </div>
 
                                                         <div class="col-md-3">
                                                             <label class="fw-bold">End Date</label>
                                                             <input type="date" class="form-control" id="endDate"
-                                                                readonly required name="ot_insurance_end_date">
+                                                                readonly name="ot_insurance_end_date">
                                                         </div>
 
                                                         <span class="fw-bold text-primary">Duration:<span
@@ -1628,41 +1665,52 @@ if ($u['role'] !== 'admin') {
                                 </div>
                             </div>
 
-                            <div class="p-2 p-sm-3 bg-secondary border-top d-flex align-items-center justify-content-between shadow-lg position-sticky bottom-0 w-100"
-                                style="z-index: 1030;">
+                            <div class="bg-dark border-top position-sticky bottom-0 w-100 shadow"
+                                style="z-index:1030;">
 
-                                <!-- Back Button -->
-                                <button type="button"
-                                    class="btn btn-outline-light px-3 px-sm-4 py-2 fw-bold d-flex align-items-center"
-                                    id="prevBtn" style="display:none;" onclick="prevStep()">
-                                    <i class="ph-bold ph-arrow-left me-1"></i>
-                                    <span class="d-none d-sm-inline">Back</span>
-                                </button>
+                                <div class="container-fluid py-2">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
 
-                                <div class="d-flex gap-2 gap-sm-3 ms-auto">
+                                        <!-- Back Button -->
+                                        <button type="button"
+                                            id="prevBtn"
+                                            onclick="prevStep(event)"
+                                            class="btn btn-outline-light btn-sm d-flex align-items-center gap-1">
+                                            <i class="ph-bold ph-arrow-left"></i>
+                                            <span class="d-none d-md-inline">Back</span>
+                                        </button>
 
-                                    <button type="button" id="btn-save-draft"
-                                        class="btn btn-warning fw-bold text-dark shadow-sm d-flex align-items-center justify-content-center">
-                                        <i class="ph-bold ph-floppy-disk fs-5 me-1"></i>
-                                        <span>Draft</span>
-                                    </button>
+                                        <!-- Right Actions -->
+                                        <div class="d-flex align-items-center gap-2 ms-auto">
 
-                                    <button type="button" id="btn-next"
-                                        class="btn btn-primary fw-bold shadow d-flex align-items-center justify-content-center">
-                                        <i class="ph-bold ph-caret-right fs-5 me-1"></i>
-                                        <span>Next</span>
-                                    </button>
+                                            <button type="button"
+                                                id="btn-save-draft"
+                                                class="btn btn-outline-warning btn-sm fw-semibold d-flex align-items-center gap-1">
+                                                <i class="ph-bold ph-floppy-disk"></i>
+                                                <span class="d-none d-sm-inline">Save Draft</span>
+                                            </button>
 
-                                    <button type="button" id="btn-finish"
-                                        class="btn btn-success fw-bold text-white shadow-lg d-none d-flex align-items-center justify-content-center">
-                                        <i class="ph-bold ph-check-circle fs-5 me-1"></i>
-                                        <span>Finish</span>
-                                    </button>
+                                            <button type="button"
+                                                id="btn-next"
+                                                class="btn btn-primary btn-sm fw-semibold d-flex align-items-center gap-1">
+                                                <span class="d-none d-sm-inline">Next</span>
+                                                <i class="ph-bold ph-caret-right"></i>
+                                            </button>
+                                            <button type="button"
+                                                id="btn-finish"
+                                                class="btn btn-success btn-sm fw-semibold d-none d-flex align-items-center gap-1">
+                                                <i class="ph-bold ph-check-circle"></i>
+                                                <span>Finish</span>
+                                            </button>
 
+                                        </div>
+                                    </div>
                                 </div>
-
                             </div>
+
                         </form>
+
+
                     </div>
                 </div>
             </div>
@@ -1768,21 +1816,20 @@ if ($u['role'] !== 'admin') {
                         <label class="fw-bold">Name</label>
                         <input type="text" name="name" class="form-control" placeholder="Enter full name"
                             pattern="^[A-Za-z\s]{2,50}$"
-                            title="Name must contain only letters and spaces, 2-50 characters long." required>
+                            title="Name must contain only letters and spaces, 2-50 characters long.">
                     </div>
 
                     <div class="mb-3">
                         <label class="fw-bold">Phone</label>
                         <input type="tel" name="phone" class="form-control" placeholder="Enter phone number"
-                            pattern="^\d{10}$" title="Phone number must be exactly 10 digits." required>
+                            pattern="^\d{10}$" title="Phone number must be exactly 10 digits.">
                     </div>
 
                     <div class="mb-3">
                         <label class="fw-bold">Bike Model</label>
                         <input type="text" name="bike_model" class="form-control" placeholder="e.g. Splendor"
                             pattern="^[A-Za-z0-9\s\-]{2,15}$"
-                            title="Bike model can include letters, numbers, spaces, and hyphens (2-15 characters)."
-                            required>
+                            title="Bike model can include letters, numbers, spaces, and hyphens (2-15 characters).">
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">Save Lead</button>
@@ -1807,7 +1854,7 @@ if ($u['role'] !== 'admin') {
 
                             <div class="mb-3">
                                 <label class="fw-bold small text-muted">Role</label>
-                                <select class="form-select" name="role" required>
+                                <select class="form-select" name="role">
                                     <option value="">Select Role</option>
                                     <option value="admin" <?= ($u['role'] ?? '') == 'admin' ? 'selected' : '' ?>>ADMIN
                                     </option>
@@ -1820,14 +1867,13 @@ if ($u['role'] !== 'admin') {
 
                             <div class="mb-3">
                                 <label class="fw-bold small text-muted">Email Address</label>
-                                <input type="email" name="email" class="form-control" value="<?= $u['email'] ?? '' ?>"
-                                    required>
+                                <input type="email" name="email" class="form-control" value="<?= $u['email'] ?? '' ?>">
                             </div>
 
                             <div class="mb-3">
                                 <label class="fw-bold small text-muted">user_id / Login ID</label>
                                 <input type="text" name="user_id" class="form-control"
-                                    value="<?= $u['user_id'] ?? '' ?>" required>
+                                    value="<?= $u['user_id'] ?? '' ?>">
                                 <small class="text-muted">Used for login / User id.</small>
                             </div>
 
@@ -1874,7 +1920,7 @@ if ($u['role'] !== 'admin') {
 
                             <div class="mb-3">
                                 <label class="fw-bold small text-muted">Assign Role</label>
-                                <select class="form-select" name="role" required>
+                                <select class="form-select" name="role">
                                     <option value="" selected disabled>Select Role</option>
                                     <option value="manager">MANAGER</option>
                                     <option value="staff">STAFF</option>
@@ -1883,21 +1929,19 @@ if ($u['role'] !== 'admin') {
 
                             <div class="mb-3">
                                 <label class="fw-bold small text-muted">Full Name</label>
-                                <input type="text" name="full_name" class="form-control" placeholder="e.g. John Doe"
-                                    required>
+                                <input type="text" name="full_name" class="form-control" placeholder="e.g. John Doe">
                             </div>
 
                             <div class="mb-3">
                                 <label class="fw-bold small text-muted">user_id / Login ID</label>
-                                <input type="text" name="user_id" class="form-control" placeholder="Create a login ID"
-                                    required>
+                                <input type="text" name="user_id" class="form-control" placeholder="Create a login ID">
                             </div>
 
                             <div class="row">
                                 <div class="col-md-12 mb-3">
                                     <label class="fw-bold small text-muted">Password</label>
                                     <input type="password" name="password" class="form-control"
-                                        placeholder="Min 8 chars, 1 Upper, 1 Lower, 1 Symbol" required>
+                                        placeholder="Min 8 chars, 1 Upper, 1 Lower, 1 Symbol">
                                     <small class="text-muted" style="font-size: 0.8em;">Must contain A-Z, a-z, 0-9, and
                                         a symbol.</small>
                                 </div>

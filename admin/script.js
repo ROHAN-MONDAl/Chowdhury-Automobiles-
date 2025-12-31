@@ -1,553 +1,648 @@
 $(document).ready(function () {
 
-    // --- 1. LOADER ---
+    let currentStep = 1;
+    let updateWizardUI = function () { };
+
+
+    // ==========================
+    // 1. UI & NOTIFICATIONS
+    // ==========================
+
+    // Hide Loader
     setTimeout(function () {
         $('#loader').fadeOut(500);
     }, 500);
 
-    // --- 2. LOGIN FLOW ---
+    // Auto-hide alerts after 3 seconds
+    $(".global-success-msg, .global-error-msg, .global-info-msg, .global-warning-msg")
+        .delay(3000)
+        .fadeOut(500);
+
+    // ==========================
+    // 2. AUTHENTICATION
+    // ==========================
+
     $('#loginForm').on('submit', function (e) {
         e.preventDefault();
         window.location.href = 'dashboard.php';
     });
 
-    $('#logoutBtn, #logoutIcon').on('click', function () {
+    $('#logoutBtn, #logoutIcon').on('click', function (e) {
+        e.preventDefault();
         window.location.href = 'index.php';
     });
 
+    // ==========================
+    // 3. DATE CALCULATIONS (1 Year Auto-Fill)
+    // ==========================
 
+    // Helper function to handle +1 year logic
+    function setOneYearExpiry(sourceInput, targetInput, textLabel) {
+        $(sourceInput).on("change", function () {
+            var date = new Date($(this).val());
 
+            if (!isNaN(date.getTime())) {
+                date.setFullYear(date.getFullYear() + 1);
 
-    // --- 3. WIZARD VARIABLES & LOGIC ---
-    let currentStep = 1;
-    const totalSteps = 4;
+                // Format to YYYY-MM-DD
+                var formattedDate = date.toISOString().split('T')[0];
 
-    // --- UI UPDATE FUNCTION ---
-
-    function updateWizard() {
-        // Update Sidebar Circles
-        $('.step-item').each(function () {
-            let stepNum = parseInt($(this).data('step'));
-            let $circle = $(this).find('.step-circle');
-            let $label = $(this).find('.step-label');
-
-            $(this).removeClass('bg-primary-subtle border-primary');
-            $circle.removeClass('bg-primary bg-success text-white shadow').addClass('bg-light text-secondary');
-            $circle.html('<span class="small fw-bold">' + stepNum + '</span>');
-            $label.removeClass('text-primary text-success fw-bolder').addClass('text-secondary');
-
-            if (stepNum === currentStep) {
-                $(this).addClass('bg-primary-subtle border-primary');
-                $circle.removeClass('bg-light text-secondary').addClass('bg-primary text-white shadow');
-                $label.removeClass('text-secondary').addClass('text-primary fw-bolder');
-            } else if (stepNum < currentStep) {
-                $circle.removeClass('bg-light text-secondary').addClass('bg-success text-white');
-                $circle.html('<i class="ph-bold ph-check"></i>');
-                $label.removeClass('text-secondary').addClass('text-success fw-bold');
-            }
-        });
-
-        // Show/Hide Steps
-        $('.wizard-step').addClass('d-none');
-        $('#step-' + currentStep).removeClass('d-none').hide().fadeIn(300);
-
-        // Update Mobile Title
-        $('#mobile-step-indicator').text('Step ' + currentStep);
-
-        // Handle Button Visibility
-        if (currentStep === 1) $('#prevBtn').hide();
-        else $('#prevBtn').show();
-
-        if (currentStep === totalSteps) {
-            $('#btn-next').addClass('d-none');
-            $('#btn-finish').removeClass('d-none');
-        } else {
-            $('#btn-next').removeClass('d-none');
-            $('#btn-finish').addClass('d-none');
-        }
-    }
-
-    /**
-     * Main Save Data Function
-     */
-    function saveData(actionType, btnElement = null) {
-
-        // ============================================================
-        // 1. SETUP & SETTINGS
-        // ============================================================
-        const REDIRECT_DELAY = 1000;
-        const SAFETY_TIMEOUT = 5000;
-        const SERVER_TIMEOUT = 60000; // Increased to 60s for slow networks
-
-        // --- DOM ELEMENTS FOR TOAST ---
-        const toastEl = document.getElementById('liveToast');
-        const bsToast = new bootstrap.Toast(toastEl); // Bootstrap 5 Init
-        const progressBar = document.getElementById('uploadProgressBar');
-        const progressText = document.getElementById('uploadPercentageText');
-        const toastMessage = document.getElementById('toastMessage');
-
-        // --- DETERMINE LOADING TEXT ---
-        let loadingText = "Processing...";
-        if (actionType === 'save_only') loadingText = "Saving...";
-        else if (actionType === 'finish') loadingText = "Finishing...";
-        else if (actionType === 'save_next') loadingText = "Processing...";
-
-        // ============================================================
-        // 2. UI PREPARATION (Button & Toast)
-        // ============================================================
-        let $btn = null;
-        let originalBtnText = '';
-        let isRedirecting = false;
-
-        if (btnElement) {
-            $btn = $(btnElement);
-            originalBtnText = $btn.html();
-            $btn.prop('disabled', true);
-            $btn.html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>&nbsp; ${loadingText}`);
-        }
-
-        // SHOW TOAST INITIAL STATE
-        progressBar.style.width = "0%";
-        progressBar.className = "progress-bar bg-success"; // Reset color
-        progressText.innerText = "0%";
-        toastMessage.innerText = "Uploading Data...";
-        bsToast.show();
-
-        // ============================================================
-        // 3. GATHER DATA
-        // ============================================================
-        // Check if form exists
-        let formElement = $('#dealForm')[0];
-        if (!formElement) {
-            alert("Error: Form not found!");
-            return;
-        }
-
-        let formData = new FormData(formElement);
-        // Assuming 'currentStep' is a global variable in your script
-        if (typeof currentStep !== 'undefined') {
-            formData.append('step', currentStep);
-        }
-        formData.append('action', actionType);
-
-        // ============================================================
-        // 4. SEND TO SERVER (AJAX with Upload Tracking)
-        // ============================================================
-        $.ajax({
-            xhr: function () {
-                var xhr = new window.XMLHttpRequest();
-                // Upload progress listener
-                xhr.upload.addEventListener("progress", function (evt) {
-                    if (evt.lengthComputable) {
-                        var percentComplete = Math.round((evt.loaded / evt.total) * 100);
-
-                        // Update UI
-                        progressBar.style.width = percentComplete + "%";
-                        progressText.innerText = percentComplete + "%";
-
-                        // UX Optimization for Slow Networks
-                        if (percentComplete === 100) {
-                            toastMessage.innerText = "Waiting for Server...";
-                            progressText.className = "badge bg-warning text-dark"; // Change badge color
-                            progressText.innerText = "Processing";
-                            // Add animated stripe to show it's still working
-                            progressBar.className = "progress-bar progress-bar-striped progress-bar-animated bg-warning";
-                        }
-                    }
-                }, false);
-                return xhr;
-            },
-            url: 'vehicle_form.php',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            timeout: SERVER_TIMEOUT,
-
-            // A. SUCCESS
-            success: function (rawResponse) {
-                let response;
-                try {
-                    response = typeof rawResponse === 'object' ? rawResponse : JSON.parse(rawResponse);
-                } catch (e) {
-                    console.error("SERVER CRASH:", rawResponse);
-                    toastMessage.innerText = "Critical Server Error";
-                    progressBar.className = "progress-bar bg-danger";
-                    return;
-                }
-
-                if (response.status === 'success') {
-                    // UI: 100% Success Green
-                    progressBar.className = "progress-bar bg-success";
-                    toastMessage.innerText = "Success!";
-
-                    if (response.id) $('input[name="vehicle_id"]').val(response.id);
-
-                    // --- ACTION: FINISH ---
-                    if (actionType === 'finish') {
-                        toastMessage.innerText = "Redirecting...";
-                        isRedirecting = true;
-
-                        setTimeout(function () {
-                            window.location.href = 'dashboard.php';
-                        }, REDIRECT_DELAY);
-                    }
-                    // --- ACTION: NEXT / SAVE ---
-                    else {
-                        toastMessage.innerText = response.message || "Saved!";
-
-                        // Hide toast after short delay if not redirecting
-                        setTimeout(() => { bsToast.hide(); }, 1500);
-
-                        if (actionType === 'save_next' && typeof totalSteps !== 'undefined' && currentStep < totalSteps) {
-                            currentStep++;
-                            if (typeof updateWizard === 'function') updateWizard();
-                        }
-                    }
-                } else {
-                    // Logic Failure (e.g., Validation Error)
-                    toastMessage.innerText = "Validation Error";
-                    progressBar.className = "progress-bar bg-danger";
-                    // Optionally show specific error message in alert or another toast
-                    alert(response.message || "Unknown error occurred");
-                }
-            },
-
-            // B. ERROR (Network/Server)
-            error: function (xhr, status, error) {
-                let errorMsg = "System Error";
-                if (status === 'timeout') errorMsg = "Slow Network Timeout";
-                else if (status === 'error') errorMsg = "Server Error (500)";
-
-                toastMessage.innerText = errorMsg;
-                progressBar.className = "progress-bar bg-danger";
-            },
-
-            // C. COMPLETE
-            complete: function () {
-                if ($btn && !isRedirecting) {
-                    $btn.prop('disabled', false);
-                    $btn.html(originalBtnText);
-                }
+                $(targetInput).val(formattedDate);
+                $(textLabel).text(" (1 Year)");
             }
         });
     }
 
-    // ============================================================
-    // EVENT HANDLERS
-    // ============================================================
+    // Apply logic to both sets of dates
+    setOneYearExpiry("#issueDate", "#expiryDate", "#expiryText");
+    setOneYearExpiry("#startDate", "#endDate", "#durationText");
 
-    // 1. SAVE DRAFT -> Shows "Saving..."
-    $('#btn-save-draft').off('click').on('click', function (e) {
-        e.preventDefault();
-        saveData('save_only', this);
-    });
+    // ==========================
+    // 4. SEARCH FUNCTIONALITY
+    // ==========================
 
-    // 2. NEXT -> Shows "Processing..."
-    $('#btn-next').off('click').on('click', function (e) {
-        e.preventDefault();
-        saveData('save_next', this);
-    });
-
-    // 3. FINISH -> Shows "On way..."
-    $('#btn-finish').off('click').on('click', function (e) {
-        e.preventDefault();
-        if (confirm("Are you sure you want to finish?")) {
-            saveData('finish', this);
-        }
-    });
-
-    // 4. PREVIOUS -> Shows "Loading..." (Simulated)
-    $('#prevBtn').off('click').on('click', function (e) {
-        e.preventDefault();
-
-        if (currentStep > 1) {
-            // A. Setup Button Visuals
-            let $btn = $(this);
-            let oldText = $btn.html();
-            $btn.prop('disabled', true);
-            $btn.html('<span class="spinner-border spinner-border-sm"></span>&nbsp; Loading...');
-
-            // B. Small Delay to allow user to see "Loading"
-            setTimeout(function () {
-                currentStep--;
-                updateWizard();
-
-                // Reset button (UpdateWizard might hide it, but this is safe)
-                $btn.prop('disabled', false).html(oldText);
-            }, 300); // 300ms delay for visual effect
-        }
-    });
-
-
-
-    // GLOBAL MESSAGE FOR FORM
-    function showGlobalToast(message, type = 'success') {
-        const toastElement = document.getElementById('liveToast');
-        const toastBody = document.getElementById('toastMessage');
-
-        // 1. Set Message
-        toastBody.innerText = message;
-
-        // 2. Set Color based on Type
-        toastElement.classList.remove('text-bg-success', 'text-bg-danger', 'text-bg-warning');
-
-        if (type === 'success') {
-            toastElement.classList.add('text-bg-success'); // Green
-        } else if (type === 'error') {
-            toastElement.classList.add('text-bg-danger'); // Red
-        } else {
-            toastElement.classList.add('text-bg-warning'); // Yellow/Orange
-        }
-
-        // 3. Show Toast using Bootstrap 5 API
-        const toast = new bootstrap.Toast(toastElement, { delay: 4000 }); // Disappears after 4 seconds
-        toast.show();
-    }
-
-
-    // --- 6. GLOBAL MODAL HANDLER ---
-    window.openModal = function (id) {
-        var modalElement = document.getElementById(id);
-        if (!modalElement) return;
-
-        var myModal = bootstrap.Modal.getOrCreateInstance(modalElement);
-
-        if (id === 'dealModal') {
-            // Reset Wizard for New Entry
-            currentStep = 1;
-            updateWizard();
-            $('input[name="vehicle_id"]').val(''); // Clear ID
-            $('#dealForm')[0].reset(); // Clear Form
-        }
-        myModal.show();
-    };
-
-});
-
-// ==========================
-// Form Submission
-$('#saveStepBtn').click(function () {
-    let btn = $(this);
-    let originalContent = btn.html();
-    btn.html('<i class="ph-bold ph-check me-1"></i> Saved');
-    btn.addClass('btn-success text-white').removeClass('btn-light text-primary');
-
-    setTimeout(function () {
-        btn.html(originalContent);
-        btn.removeClass('btn-success text-white').addClass('btn-light text-primary');
-    }, 1500);
-});
-
-$('.step-item').click(function () {
-    let step = $(this).data('step');
-    if (step <= totalSteps) jumpStep(step); // Prevent jumping to non-existent step 5
-});
-
-// --- LOGIC: STEP 1 (Vehicle) ---
-$('#soldToggle').change(function () {
-    if ($(this).is(':checked')) $('#step1-card').addClass('is-sold');
-    else $('#step1-card').removeClass('is-sold');
-});
-
-$('input[name="p_chal"]').change(function () {
-    if ($('#pc_yes').is(':checked')) $('#challan-inputs').removeClass('d-none');
-    else $('#challan-inputs').addClass('d-none');
-});
-
-// --- LOGIC: STEP 2 (Seller) ---
-$('input[name="s_pay"]').change(function () {
-    if ($('#sp_fin').is(':checked')) $('#seller-fin-options').removeClass('d-none');
-    else $('#seller-fin-options').addClass('d-none');
-});
-
-$('input[name="noc_stat"]').change(function () {
-    if ($('#noc_rec').is(':checked')) {
-        $('#noc-photos').removeClass('d-none');
-        $('#noc-alert').addClass('d-none');
-    } else {
-        $('#noc-photos').addClass('d-none');
-        $('#noc-alert').removeClass('d-none');
-    }
-});
-
-$('input[name="s_chal"]').change(function () {
-    if ($('#sc_yes').is(':checked')) {
-        $('#s_chal_inp').removeClass('d-none');
-        $('#s_chal_ok').addClass('d-none');
-    } else {
-        $('#s_chal_inp').addClass('d-none');
-        $('#s_chal_ok').removeClass('d-none');
-    }
-});
-
-$('#s_total, #s_paid').on('input', function () {
-    let total = parseFloat($('#s_total').val()) || 0;
-    let paid = parseFloat($('#s_paid').val()) || 0;
-    let due = total - paid;
-    $('#s_due').val(due);
-    if (due > 0) $('#s_due_reason').removeClass('d-none');
-    else $('#s_due_reason').addClass('d-none');
-});
-
-// --- LOGIC: STEP 3 (Purchaser) ---
-$('#p_total, #p_paid').on('input', function () {
-    let total = parseFloat($('#p_total').val()) || 0;
-    let paid = parseFloat($('#p_paid').val()) || 0;
-    let due = total - paid;
-    $('#p_due').val(due);
-});
-
-$('input[name="p_mode"]').change(function () {
-    if ($('#pm_fin').is(':checked')) $('#hpa_sec').removeClass('d-none');
-    else $('#hpa_sec').addClass('d-none');
-});
-
-// --- IMAGE UPLOAD PREVIEW ---
-$(document).on('click', '.photo-upload-box', function (e) {
-    if (e.target.tagName !== 'INPUT') {
-        $(this).find('input[type="file"]').trigger('click');
-    }
-});
-
-$(document).on('change', '.photo-upload-box input[type="file"]', function () {
-    if (this.files && this.files[0]) {
-        let reader = new FileReader();
-        let $box = $(this).closest('.photo-upload-box');
-
-        reader.onload = function (e) {
-            $box.find('img').attr('src', e.target.result);
-            $box.addClass('has-image');
-        };
-
-        reader.readAsDataURL(this.files[0]);
-    }
-});
-
-// Delete Lead Action
-$('.delete-lead').on('click', function (e) {
-    e.preventDefault();
-
-    var leadId = $(this).data('id');
-
-    if (!confirm("Are you sure you want to delete this lead?")) return;
-
-    $.ajax({
-        url: 'delete_lead.php',
-        type: 'POST',
-        dataType: 'json', // 🚨 force JSON
-        data: { delete_lead_id: leadId },
-        success: function (res) {
-            console.log(res); // 🔍 DEBUG
-
-            if (res.status === 'success') {
-                window.location.href = 'dashboard.php';
-            } else {
-                alert(res.message || 'Delete failed');
-            }
-        },
-        error: function (xhr) {
-            console.error(xhr.responseText); // 🔥 THIS WILL SHOW ERROR
-            alert('Server error. Please try again.');
-        }
-    });
-});
-
-
-
-function confirmDeleteVehicle() {
-    return confirm("⚠️ Are you sure you want to delete this vehicle?\n\nThis action cannot be undone.");
-}
-
-
-
-
-
-// ==========================
-// ISSUE DATE → EXPIRY DATE
-// ==========================
-$("#issueDate").on("change", function () {
-
-    // Get selected issue date
-    let issueDate = new Date($(this).val());
-
-    // Boundary check: ensure selected date is valid
-    if (!isNaN(issueDate)) {
-
-        // Add 1 year to issue date
-        let expiryDate = new Date(issueDate);
-        expiryDate.setFullYear(issueDate.getFullYear() + 1);
-
-        // Format date into yyyy-mm-dd (HTML date input format)
-        let year = expiryDate.getFullYear();
-        let month = String(expiryDate.getMonth() + 1).padStart(2, '0');
-        let day = String(expiryDate.getDate()).padStart(2, '0');
-
-        let formattedDate = `${year}-${month}-${day}`;
-
-        // Set calculated expiry date in input field
-        $("#expiryDate").val(formattedDate);
-
-        // Update validity text
-        $("#expiryText").text(" (1 Year)");
-    }
-});
-
-
-// ==========================
-// START DATE → END DATE
-// ==========================
-$("#startDate").on("change", function () {
-
-    // Get selected start date
-    let start = new Date($(this).val());
-
-    // Boundary check: ensure selected date is valid
-    if (!isNaN(start)) {
-
-        // Add 1 year to start date
-        let end = new Date(start);
-        end.setFullYear(start.getFullYear() + 1);
-
-        // Format date into yyyy-mm-dd
-        let year = end.getFullYear();
-        let month = String(end.getMonth() + 1).padStart(2, '0');
-        let day = String(end.getDate()).padStart(2, '0');
-
-        let formatted = `${year}-${month}-${day}`;
-
-        // Set calculated end date in input
-        $("#endDate").val(formatted);
-
-        // Update duration text
-        $("#durationText").text(" (1 Year)");
-    }
-});
-
-// Fade out the success toast after 3 seconds
-$(".global-success-msg, .global-error-msg, .global-info-msg, .global-warning-msg")
-    .delay(3000) // show for 3 seconds
-    .fadeOut(500);
-// ==========================
-// LEAD SEARCH FUNCTIONALITY
-// ==========================
-$(document).ready(function () {
     $("#leadSearchInput").on("keyup", function () {
         var value = $(this).val().toLowerCase();
         var hasVisibleItems = false;
 
-        // Loop through all rows with class 'lead-item'
         $("#leadsTable .lead-item").filter(function () {
             var isMatch = $(this).text().toLowerCase().indexOf(value) > -1;
             $(this).toggle(isMatch);
             if (isMatch) hasVisibleItems = true;
         });
 
-        // Show "No Results" message if nothing matches
+        // Toggle "No Results" message
         if (!hasVisibleItems && value.length > 0) {
             $("#noResultsMsg").show();
         } else {
             $("#noResultsMsg").hide();
         }
     });
+
+    // ==========================
+    // 5. DELETE LEAD (AJAX)
+    // ==========================
+
+    // Using 'document' selector to handle dynamically loaded elements
+    $(document).on('click', '.delete-lead', function (e) {
+        e.preventDefault();
+        var leadId = $(this).data('id');
+
+        if (!confirm("Are you sure you want to delete this lead?")) return;
+
+        $.ajax({
+            url: 'delete_lead.php',
+            type: 'POST',
+            dataType: 'json',
+            data: { delete_lead_id: leadId },
+            success: function (res) {
+                if (res.status === 'success') {
+                    window.location.href = 'dashboard.php';
+                } else {
+                    alert(res.message || 'Delete failed');
+                }
+            },
+            error: function (xhr) {
+                console.error(xhr.responseText);
+                alert('Server error. Please try again.');
+            }
+        });
+    });
+
+
+    // ==========================
+    // 6. GLOBAL FUNCTIONS
+    // ==========================
+
+    // Global Modal Handler
+    window.openModal = function (id) {
+        var modalElement = document.getElementById(id);
+        if (!modalElement) return;
+
+        var myModal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+        // Special reset logic for Deal Modal
+        if (id === 'dealModal') {
+            $('#dealForm')[0].reset();           // Clear inputs
+            $('input[name="vehicle_id"]').val(''); // Clear hidden ID
+
+            // Reset Wizard steps if variable exists
+            if (typeof currentStep !== 'undefined') {
+                currentStep = 1;
+                if (typeof updateWizardUI === 'function') updateWizardUI();
+
+            }
+        }
+        myModal.show();
+    };
+
+    // Vehicle Delete Confirmation
+    window.confirmDeleteVehicle = function () {
+        return confirm("⚠️ Are you sure you want to delete this vehicle?\n\nThis action cannot be undone.");
+    };
+
+
+    // ==========================
+    // 7. WIZARD & UPLOAD LOGIC
+    // ==========================
+
+    // Configuration
+    const form = document.getElementById('dealForm');
+
+    // Only run if the form exists on this page
+    if (form) {
+        const actionInput = document.getElementById('formAction');
+        const progressContainer = document.getElementById('uploadProgressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressPercent');
+        const overlayTitle = document.getElementById('overlayTitle');
+        const overlaySubtitle = document.getElementById('overlaySubtitle');
+        const uploadLabel = document.getElementById('uploadLabel');
+
+        const allActionButtons = [
+            document.getElementById('btn-save-draft'),
+            document.getElementById('btn-next'),
+            document.getElementById('btn-finish')
+        ];
+
+        // Get current step
+        currentStep = parseInt($('input[name="step"]').val()) || 1;
+
+
+
+
+        // Wizard UI Logic
+        // Wizard UI Logic
+        updateWizardUI = function () {
+            // Handle Sidebar Indicators
+            $('.step-item').removeClass('step-active-blink');
+            $('.step-item .step-circle').removeClass('bg-primary text-white').addClass('text-light');
+
+            const $activeItem = $('.step-item[data-step="' + currentStep + '"]');
+            $activeItem.addClass('step-active-blink');
+            $activeItem.find('.step-circle').removeClass('text-light').addClass('bg-primary text-white');
+
+            // Mobile Text
+            $('#mobile-step-indicator').text('Step ' + currentStep);
+
+            // ⭐ SHOW/HIDE WIZARD STEPS (THIS WAS MISSING!)
+            $('.wizard-step').addClass('d-none');
+            $('#step-' + currentStep).removeClass('d-none');
+
+            // ⭐ SHOW NEXT OR FINISH BUTTON (THIS WAS MISSING!)
+            if (currentStep === 4) {
+                $('#btn-next').addClass('d-none');
+                $('#btn-finish').removeClass('d-none').addClass('d-flex');
+            } else {
+                $('#btn-next').removeClass('d-none').addClass('d-flex');
+                $('#btn-finish').addClass('d-none');
+            }
+
+            // Buttons Visibility
+            if (currentStep === 1) {
+                $('#prevBtn').hide();
+            } else {
+                $('#prevBtn').css('display', 'flex');
+            }
+        }
+        // Initialize Wizard UI
+        updateWizardUI();
+
+
+        // Previous Button Logic
+        window.prevStep = function (e) {
+            if (e) e.preventDefault();
+
+            // Block navigation if data is processing
+            const btn = document.getElementById('prevBtn');
+            if (btn && btn.disabled) return false;
+
+            if (currentStep > 1) {
+                currentStep--;
+                $('input[name="step"]').val(currentStep);
+                updateWizardUI();
+
+                // SYNC URL: keep the ID if it exists, otherwise leave empty
+                const vehicleId = $('input[name="vehicle_id"]').val() || '';
+                const newurl = window.location.pathname + `?step=${currentStep}&id=${vehicleId}`;
+                window.history.pushState({ path: newurl }, '', newurl);
+            }
+        };
+
+        $('#prevBtn').on('click', function (e) {
+            window.prevStep(e);
+        });
+
+        // Image Preview Logic
+        $('.photo-upload-box').on('click', function () {
+            $(this).find('input[type="file"]').trigger('click');
+        });
+
+        $('.photo-upload-box input[type="file"]').on('click', function (e) {
+            e.stopPropagation();
+        });
+
+        $('.photo-upload-box input[type="file"]').on('change', function () {
+            const file = this.files[0];
+            const $box = $(this).closest('.photo-upload-box');
+            const $img = $box.find('img');
+            const $input = $(this);
+
+            if (file && file.type.match(/image.*/)) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const tempImg = new Image();
+                    tempImg.src = e.target.result;
+                    tempImg.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = tempImg.width, height = tempImg.height;
+                        const MAX = 1000; // Resize to max 1000px width/height
+                        if (width > height) { if (width > MAX) { height *= MAX / width; width = MAX; } }
+                        else { if (height > MAX) { width *= MAX / height; height = MAX; } }
+                        canvas.width = width; canvas.height = height;
+                        canvas.getContext('2d').drawImage(tempImg, 0, 0, width, height);
+
+                        canvas.toBlob((blob) => {
+                            const compressedFile = new File([blob], file.name, { type: 'image/jpeg' });
+                            $input.data('compressed', compressedFile); // Store for XHR
+                            $img.attr('src', URL.createObjectURL(blob)).fadeIn(300);
+                            $box.addClass('has-image').css('border-style', 'solid').find('i').hide();
+                        }, 'image/jpeg', 0.7); // 70% Quality
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // -------------------------
+        // A. VALIDATION LOGIC
+        // -------------------------
+        function validateStep1() {
+            function check(selector, errorMsg) {
+                const el = $(selector);
+                // Special handling for Radio Groups
+                if (el.attr('type') === 'radio') {
+                    const name = el.attr('name');
+                    if ($(`input[name="${name}"]:checked`).length === 0) {
+                        showToast(errorMsg, 'danger');
+                        return false;
+                    }
+                    return true;
+                }
+
+                // Standard handling for Input/Select
+                if (!el.val() || el.val().trim() === '') {
+                    showToast(errorMsg, 'danger'); // Show modern toast
+                    el.addClass('is-invalid');    // Add red border
+                    el.focus();
+
+                    // Auto-remove red border when user starts typing/fixing
+                    el.off('input change').on('input change', function () {
+                        $(this).removeClass('is-invalid');
+                    });
+                    return false;
+                }
+                el.removeClass('is-invalid');
+                return true;
+            }
+
+            // A. Core Fields
+            if (!check('select[name="vehicle_type"]', "Mandatory: Select Vehicle Type")) return false;
+            if (!check('input[name="name"]', "Mandatory: Bike Name")) return false;
+            if (!check('input[name="vehicle_number"]', "Mandatory: Vehicle Number")) return false;
+            if (!check('input[name="chassis_number"]', "Mandatory: Chassis Number")) return false;
+            if (!check('input[name="engine_number"]', "Mandatory: Engine Number")) return false;
+
+            // B. Photo Check (Only for new vehicles)
+            const vid = $('input[name="vehicle_id"]').val();
+            const photoInput = $('input[name="photo1"]');
+            if (!vid && (!photoInput.val() || photoInput[0].files.length === 0)) {
+                showToast("Mandatory: Upload Vehicle Photo", 'danger');
+                photoInput.closest('.photo-upload-box').addClass('border-danger');
+                return false;
+            }
+
+            // C. Payment Logic
+            const payType = $('input[name="payment_type"]:checked').val();
+            if (payType === 'Cash') {
+                if (!check('input[name="cash_price"]', "Mandatory: Enter Cash Price")) return false;
+            } else {
+                // Check if radio button for online method is picked
+                if ($('input[name="online_method"]:checked').length === 0) {
+                    showToast("Mandatory: Select Online Payment Method", 'danger');
+                    return false;
+                }
+                if (!check('input[name="online_transaction_id"]', "Mandatory: Enter Transaction ID")) return false;
+                if (!check('input[name="online_price"]', "Mandatory: Enter Online Price")) return false;
+            }
+
+            return true; // Everything is valid
+        }
+
+        // Toast Notification Function A-> B
+        window.showToast = function (message, type = 'danger') {
+            const toastEl = document.getElementById('validationToast');
+            const msgEl = document.getElementById('toastMessage');
+
+            // Set Message
+            msgEl.innerText = message;
+
+            // Set Color (Danger for errors, Success for drafts)
+            toastEl.classList.remove('bg-danger', 'bg-success', 'bg-warning');
+            toastEl.classList.add('bg-' + type);
+
+            // Initialize and Show
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
+        };
+
+        // -------------------------
+        // B. BUTTON SETUP
+        // -------------------------
+        setupButton('btn-save-draft', 'save_draft', true); // Draft = No Validation
+        setupButton('btn-next', 'save_next', true);  // Next = Validate
+        setupButton('btn-finish', 'finish', true);  // Finish = Validate
+
+        function setupButton(btnId, actionName, validate) {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // --- NEW: STEP 1 INSTANT JUMP (No Server Call) ---
+                if (currentStep === 1 && actionName === 'save_next') {
+                    if (validate && !validateStep1()) return;
+
+                    currentStep = 2;
+                    $('input[name="step"]').val(currentStep);
+                    updateWizardUI();
+
+                    // URL Sync for Jump
+                    const jumpUrl = window.location.pathname + `?step=2&id=`;
+                    window.history.pushState({ path: jumpUrl }, '', jumpUrl);
+
+                    showToast("Step 1 Validated. Enter Seller Details.", "info");
+                    return;
+                }
+
+                // --- Normal Save Logic for other steps ---
+                if (validate && !form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                actionInput.value = actionName;
+                uploadData(btn, actionName);
+            });
+        }
+
+        // Helper to disable/enable all buttons
+        function toggleButtons(disabledState) {
+            // List all buttons that need to be locked during processing
+            const allButtons = [
+                document.getElementById('btn-save-draft'),
+                document.getElementById('btn-next'),
+                document.getElementById('btn-finish'),
+                document.getElementById('prevBtn') // Added Back Button here
+            ];
+
+            allButtons.forEach(btn => {
+                if (btn) {
+                    btn.disabled = disabledState;
+                    // Optional: Add visual feedback for being disabled
+                    if (disabledState) {
+                        btn.style.opacity = "0.6";
+                        btn.style.cursor = "not-allowed";
+                    } else {
+                        btn.style.opacity = "1";
+                        btn.style.cursor = "pointer";
+                    }
+                }
+            });
+        }
+
+        // -------------------------
+        // C. UPLOAD FUNCTION (ROBUST)
+        // -------------------------
+        function uploadData(clickedBtn, actionName) {
+            const formData = new FormData(form);
+
+            // Swap files with compressed versions if stored in jQuery data
+            $('.photo-upload-box input[type="file"]').each(function () {
+                const comp = $(this).data('compressed');
+                if (comp) formData.set($(this).attr('name'), comp);
+            });
+
+            const xhr = new XMLHttpRequest();
+
+            // 1. Increase Timeout to 5 minutes (300,000 ms)
+            xhr.timeout = 300000;
+
+            // 2. RESET UI STATE (Removes the "stuck" error look)
+            toggleButtons(true);
+            progressContainer.classList.remove('d-none');
+            progressBar.classList.remove('bg-danger', 'bg-success'); // Clear previous colors
+            progressBar.classList.add('bg-primary'); // Set back to blue
+            progressBar.style.width = '0%';
+            progressText.innerText = '0%';
+            overlayTitle.innerText = "Processing Data";
+            overlayTitle.className = "fw-bold mb-0 text-dark";
+            overlaySubtitle.innerText = "Please wait while we upload...";
+
+            // Prevent accidental tab close
+            window.onbeforeunload = () => "Data is processing. Are you sure you want to leave?";
+
+            xhr.upload.addEventListener("progress", function (evt) {
+                if (evt.lengthComputable) {
+                    const percent = Math.round((evt.loaded / evt.total) * 100);
+                    progressBar.style.width = percent + "%";
+                    progressText.innerText = percent + "%";
+
+                    // Helpful text for slow networks
+                    if (percent === 100) {
+                        uploadLabel.innerText = "Processing on Server...";
+                        overlaySubtitle.innerText = "Files sent! Waiting for database to save...";
+                    }
+                }
+            });
+
+            xhr.addEventListener("load", function () {
+                window.onbeforeunload = null;
+                try {
+                    if (!xhr.responseText) throw new Error("Empty response");
+                    const res = JSON.parse(xhr.responseText);
+
+                    if (xhr.status === 200 && res.status === 'success') {
+
+                        // 1. Capture ID: Priority to server response, fallback to existing input
+                        let currentId = res.id || $('input[name="vehicle_id"]').val() || '';
+
+                        if (res.id) {
+                            $('input[name="vehicle_id"]').val(res.id);
+                        }
+
+                        if (actionName === 'save_next') {
+                            // Increment step
+                            currentStep++;
+                            $('input[name="step"]').val(currentStep);
+
+                            // Update UI
+                            updateWizardUI();
+
+                            // 2. SYNC URL BAR
+                            // This ensures Step 3 shows the ID (e.g., ?step=3&id=242)
+                            const newurl = window.location.pathname + `?step=${currentStep}&id=${currentId}`;
+                            window.history.pushState({ path: newurl }, '', newurl);
+
+                            progressContainer.classList.add('d-none');
+                            toggleButtons(false);
+                            showToast("Step " + (currentStep - 1) + " Saved!", "success");
+
+                        } else if (actionName === 'save_draft') {
+                            // Update URL for Draft so the ID appears in the address bar immediately
+                            const draftUrl = window.location.pathname + `?step=${currentStep}&id=${currentId}`;
+                            window.history.pushState({ path: draftUrl }, '', draftUrl);
+
+                            progressContainer.classList.add('d-none');
+                            toggleButtons(false);
+                            showToast("Draft Saved!", "success");
+                        } else {
+                            window.location.href = 'dashboard.php';
+                        }
+                    } else {
+                        showError(res.message || "Logic error occurred.");
+                    }
+                } catch (e) {
+                    showError("Server Error: Check PHP response.");
+                }
+            });
+
+            // 3. ACTUAL NETWORK ERROR CHECK
+            xhr.onerror = function () {
+                window.onbeforeunload = null;
+                // Only show "Network Lost" if xhr.status is 0 (browser could not reach server)
+                if (xhr.status === 0) {
+                    showError("Network connection lost. Check your internet.");
+                } else {
+                    showError("An unexpected error occurred (Code: " + xhr.status + ")");
+                }
+            };
+
+            xhr.ontimeout = function () {
+                window.onbeforeunload = null;
+                showError("Upload timed out due to slow connection. Try again.");
+            };
+
+            xhr.open("POST", "vehicle_form.php", true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.send(formData);
+        }
+
+        // Separate function for success to keep code clean
+        function handleSuccess(res, actionName) {
+            if (res.id) $('input[name="vehicle_id"]').val(res.id);
+
+            if (actionName === 'save_next') {
+                overlaySubtitle.innerText = "Step Saved Successfully!";
+
+                currentStep++;
+                $('input[name="step"]').val(currentStep);
+                updateWizardUI();
+
+                // NEW: Capture the generated ID and sync the URL bar
+                const currentId = res.id || $('input[name="vehicle_id"]').val() || '';
+                const nextUrl = window.location.pathname + `?step=${currentStep}&id=${currentId}`;
+                window.history.pushState({ path: nextUrl }, '', nextUrl);
+
+                setTimeout(() => {
+                    progressContainer.classList.add('d-none');
+                    toggleButtons(false);
+                }, 1000);
+
+            } else if (actionName === 'save_draft') {
+                const currentId = res.id || $('input[name="vehicle_id"]').val() || '';
+                const draftUrl = window.location.pathname + `?step=${currentStep}&id=${currentId}`;
+                window.history.pushState({ path: draftUrl }, '', draftUrl);
+
+                progressContainer.classList.add('d-none');
+                toggleButtons(false);
+                showToast("Draft Saved Successfully!", "success");
+            } else {
+                window.location.href = 'dashboard.php';
+            }
+        }
+
+        // -------------------------
+        // D. ERROR HANDLER
+        // -------------------------
+        function showError(msg) {
+            // UI Red Bar
+            progressBar.classList.remove('bg-primary');
+            progressBar.classList.add('bg-danger');
+            progressBar.style.width = '100%';
+
+            overlayTitle.innerText = "Error";
+            overlayTitle.className = "fw-bold mb-0 text-danger";
+            overlaySubtitle.innerText = msg;
+
+            // UNLOCK BUTTONS after 1.5 seconds so user can fix and retry
+            setTimeout(() => {
+                alert(msg);
+                progressContainer.classList.add('d-none');
+                toggleButtons(false);
+            }, 1500);
+        }
+
+    }
+
+    // Alternative: Make the card clickable with proper routing
+    function addVehicle() {
+        window.location.href = 'vehicle_form.php?step=1';
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const step = urlParams.get('step');
+
+    if (step) {
+        openDealModal();
+    }
+
+    function openDealModal() {
+        // Get current step and vehicle ID from URL if navigating back
+        // 1. Check URL Parameters immediately on page load
+        const urlParams = new URLSearchParams(window.location.search);
+        const stepParam = urlParams.get('step');
+        const idParam = urlParams.get('id');
+
+        if (stepParam) {
+            // We use a small timeout to ensure Bootstrap and the DOM are fully ready
+            setTimeout(function () {
+                triggerDealModal(stepParam, idParam);
+            }, 100);
+        }
+
+        // 2. Define the trigger function
+        function triggerDealModal(step, vehicleId) {
+            const modalElement = document.getElementById('dealModal');
+            if (!modalElement) return;
+
+            // Update form hidden fields
+            $('input[name="step"]').val(step);
+            $('input[name="vehicle_id"]').val(vehicleId || '');
+
+            // Sync the global currentStep variable used by your wizard logic
+            currentStep = parseInt(step);
+
+            // Update the UI (Show/Hide steps)
+            if (typeof updateWizardUI === 'function') {
+                updateWizardUI();
+            }
+
+            // Open the Bootstrap Modal
+            var myModal = bootstrap.Modal.getOrCreateInstance(modalElement);
+            myModal.show();
+        };
+    }// End if(form)
+
 });
