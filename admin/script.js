@@ -19,6 +19,33 @@ $(document).ready(function () {
         .fadeOut(500);
 
     // ==========================
+    // Leads search toggle
+    // =========================
+    const searchInput = document.getElementById("leadSearchInput");
+    const table = document.getElementById("leadsTable");
+    const rows = table.querySelectorAll("tbody tr.lead-item");
+    const noResultsMsg = document.getElementById("noResultsMsg");
+
+    searchInput.addEventListener("keyup", function () {
+        const searchValue = this.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const rowText = row.textContent.toLowerCase();
+
+            if (rowText.includes(searchValue)) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        // Show/Hide "No results" message
+        noResultsMsg.style.display = visibleCount === 0 ? "block" : "none";
+    });
+
+    // ==========================
     // 2. AUTHENTICATION
     // ==========================
 
