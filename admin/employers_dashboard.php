@@ -56,9 +56,17 @@ if (!isset($_SESSION['user_agent'])) {
 // CHECK C: Database Verification
 $userId = $_SESSION['user_id'];
 
-// Check users table
-$stmt = $conn->prepare("SELECT id, email, role FROM users WHERE user_id = ? LIMIT 1");
-$stmt->bind_param("s", $userId);
+// FIXED: Check BOTH managers AND staff tables using UNION
+// REMOVED 'email' from query because your tables do not have that column.
+$sql = "SELECT id, full_name, role, user_id FROM managers WHERE user_id = ? 
+        UNION 
+        SELECT id, full_name, role, user_id FROM staff WHERE user_id = ? 
+        LIMIT 1";
+
+$stmt = $conn->prepare($sql);
+
+// We bind 'ss' because there are two '?' placeholders (one for managers, one for staff)
+$stmt->bind_param("ss", $userId, $userId);
 $stmt->execute();
 $user_check = $stmt->get_result()->fetch_assoc();
 
@@ -69,21 +77,18 @@ if (!$user_check) {
 // CHECK D: Role Enforcement (UPDATED)
 $current_role = strtolower($user_check['role']);
 
-// *** FIX: Allow BOTH 'manager' AND 'admin' ***
-if ($current_role !== 'manager' && $current_role !== 'admin') {
+// *** CONFIG: Access Control ***
+// Allowed roles: manager, admin, staff
+// If you want to block 'staff' from this specific page, remove it from the list below.
+if ($current_role !== 'manager' && $current_role !== 'admin' && $current_role !== 'staff') {
     force_404_exit();
 }
 
-// Try to get Manager Profile
-$stmt_profile = $conn->prepare("SELECT full_name FROM managers WHERE user_id = ?");
-$stmt_profile->bind_param("s", $userId);
-$stmt_profile->execute();
-$profile_res = $stmt_profile->get_result()->fetch_assoc();
+// GET DISPLAY NAME
+// We use full_name. If empty, we fallback to user_id (since email column doesn't exist).
+$display_name = !empty($user_check['full_name']) ? htmlspecialchars($user_check['full_name']) : htmlspecialchars($user_check['user_id']);
 
-// If profile not found, fallback to email
-$display_name = $profile_res ? htmlspecialchars($profile_res['full_name']) : htmlspecialchars($user_check['email']);
-
-// *** FIX: Map the display name to the variable your HTML expects ***
+// Map to the variable your HTML expects
 $current_user = $display_name;
 
 // HTML Content starts below...

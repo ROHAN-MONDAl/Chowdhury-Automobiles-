@@ -360,31 +360,31 @@ if ($u['role'] !== 'admin') {
                     <div class="col-12 col-lg-10 h-100 d-flex flex-column position-relative">
 
                         <!-- Upload Progress Container -->
-                   <div id="uploadProgressContainer" class="d-none"
-    style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                        <div id="uploadProgressContainer" class="d-none"
+                            style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
 
-    <div style="width: 320px; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 0 50px rgba(0,0,0,0.5);">
+                            <div style="width: 320px; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 0 50px rgba(0,0,0,0.5);">
 
-        <div class="text-center mb-3">
-            <h5 id="overlayTitle" class="fw-bold mb-0">Processing Data</h5>
-            <small id="overlaySubtitle" class="text-muted">Please wait...</small>
-        </div>
+                                <div class="text-center mb-3">
+                                    <h5 id="overlayTitle" class="fw-bold mb-0">Processing Data</h5>
+                                    <small id="overlaySubtitle" class="text-muted">Please wait...</small>
+                                </div>
 
-        <div class="d-flex justify-content-between mb-1">
-            <span id="uploadLabel" class="fw-bold" style="font-size: 0.9rem;">Uploading</span>
-            <span id="progressPercent" class="fw-bold" style="font-size: 0.9rem;">0%</span>
-        </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span id="uploadLabel" class="fw-bold" style="font-size: 0.9rem;">Uploading</span>
+                                    <span id="progressPercent" class="fw-bold" style="font-size: 0.9rem;">0%</span>
+                                </div>
 
-        <div class="progress" style="height: 12px; border-radius: 6px;">
-            <div id="progressBar"
-                class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
-                role="progressbar"
-                style="width: 0%">
-            </div>
-        </div>
+                                <div class="progress" style="height: 12px; border-radius: 6px;">
+                                    <div id="progressBar"
+                                        class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                                        role="progressbar"
+                                        style="width: 0%">
+                                    </div>
+                                </div>
 
-    </div>
-</div>
+                            </div>
+                        </div>
 
                         <!-- Toast Notification -->
                         <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3"
