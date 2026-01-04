@@ -495,10 +495,11 @@ LEFT JOIN vehicle_ot ot ON v.id = ot.vehicle_id" . $whereSQL;
                                                 <i class="ph-bold ph-pencil-simple"></i> Edit
                                             </a>
 
-                                            <a href="delete_vehicle.php?id=<?= $row['vehicle_prim_id']; ?>"
-                                                class="btn action-btn btn-delete" onclick="return confirmDeleteVehicle();">
-                                                <i class="bi bi-trash"></i> Delete
-                                            </a>
+                                           <a href="delete_vehicle.php?id=<?= $row['vehicle_prim_id']; ?>" 
+   class="btn action-btn btn-delete" 
+   onclick="return confirm('⚠️ Are you sure you want to delete this vehicle?\n\nThis action cannot be undone.');">
+   <i class="bi bi-trash"></i> Delete
+</a>
 
                                             <button type="button" class="btn action-btn btn-view" data-bs-toggle="modal"
                                                 data-bs-target="#<?= $modalID; ?>">

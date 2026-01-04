@@ -218,10 +218,7 @@ $(document).ready(function () {
         myModal.show();
     };
 
-    // Vehicle Delete Confirmation
-    window.confirmDeleteVehicle = function () {
-        return confirm("⚠️ Are you sure you want to delete this vehicle?\n\nThis action cannot be undone.");
-    };
+
 
 
     // ==========================
@@ -852,6 +849,13 @@ $(document).ready(function () {
             var myModal = bootstrap.Modal.getOrCreateInstance(modalElement);
             myModal.show();
         };
-    }// End if(form)
+    }
+    
+window.confirmDeleteVehicle = function () {
+    console.log("Delete function triggered!"); // Debugging line
+    const choice = confirm("⚠️ Are you sure you want to delete this vehicle?\n\nThis action cannot be undone.");
+    return choice;
+};
+
 
 });
